@@ -10481,6 +10481,11 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-native-android-sms-listener@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/react-native-android-sms-listener/-/react-native-android-sms-listener-0.8.0.tgz#3e69a642b32f8cbec1f28b2b477677b07e6ce89e"
+  integrity sha512-jRAsSjQFeJKTF5ljo67UMzpUUo4P3Doq2n/uyCrBg7MowXyIMY5ALwIzs72w6oalnXUnq9izvYXeU40vLFLz6Q==
+
 react-native-flipper@^0.34.0:
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.34.0.tgz#7df1f38ba5d97a9321125fe0fccbe47d99e6fa1d"
@@ -10495,6 +10500,11 @@ react-native-gesture-handler@^1.5.0:
     hoist-non-react-statics "^3.3.0"
     invariant "^2.2.4"
     prop-types "^15.7.2"
+
+react-native-get-sms-android@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-get-sms-android/-/react-native-get-sms-android-2.1.0.tgz#0b04bd017f6e7f8a3c1ac9e61960e73d76750be0"
+  integrity sha512-yYPlJ4DkuC9HnUL0ni644pDjRFnSQkdGHowIY5ab56YFDKHIEZ1rKuBCEbCWF0HALyvH6qCyfdHqwpzTtIj97w==
 
 react-native-keychain@6.1.1:
   version "6.1.1"

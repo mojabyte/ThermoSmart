@@ -1,13 +1,29 @@
 import React from "react"
-import { Image, ImageStyle, Platform, TextStyle, View, ViewStyle } from "react-native"
+import {
+  Image,
+  ImageStyle,
+  Platform,
+  TextStyle,
+  View,
+  ViewStyle,
+  ToastAndroid,
+  PermissionsAndroid,
+  DeviceEventEmitter
+} from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import { BulletItem, Button, Header, Text, Screen, Wallpaper } from "../../components"
 import { color, spacing } from "../../theme"
 import { Api } from "../../services/api"
 import { save } from "../../utils/storage"
+import SmsAndroid from 'react-native-get-sms-android'
+import SmsListener from 'react-native-android-sms-listener'
 export const logoIgnite = require("./logo-ignite.png")
 export const heart = require("./heart.png")
+
+DeviceEventEmitter.addListener('sms_onDelivery', msg => {
+  ToastAndroid.show(`Message '${msg}' delivered successfully`, ToastAndroid.SHORT)
+})
 
 const FULL: ViewStyle = { flex: 1 }
 const CONTAINER: ViewStyle = {
@@ -81,6 +97,117 @@ export const DemoScreen = observer(function DemoScreen() {
   const navigation = useNavigation()
   const goBack = () => navigation.goBack()
 
+  const sendSMS = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.SEND_SMS, {
+        title: "YourProject App Sms Permission",
+        message:
+          "YourProject App needs access to your inbox " + "so you can send messages in background.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK",
+      })
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        SmsAndroid.autoSend(
+          '+989179637615',
+          'hi',
+          fail => {
+            ToastAndroid.show('Failed with this error: ' + fail, ToastAndroid.SHORT)
+          },
+          () => {
+            ToastAndroid.show('SMS sent successfully', ToastAndroid.SHORT)
+          },
+        )
+      } else {
+        console.log("SMS permission denied")
+      }
+    } catch (err) {
+      console.warn(err)
+    }
+  }
+
+  React.useEffect(() => {
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_SMS, {
+      title: "YourProject App Sms Permission",
+      message:
+        "YourProject App needs access to your inbox " + "so it can read messages in background.",
+      buttonNeutral: "Ask Me Later",
+      buttonNegative: "Cancel",
+      buttonPositive: "OK",
+    })
+      .then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          /* List SMS messages matching the filter */
+          const filter = {
+            box: 'sent', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
+
+            /**
+             *  the next 3 filters can work together, they are AND-ed
+             *
+             *  minDate, maxDate filters work like this:
+             *    - If and only if you set a maxDate, it's like executing this SQL query:
+             *    "SELECT * from messages WHERE (other filters) AND date <= maxDate"
+             *    - Same for minDate but with "date >= minDate"
+             */
+            // minDate: 1554636310165, // timestamp (in milliseconds since UNIX epoch)
+            // maxDate: 1556277910456, // timestamp (in milliseconds since UNIX epoch)
+            // bodyRegex: '(.*)How are you(.*)', // content regex to match
+
+            /** the next 5 filters should NOT be used together, they are OR-ed so pick one **/
+            // read: 0, // 0 for unread SMS, 1 for SMS already read
+            // _id: 1234, // specify the msg id
+            // thread_id: 12, // specify the conversation thread_id
+            address: '+989179637615', // sender's phone number
+            // body: 'How are you', // content to match
+            /** the next 2 filters can be used for pagination **/
+            // indexFrom: 0, // start from index 0
+            // maxCount: 10, // count of SMS to return each time
+          }
+
+          SmsAndroid.list(
+            JSON.stringify(filter),
+            fail => {
+              console.log('Failed with this error: ' + fail)
+            },
+            (count, smsList) => {
+              console.log('Count: ', count)
+              console.log('List: ')
+              const arr = JSON.parse(smsList)
+              console.log(arr)
+
+              arr.forEach(function(object) {
+                console.log('Object: ' + object)
+                console.log('-->' + object.date)
+                console.log('-->' + object.body)
+              })
+            },
+          )
+        } else {
+          console.log("SMS permission denied")
+        }
+      })
+      .catch(err => console.warn(err))
+
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECEIVE_SMS, {
+      title: "YourProject App Sms Permission",
+      message:
+        "YourProject App needs access to your inbox " + "so it can read messages in background.",
+      buttonNeutral: "Ask Me Later",
+      buttonNegative: "Cancel",
+      buttonPositive: "OK",
+    })
+      .then(granted => {
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          SmsListener.addListener(message => {
+            console.info(message)
+          })
+        } else {
+          console.log("SMS permission denied")
+        }
+      })
+      .catch(err => console.warn(err))
+  }, [])
+
   const demoReactotron = React.useMemo(
     () => async () => {
       console.tron.log("Your Friendly tron log message")
@@ -144,6 +271,9 @@ export const DemoScreen = observer(function DemoScreen() {
             onPress={demoReactotron}
           />
           <Text style={HINT} tx={`demoScreen.${Platform.OS}ReactotronHint`} />
+        </View>
+        <View>
+          <Button style={DEMO} textStyle={DEMO_TEXT} tx="demoScreen.sms" onPress={sendSMS} />
         </View>
         <Image source={logoIgnite} style={IGNITE} />
         <View style={LOVE_WRAPPER}>
