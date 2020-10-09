@@ -18,6 +18,8 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
   const [simNumber, setSimNumber] = useState('')
   const [place, setPlace] = useState('')
 
+  const [simNumberError, setSimNumberError] = useState('')
+
   const navigation = useNavigation()
   return (
     <Screen style={ROOT} preset="scroll">
@@ -32,10 +34,16 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
           <Button
             tx="addDeviceScreen.add"
             onPress={() => {
-              devices.add(DeviceModel.create({ name, simNumber, place }))
-              navigation.goBack()
+              if (!simNumber) {
+                setSimNumberError('addDeviceScreen.simNumberErrors.invalid')
+              } else if (devices.get(simNumber)) {
+                setSimNumberError('addDeviceScreen.simNumberErrors.exists')
+              } else {
+                setSimNumberError('')
+                devices.add(DeviceModel.create({ name, simNumber, place }))
+                navigation.goBack()
+              }
             }}
-            disabled={!simNumber}
           />
         )}
       >
@@ -48,6 +56,7 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
 
         <TextField
           labelTx="addDeviceScreen.simNumber"
+          errorTx={simNumberError}
           placeholderTx="addDeviceScreen.simNumberPlaceholder"
           value={simNumber}
           onChange={e => setSimNumber(e.nativeEvent.text)}

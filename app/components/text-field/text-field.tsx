@@ -8,7 +8,7 @@ import { mergeAll, flatten } from "ramda"
 
 // the base styling for the container
 const CONTAINER: ViewStyle = {
-  paddingVertical: spacing[3],
+  paddingVertical: spacing[2],
 }
 
 // the base styling for the TextInput
@@ -19,11 +19,12 @@ const INPUT: TextStyle = {
   fontSize: 18,
   borderRadius: 4,
   backgroundColor: color.palette.black,
+  borderWidth: 1
 }
 
 // currently we have no presets, but that changes quickly when you build your app.
 const PRESETS: { [name: string]: ViewStyle } = {
-  default: {},
+  default: {}
 }
 
 const enhance = (style, styleOverride) => {
@@ -39,6 +40,8 @@ export function TextField(props: TextFieldProps) {
     placeholder,
     labelTx,
     label,
+    errorTx,
+    error,
     preset = "default",
     style: styleOverride,
     inputStyle: inputStyleOverride,
@@ -48,7 +51,12 @@ export function TextField(props: TextFieldProps) {
   let containerStyle: ViewStyle = { ...CONTAINER, ...PRESETS[preset] }
   containerStyle = enhance(containerStyle, styleOverride)
 
-  let inputStyle: TextStyle = INPUT
+  let inputStyle: TextStyle = {
+    ...INPUT,
+    ...{
+      borderColor: errorTx || error ? color.error : color.palette.black
+    }
+  }
   inputStyle = enhance(inputStyle, inputStyleOverride)
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
 
@@ -63,6 +71,7 @@ export function TextField(props: TextFieldProps) {
         style={inputStyle}
         ref={forwardedRef}
       />
+      <Text preset="fieldError" tx={errorTx} text={error} />
     </View>
   )
 }

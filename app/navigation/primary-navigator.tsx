@@ -7,7 +7,7 @@
 import React from "react"
 
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
-import { MainScreen, AddDeviceScreen, DemoScreen } from "../screens"
+import { MainScreen, AddDeviceScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -24,7 +24,6 @@ import { MainScreen, AddDeviceScreen, DemoScreen } from "../screens"
 export type PrimaryParamList = {
   main: undefined
   add: undefined
-  demo: undefined
 }
 
 // Documentation: https://github.com/software-mansion/react-native-screens/tree/master/native-stack
@@ -40,7 +39,6 @@ export function PrimaryNavigator() {
     >
       <Stack.Screen name="main" component={MainScreen} />
       <Stack.Screen name="add" component={AddDeviceScreen} />
-      <Stack.Screen name="demo" component={DemoScreen} />
     </Stack.Navigator>
   )
 }

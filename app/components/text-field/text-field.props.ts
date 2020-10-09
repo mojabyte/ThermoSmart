@@ -22,6 +22,16 @@ export interface TextFieldProps extends TextInputProps {
   label?: string
 
   /**
+   * The error text i18n key.
+   */
+  errorTx?: string
+
+  /**
+   * The error text if no errorTx is provided.
+   */
+  error?: string
+
+  /**
    * Optional container style overrides useful for margins & padding.
    */
   style?: ViewStyle | ViewStyle[]
