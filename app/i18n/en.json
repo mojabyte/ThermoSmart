@@ -7,10 +7,20 @@
   "errors": {
     "invalidEmail": "Invalid email address."
   },
-  "welcomeScreen": {
-    "poweredBy": "POWERED BY BOWSER",
+  "mainScreen": {
+    "title": "SMART GREENHOUSE",
     "readyForLaunch": "Ready for launch.",
-    "continue": "CONTINUE"
+    "noDevice": "No device available.\n\nPlease add a new device by pressing \"+\" button."
+  },
+  "addDeviceScreen": {
+    "header": "New Device",
+    "name": "Name",
+    "namePlaceholder": "My Device",
+    "simNumber": "SIM Number",
+    "simNumberPlaceholder": "091xxxxxxxx",
+    "place": "Place",
+    "placePlaceholder": "Basement",
+    "add": "Add"
   },
   "demoScreen": {
     "howTo": "HOW TO",

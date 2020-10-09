@@ -7,7 +7,7 @@
 import React from "react"
 
 import { createNativeStackNavigator } from "react-native-screens/native-stack"
-import { WelcomeScreen, DemoScreen } from "../screens"
+import { MainScreen, AddDeviceScreen, DemoScreen } from "../screens"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -22,7 +22,8 @@ import { WelcomeScreen, DemoScreen } from "../screens"
  *   https://reactnavigation.org/docs/typescript#type-checking-the-navigator
  */
 export type PrimaryParamList = {
-  welcome: undefined
+  main: undefined
+  add: undefined
   demo: undefined
 }
 
@@ -37,7 +38,8 @@ export function PrimaryNavigator() {
         gestureEnabled: true,
       }}
     >
-      <Stack.Screen name="welcome" component={WelcomeScreen} />
+      <Stack.Screen name="main" component={MainScreen} />
+      <Stack.Screen name="add" component={AddDeviceScreen} />
       <Stack.Screen name="demo" component={DemoScreen} />
     </Stack.Navigator>
   )
@@ -52,5 +54,5 @@ export function PrimaryNavigator() {
  *
  * `canExit` is used in ./app/app.tsx in the `useBackButtonHandler` hook.
  */
-const exitRoutes = ["welcome"]
+const exitRoutes = ["main"]
 export const canExit = (routeName: string) => exitRoutes.includes(routeName)

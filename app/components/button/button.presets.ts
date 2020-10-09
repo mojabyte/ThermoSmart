@@ -5,7 +5,7 @@ import { color, spacing } from "../../theme"
  * All text will start off looking like this.
  */
 const BASE_VIEW: ViewStyle = {
-  paddingVertical: spacing[2],
+  paddingVertical: spacing[3],
   paddingHorizontal: spacing[2],
   borderRadius: 4,
   justifyContent: "center",
@@ -23,7 +23,7 @@ const BASE_TEXT: TextStyle = {
  */
 export const viewPresets = {
   /**
-   * A smaller piece of secondard information.
+   * A smaller piece of secondary information.
    */
   primary: { ...BASE_VIEW, backgroundColor: color.palette.orange } as ViewStyle,
 
@@ -39,7 +39,13 @@ export const viewPresets = {
 }
 
 export const textPresets = {
-  primary: { ...BASE_TEXT, fontSize: 9, color: color.palette.white } as TextStyle,
+  primary: {
+    ...BASE_TEXT,
+    fontSize: 14,
+    color: color.palette.white,
+    fontWeight: "bold"
+  } as TextStyle,
+
   link: {
     ...BASE_TEXT,
     color: color.text,

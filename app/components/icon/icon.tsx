@@ -1,19 +1,23 @@
 import * as React from "react"
-import { View, Image, ImageStyle } from "react-native"
-import { IconProps } from "./icon.props"
-import { icons } from "./icons"
-
-const ROOT: ImageStyle = {
-  resizeMode: "contain",
-}
+import { View } from "react-native"
+import VectorIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import { IconProps } from './icon.props'
 
 export function Icon(props: IconProps) {
-  const { style: styleOverride, icon, containerStyle } = props
-  const style: ImageStyle = { ...ROOT, ...styleOverride }
+  const { size = 16, color = 'white', name, containerStyle } = props
+
+  const getIconName = (name: string) => {
+    switch (name) {
+      case 'back':
+        return 'arrow-left'
+      default:
+        return name
+    }
+  }
 
   return (
     <View style={containerStyle}>
-      <Image style={style} source={icons[icon]} />
+      <VectorIcon name={getIconName(name)} size={size} color={color} />
     </View>
   )
 }

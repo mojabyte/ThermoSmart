@@ -22,6 +22,16 @@ export async function createEnvironment() {
 }
 
 /**
+ * Initial State of RootStore
+ */
+const initialState = {
+  devices: { items: [] },
+  state: {
+    selectedDeviceID: ''
+  }
+}
+
+/**
  * Setup the root state.
  */
 export async function setupRootStore() {
@@ -32,12 +42,12 @@ export async function setupRootStore() {
   const env = await createEnvironment()
   try {
     // load data from storage
-    data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {}
+    data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || initialState
     rootStore = RootStoreModel.create(data, env)
   } catch (e) {
     // if there's any problems loading, then let's at least fallback to an empty state
     // instead of crashing.
-    rootStore = RootStoreModel.create({}, env)
+    rootStore = RootStoreModel.create(initialState, env)
 
     // but please inform us what happened
     __DEV__ && console.tron.error(e.message, null)
