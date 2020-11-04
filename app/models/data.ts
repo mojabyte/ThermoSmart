@@ -1,10 +1,13 @@
-import { types, getParent, destroy, SnapshotIn, Instance } from 'mobx-state-tree'
+import { getEnv, types, getParent, destroy, SnapshotIn, Instance } from 'mobx-state-tree'
+import { Environment } from './environment'
 
 export const DeviceModel = types
   .model({
     name: types.string,
     simNumber: types.string,
-    place: ''
+    place: '',
+    password: '123456',
+    phoneNumbers: types.array(types.string)
   })
   .actions(self => ({
     setName(newName: string) {
@@ -13,8 +16,23 @@ export const DeviceModel = types
     setPlace(newPlace: string) {
       self.place = newPlace
     },
+    setPhoneNumbers(newPhoneNumbers: string[]) {
+      self.phoneNumbers.replace(newPhoneNumbers)
+    },
     remove() {
       getParent<typeof DeviceListModel>(self, 2).remove(self)
+    },
+
+    getPhoneNumbers() {
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_PHONE_NUMBERS',
+        message: `*${self.password}#100#`,
+        callback: response => {
+          this.setPhoneNumbers(response.split('\n'))
+        }
+      })
     }
   }))
 

@@ -1,9 +1,20 @@
 import { GeneralApiProblem } from "./sms-problem"
 
-export interface User {
-  id: number
-  name: string
+/**
+ * The
+ */
+export interface SmsPendingList {
+  [phoneNumber: string]: {
+    [type: string]: {
+      callback: (response?: string) => void
+      timeout: NodeJS.Timeout
+    }
+  }
 }
 
-export type GetUsersResult = { kind: "ok"; users: User[] } | GeneralApiProblem
-export type GetUserResult = { kind: "ok"; user: User } | GeneralApiProblem
+export interface SendParams {
+  phoneNumber: string
+  type: string
+  message: string
+  callback: (response?: string) => void
+}

@@ -1,5 +1,5 @@
 import { Api } from "../services/api"
-import { SMS } from "../services/sms"
+import { Sms } from "../services/sms"
 
 let ReactotronDev
 if (__DEV__) {
@@ -19,7 +19,7 @@ export class Environment {
       this.reactotron = new ReactotronDev()
     }
     this.api = new Api()
-    this.sms = new SMS()
+    this.sms = new Sms()
   }
 
   async setup() {
@@ -43,5 +43,5 @@ export class Environment {
   /**
    * Our SMS service.
    */
-  sms: SMS
+  sms: Sms
 }

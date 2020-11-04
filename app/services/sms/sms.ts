@@ -1,66 +1,77 @@
 import SmsAndroid from 'react-native-get-sms-android'
 import SmsListener from 'react-native-android-sms-listener'
 import { getGeneralApiProblem } from "./sms-problem"
-import { SMSConfig, DEFAULT_API_CONFIG } from "./sms-config"
+import { SmsConfig, DEFAULT_API_CONFIG } from "./sms-config"
 import * as Types from "./sms.types"
+import { toHumanSize } from 'i18n-js'
 
 /**
  * Manages all requests to the API.
  */
-export class SMS {
+export class Sms {
   /**
    * Configurable options.
    */
-  config: SMSConfig
+  config: SmsConfig
 
   /**
-   * SIM-card number of the device
+   * List of sent
    */
-  simNumber: string
+  pendingList: Types.SmsPendingList
 
   /**
    * Creates the api.
    *
    * @param config The configuration to use.
    */
-  constructor(config: SMSConfig = DEFAULT_API_CONFIG) {
+  constructor(config: SmsConfig = DEFAULT_API_CONFIG) {
     this.config = config
+    this.pendingList = {}
 
-    SmsListener.addListener((message: any) => {
-      console.info(message)
+    SmsListener.addListener(({ body, originatingAddress }: any) => {
+      console.info(body, originatingAddress)
+      const getSmsType = () => 'default' // TODO
+      const type = getSmsType(body)
+      if (this.pendingList[originatingAddress]?.[type]) {
+        clearTimeout(this.pendingList[originatingAddress][type].timeout)
+        const callback = this.pendingList[originatingAddress][type].callback
+        if (callback) callback(body)
+        delete this.pendingList[originatingAddress][type]
+      }
     }) // => {body: "123", timestamp: 1602276693000, originatingAddress: "09179637615"}
   }
 
   /**
-   * Sets up the SMS.  This will be called during the bootup
-   * sequence and will happen before the first React component
-   * is mounted.
-   *
-   * Be as quick as possible in here.
+   * Send a SMS message to the given phone number
    */
-  setup(simNumber: string) {
-    this.simNumber = simNumber
-  }
-
-  sendPromise = (phoneNumber: string, message: string) => new Promise((resolve, reject) => {
+  send({ phoneNumber, type, message, callback }: Types.SendParams) {
+    console.log(phoneNumber, type, message)
     SmsAndroid.autoSend(
       phoneNumber,
       message,
-      (error: string) => reject(error),
-      () => resolve()
+      (error: string) => {
+        console.log(error)
+      },
+      () => {
+        console.log(`message: ${message} sent successfully`)
+        const timeout = setTimeout(() => {
+          delete this.pendingList[phoneNumber][type]
+          console.log('timeout')
+        }, 60000)
+        type = 'default' // TODO
+        this.pendingList = {
+          ...this.pendingList,
+          [phoneNumber]: {
+            ...(this.pendingList[phoneNumber] || {}),
+            [type]: {
+              ...(this.pendingList[phoneNumber]?.[type] || {}),
+              callback,
+              timeout
+            }
+          }
+        }
+        console.log(this.pendingList)
+      }
     )
-  })
-
-  /**
-   * Send a SMS message to the given phone number
-   */
-  async send(message: string): Promise<any> {
-    try {
-      console.log(this.simNumber, message)
-      await this.sendPromise(this.simNumber, message)
-      console.log(`message: ${message} sent successfully`)
-    } catch (error) {
-      console.log(error)
-    }
   }
 }

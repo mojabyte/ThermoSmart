@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect } from "react"
 import { PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
@@ -75,7 +75,6 @@ export const MainScreen = observer(function MainScreen() {
   const navigation = useNavigation()
 
   const { devices, state: { selectedDeviceID, setSelectedDeviceID } } = useStores()
-  const { sms } = withEnvironment(useStores()).views.environment
 
   React.useEffect(() => {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_SMS, {
@@ -162,12 +161,12 @@ export const MainScreen = observer(function MainScreen() {
   useEffect(() => {
     if (devices.items.length > 0 && !devices.get(selectedDeviceID)) {
       setSelectedDeviceID(devices.items[0].simNumber)
+    } else {
+      setSelectedDeviceID(selectedDeviceID)
     }
   }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID])
 
   const selectedDevice = devices.get(selectedDeviceID)
-
-  useEffect(() => sms.setup(selectedDeviceID), [sms, selectedDeviceID])
 
   const renderScreenContent = function () {
     return (
@@ -178,9 +177,12 @@ export const MainScreen = observer(function MainScreen() {
         <Button
           text="send"
           onPress={() => {
-            sms.send('hi')
+            selectedDevice.getPhoneNumbers()
           }}
         />
+        {selectedDevice.phoneNumbers.map(phoneNumber => (
+          <Text key={phoneNumber} text={phoneNumber} />
+        ))}
       </>
     )
   }
