@@ -36,6 +36,11 @@ export const viewPresets = {
     paddingVertical: 0,
     alignItems: "flex-start",
   } as ViewStyle,
+
+  /**
+   * A button as a card view
+   */
+  card: { ...BASE_VIEW, backgroundColor: color.palette.grey } as ViewStyle,
 }
 
 export const textPresets = {

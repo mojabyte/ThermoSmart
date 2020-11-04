@@ -2,9 +2,10 @@ import React, { useEffect } from "react"
 import { PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
+import moment from "moment-jalaali"
 import { Button, Header, Picker, Screen, Text } from "../../components"
 import { color, spacing, typography } from "../../theme"
-import { useStores, withEnvironment } from '../../models'
+import { useStores } from '../../models'
 
 const FULL: ViewStyle = {
   flex: 1,
@@ -189,15 +190,28 @@ export const MainScreen = observer(function MainScreen() {
         }
 
         <Button
-          text="update"
+          preset="card"
           onPress={() => {
             selectedDevice.updatePhoneNumber({ phoneNumber: '123', index: 0 })
           }}
-        />
-        {selectedDevice.status.updatePhoneNumberLoading[0]
-          ? <Text text="Loading..." />
-          : null
-        }
+        >
+          {selectedDevice.status.updatePhoneNumberLoading[0]
+            ? <Text text="Loading..." />
+            : null
+          }
+        </Button>
+
+        <Button
+          preset="card"
+          onPress={() => {
+            selectedDevice.getTemperature()
+          }}
+        >
+          <Text text={`${selectedDevice.temperaturesView[0]?.value || 'no data'}`} />
+        </Button>
+        {selectedDevice.temperaturesView.map(({ value, ts }) => (
+          <Text key={`${ts}`} text={`${moment(ts).format('YYYY-MM-DD HH:mm')}  :   ${value}`} />
+        ))}
       </>
     )
   }

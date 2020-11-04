@@ -1,4 +1,6 @@
 import { getEnv, types, getParent, destroy, SnapshotIn, Instance } from 'mobx-state-tree'
+import moment from "moment-jalaali"
+import { sortBy } from 'ramda'
 import { Environment } from './environment'
 
 export const DeviceModel = types
@@ -9,12 +11,16 @@ export const DeviceModel = types
     password: '123456',
     phoneNumbers: types.optional(types.array(types.string), []),
 
+    temperatures: types.map(types.number),
+
     status: types.optional(types.model({
       getPhoneNumbersLoading: types.boolean,
-      updatePhoneNumberLoading: types.array(types.boolean)
+      updatePhoneNumberLoading: types.array(types.boolean),
+      getTemperatureLoading: types.boolean
     }), {
       getPhoneNumbersLoading: false,
-      updatePhoneNumberLoading: []
+      updatePhoneNumberLoading: [],
+      getTemperatureLoading: false
     })
   })
   .actions(self => ({
@@ -29,6 +35,9 @@ export const DeviceModel = types
     },
     setPhoneNumberAtIndex(index: number, newPhoneNumber: string) {
       self.phoneNumbers[index] = newPhoneNumber
+    },
+    setTemperature({ value, ts }: { value: number; ts: string }) {
+      self.temperatures.set(ts, value)
     },
     setStatus(newStatus: any) {
       self.status = { ...self.status, ...newStatus }
@@ -50,7 +59,7 @@ export const DeviceModel = types
       const env: Environment = getEnv(self)
       env.sms.send({
         phoneNumber: self.simNumber,
-        type: 'ADD_PHONE_NUMBERS',
+        type: 'UPDATE_PHONE_NUMBER',
         message: `*${self.password}#${index + 1}#${phoneNumber}*`,
         callback: () => {
           this.setPhoneNumberAtIndex(index, phoneNumber)
@@ -72,6 +81,37 @@ export const DeviceModel = types
         },
         hasResponse: true
       })
+    },
+
+    // hour: an integer in [0, 23]
+    getTemperature(hour?: number) {
+      this.setStatus({ getTemperatureLoading: true })
+
+      if (!hour) {
+        const now = new Date()
+        hour = now.getHours()
+      }
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_TEMPERATURE',
+        message: `#85#${hour}*`,
+        callback: response => {
+          const ts = `${+moment().set('hour', hour).startOf('hour')}`
+          this.setTemperature({ value: parseFloat(response), ts })
+          this.setStatus({ getTemperatureLoading: false })
+        },
+        hasResponse: true
+      })
+    }
+  }))
+  .views(self => ({
+    get temperaturesView() {
+      let temperatures = []
+      self.temperatures.forEach((value, key) => temperatures.push({ ts: parseInt(key), value }))
+      temperatures = sortBy(({ ts }) => ts, temperatures)
+      return temperatures
     }
   }))
 
