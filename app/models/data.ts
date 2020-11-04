@@ -7,7 +7,15 @@ export const DeviceModel = types
     simNumber: types.string,
     place: '',
     password: '123456',
-    phoneNumbers: types.array(types.string)
+    phoneNumbers: types.optional(types.array(types.string), []),
+
+    status: types.optional(types.model({
+      getPhoneNumbersLoading: types.boolean,
+      updatePhoneNumberLoading: types.array(types.boolean)
+    }), {
+      getPhoneNumbersLoading: false,
+      updatePhoneNumberLoading: []
+    })
   })
   .actions(self => ({
     setName(newName: string) {
@@ -19,11 +27,40 @@ export const DeviceModel = types
     setPhoneNumbers(newPhoneNumbers: string[]) {
       self.phoneNumbers.replace(newPhoneNumbers)
     },
+    setPhoneNumberAtIndex(index: number, newPhoneNumber: string) {
+      self.phoneNumbers[index] = newPhoneNumber
+    },
+    setStatus(newStatus: any) {
+      self.status = { ...self.status, ...newStatus }
+    },
+    setUpdatePhoneNumberLoading(index: number, value: boolean) {
+      self.status.updatePhoneNumberLoading[index] = value
+    },
     remove() {
       getParent<typeof DeviceListModel>(self, 2).remove(self)
     },
 
+    updatePhoneNumber({ phoneNumber, index }) {
+      if (index > 4) {
+        // TODO: maximum number of phoneNumbers is reached display appropriate message
+        return
+      }
+      this.setUpdatePhoneNumberLoading(index, true)
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'ADD_PHONE_NUMBERS',
+        message: `*${self.password}#${index + 1}#${phoneNumber}*`,
+        callback: () => {
+          this.setPhoneNumberAtIndex(index, phoneNumber)
+          this.setUpdatePhoneNumberLoading(index, false)
+        }
+      })
+    },
     getPhoneNumbers() {
+      this.setStatus({ getPhoneNumbersLoading: true })
+
       const env: Environment = getEnv(self)
       env.sms.send({
         phoneNumber: self.simNumber,
@@ -31,7 +68,9 @@ export const DeviceModel = types
         message: `*${self.password}#100#`,
         callback: response => {
           this.setPhoneNumbers(response.split('\n'))
-        }
+          this.setStatus({ getPhoneNumbersLoading: false })
+        },
+        hasResponse: true
       })
     }
   }))

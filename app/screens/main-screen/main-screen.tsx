@@ -175,7 +175,7 @@ export const MainScreen = observer(function MainScreen() {
         <Text text={selectedDevice.place} />
         <Text text={selectedDevice.simNumber} />
         <Button
-          text="send"
+          text="get"
           onPress={() => {
             selectedDevice.getPhoneNumbers()
           }}
@@ -183,6 +183,21 @@ export const MainScreen = observer(function MainScreen() {
         {selectedDevice.phoneNumbers.map(phoneNumber => (
           <Text key={phoneNumber} text={phoneNumber} />
         ))}
+        {selectedDevice.status.getPhoneNumbersLoading
+          ? <Text text="Loading..." />
+          : null
+        }
+
+        <Button
+          text="update"
+          onPress={() => {
+            selectedDevice.updatePhoneNumber({ phoneNumber: '123', index: 0 })
+          }}
+        />
+        {selectedDevice.status.updatePhoneNumberLoading[0]
+          ? <Text text="Loading..." />
+          : null
+        }
       </>
     )
   }
