@@ -2,7 +2,7 @@ import { types } from 'mobx-state-tree'
 
 export const StateModel = types
   .model({
-    selectedDeviceID: types.string
+    selectedDeviceID: types.maybeNull(types.string)
   })
   .actions(self => ({
     setSelectedDeviceID(deviceID: string) {

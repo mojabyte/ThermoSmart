@@ -13,16 +13,41 @@ export const DeviceModel = types
 
     temperatures: types.map(types.number),
 
-    status: types.optional(types.model({
-      getPhoneNumbersLoading: types.boolean,
-      updatePhoneNumberLoading: types.array(types.boolean),
-      getTemperatureLoading: types.boolean
+    thermostat: types.optional(types.model({
+      isEnabled: types.boolean,
+      max: types.maybeNull(types.number),
+      nor: types.maybeNull(types.number),
+      min: types.maybeNull(types.number)
     }), {
-      getPhoneNumbersLoading: false,
-      updatePhoneNumberLoading: [],
-      getTemperatureLoading: false
+      isEnabled: false,
+      max: undefined,
+      nor: undefined,
+      min: undefined
+    }),
+
+    alarm: types.optional(types.model({
+      high: types.array(types.number),
+      low: types.array(types.number),
+      interval: types.number
+    }), {
+      high: [],
+      low: [],
+      interval: 0
     })
   })
+  .volatile(() => ({
+    status: {
+      getPhoneNumbersLoading: false,
+      updatePhoneNumberLoading: [],
+      getTemperatureLoading: false,
+      getThermostatValuesLoading: false,
+      updateThermostatValuesLoading: false,
+      updateThermostatStatusLoading: false,
+      getAlarmValuesLoading: false,
+      updateAlarmValuesLoading: false,
+      updateAlarmIntervalLoading: false
+    }
+  }))
   .actions(self => ({
     setName(newName: string) {
       self.name = newName
@@ -38,6 +63,16 @@ export const DeviceModel = types
     },
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
+    },
+    setThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
+      self.thermostat.max = max ?? self.thermostat.max
+      self.thermostat.nor = nor ?? self.thermostat.nor
+      self.thermostat.min = min ?? self.thermostat.min
+    },
+    setAlarmValues({ high, low, interval }: { high?: number[]; low?: number[]; interval?: number }) {
+      self.alarm.high.replace(high ?? self.alarm.high)
+      self.alarm.low.replace(low ?? self.alarm.low)
+      self.alarm.interval = interval ?? self.alarm.interval
     },
     setStatus(newStatus: any) {
       self.status = { ...self.status, ...newStatus }
@@ -104,6 +139,151 @@ export const DeviceModel = types
         },
         hasResponse: true
       })
+    },
+
+    getThermostatValues() {
+      this.setStatus({ getThermostatValuesLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_THERMOSTAT_VALUES',
+        message: '#15#',
+        callback: response => {
+          // TODO: update this parse method
+          const values = response.split(',')
+          this.setThermostatValues({
+            max: parseFloat(values[0]),
+            nor: parseFloat(values[1]),
+            min: parseFloat(values[2])
+          })
+          this.setStatus({ getThermostatValuesLoading: false })
+        },
+        hasResponse: true
+      })
+    },
+    updateThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
+      this.setStatus({ updateThermostatValuesLoading: true })
+
+      const messages = []
+      if (max) messages.push(['3000', Math.round(max * 10)])
+      if (nor) messages.push(['2000', Math.round(nor * 10)])
+      if (min) messages.push(['1000', Math.round(min * 10)])
+
+      const env: Environment = getEnv(self)
+      const sendMessage = (messages: [string, number][]) => {
+        if (messages.length === 0) {
+          this.setThermostatValues({ max, nor, min })
+          this.setStatus({ updateThermostatValuesLoading: false })
+          return
+        }
+        const message = messages.pop()
+        env.sms.send({
+          phoneNumber: self.simNumber,
+          type: 'UPDATE_THERMOSTAT_VALUES',
+          message: `*${self.password}#${message[0]}#${message[1]}*`,
+          callback: () => {
+            sendMessage(messages)
+          }
+        })
+      }
+
+      sendMessage(messages)
+    },
+    updateThermostatStatus(status: boolean) {
+      this.setStatus({ updateThermostatStatusLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_THERMOSTAT_STATUS',
+        message: `*${self.password}#${status ? '800' : '808'}#`,
+        callback: () => {
+          this.setStatus({ updateThermostatStatusLoading: false })
+        },
+        hasResponse: false
+      })
+    },
+
+    getAlarmValues() {
+      this.setStatus({ getAlarmValuesLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_ALARM_VALUES',
+        message: '#8000#',
+        callback: response => {
+          // TODO: update this parse method
+          const high = response.split(',').map(str => parseFloat(str))
+          this.setAlarmValues({ high })
+          env.sms.send({
+            phoneNumber: self.simNumber,
+            type: 'GET_ALARM_VALUES',
+            message: '#7000#',
+            callback: response => {
+              // TODO: update this parse method
+              const low = response.split(',').map(str => parseFloat(str))
+              this.setAlarmValues({ low })
+              env.sms.send({
+                phoneNumber: self.simNumber,
+                type: 'GET_ALARM_VALUES',
+                message: '#9000#',
+                callback: response => {
+                  // TODO: update this parse method
+                  const interval = parseFloat(response)
+                  this.setAlarmValues({ interval })
+                  this.setStatus({ getAlarmValuesLoading: false })
+                },
+                hasResponse: true
+              })
+            },
+            hasResponse: true
+          })
+        },
+        hasResponse: true
+      })
+    },
+    updateAlarmValues({ high, low }: { high?: number[]; low?: number[] }) {
+      this.setStatus({ updateAlarmValuesLoading: true })
+
+      const messages = []
+      if (high) messages.push(['8000', Math.round(high[0] * 10), Math.round(high[1] * 10)])
+      if (low) messages.push(['7000', Math.round(low[0] * 10), Math.round(low[1] * 10)])
+
+      const env: Environment = getEnv(self)
+      const sendMessage = (messages: [string, number][]) => {
+        if (messages.length === 0) {
+          this.setAlarmValues({ high, low })
+          this.setStatus({ updateAlarmValuesLoading: false })
+          return
+        }
+        const message = messages.pop()
+        env.sms.send({
+          phoneNumber: self.simNumber,
+          type: 'UPDATE_ALARM_VALUES',
+          message: `*${self.password}#${message[0]}#${message[1]}*${message[2]}*`,
+          callback: () => {
+            sendMessage(messages)
+          }
+        })
+      }
+
+      sendMessage(messages)
+    },
+    updateAlarmInterval(interval: number) {
+      this.setStatus({ updateAlarmIntervalLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_ALARM_VALUES',
+        message: `*${self.password}#9000#${interval}*`,
+        callback: () => {
+          this.setAlarmValues({ interval })
+          this.setStatus({ updateAlarmIntervalLoading: false })
+        }
+      })
     }
   }))
   .views(self => ({
@@ -115,7 +295,7 @@ export const DeviceModel = types
     }
   }))
 
-export type Device = typeof DeviceModel
+export interface Device extends Instance<typeof DeviceModel> {}
 
 export const DeviceListModel = types
   .model({

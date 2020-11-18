@@ -7,9 +7,9 @@ import { color, spacing } from "../../theme"
 const BASE_VIEW: ViewStyle = {
   paddingVertical: spacing[3],
   paddingHorizontal: spacing[2],
-  borderRadius: 4,
+  borderRadius: 10,
   justifyContent: "center",
-  alignItems: "center",
+  alignItems: "center"
 }
 
 const BASE_TEXT: TextStyle = {
@@ -40,7 +40,14 @@ export const viewPresets = {
   /**
    * A button as a card view
    */
-  card: { ...BASE_VIEW, backgroundColor: color.palette.grey } as ViewStyle,
+  card: {
+    ...BASE_VIEW,
+    elevation: 2,
+    backgroundColor: color.primaryDarker,
+    marginHorizontal: spacing[3],
+    marginVertical: spacing[1],
+    alignItems: 'flex-start'
+  } as ViewStyle,
 }
 
 export const textPresets = {

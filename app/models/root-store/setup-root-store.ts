@@ -12,7 +12,7 @@ const ROOT_STATE_STORAGE_KEY = "root"
  * Setup the environment that all the models will be sharing.
  *
  * The environment includes other functions that will be picked from some
- * of the models that get created later. This is how we loosly couple things
+ * of the models that get created later. This is how we loosely couple things
  * like events between models.
  */
 export async function createEnvironment() {
@@ -27,7 +27,7 @@ export async function createEnvironment() {
 const initialState = {
   devices: { items: [] },
   state: {
-    selectedDeviceID: ''
+    selectedDeviceID: null
   }
 }
 
@@ -44,7 +44,10 @@ export async function setupRootStore() {
     // load data from storage
     data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || initialState
     rootStore = RootStoreModel.create(data, env)
+    console.log(data)
   } catch (e) {
+    console.log(e)
+    // await storage.clear()
     // if there's any problems loading, then let's at least fallback to an empty state
     // instead of crashing.
     rootStore = RootStoreModel.create(initialState, env)

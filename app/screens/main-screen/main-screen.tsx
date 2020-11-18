@@ -1,11 +1,12 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
-import { Button, Header, Picker, Screen, Text } from "../../components"
-import { color, spacing, typography } from "../../theme"
-import { useStores } from '../../models'
+import MultiSlider from '@ptomasroos/react-native-multi-slider'
+import { Button, ConfirmModal, Header, Icon, Screen, Text } from "../../components"
+import { color, typography } from "../../theme"
+import { Device, useStores } from '../../models'
 
 const FULL: ViewStyle = {
   flex: 1,
@@ -20,8 +21,8 @@ const TEXT: TextStyle = {
 }
 const BOLD: TextStyle = { fontWeight: "bold" }
 const HEADER: TextStyle = {
-  paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1]
+  elevation: 2,
+  backgroundColor: color.primaryDarker
 }
 const HEADER_TITLE: TextStyle = {
   ...TEXT,
@@ -32,44 +33,47 @@ const HEADER_TITLE: TextStyle = {
   letterSpacing: 1.5,
 }
 
-const styles = {
-  pickerContainer: {
-    height: 65,
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    paddingHorizontal: '7%',
-    paddingRight: '15%',
-    paddingVertical: 5
-  },
-  pickerBorder: {
-    flex: 1,
-    position: 'absolute',
-    top: 0,
-    left: '7%',
-    right: '7%',
-    height: 0.5,
-    backgroundColor: '#888'
-  },
-  pickerIcon: {
-    width: 60,
-    textAlign: 'left'
-  },
-  pickerLabelContainer: {
-    flex: 1,
-    alignSelf: 'center',
-    justifyContent: 'space-around'
-  },
-  pickerTextStyle: {
-    fontSize: 20,
-    color: '#fff',
-    textAlign: 'left'
-  },
-  pickerDetailsStyle: {
-    fontSize: 18,
-    color: '#fff',
-    opacity: 0.75,
-    textAlign: 'left'
-  }
+const DEVICE_SELECT_CONTAINER: ViewStyle = {
+  height: 65,
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  flexDirection: 'row',
+  paddingHorizontal: '7%',
+  paddingTop: 0,
+  paddingBottom: 10,
+  marginHorizontal: 0,
+  marginTop: 0,
+  borderTopLeftRadius: 0,
+  borderTopRightRadius: 0
+}
+
+const DEVICE_SELECT_TITLE: ViewStyle = {
+  flex: 1,
+  alignSelf: 'center',
+  justifyContent: 'space-around'
+}
+
+const DEVICE_SELECT_TITLE_TEXT: TextStyle = {
+  fontSize: 20,
+  color: color.text,
+  textAlign: 'left'
+}
+
+const DEVICE_SELECT_DETAILS_TEXT: TextStyle = {
+  fontSize: 18,
+  color: color.text,
+  opacity: 0.75,
+  textAlign: 'left'
+}
+
+const LAST_TEMPERATURE_VALUE: TextStyle = {
+  fontSize: 30,
+  paddingVertical: 10,
+  alignSelf: 'center'
+}
+
+const CARD_TITLE: TextStyle = {
+  fontSize: 14
 }
 
 export const MainScreen = observer(function MainScreen() {
@@ -159,127 +163,262 @@ export const MainScreen = observer(function MainScreen() {
       .catch(err => console.warn(err))
   }, [])
 
+  const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
+  const [isEditModalVisible, setEditModalVisible] = useState(false)
+  const [sliderValues, setSliderValues] = useState([0])
+  const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>(null)
+
   useEffect(() => {
-    if (devices.items.length > 0 && !devices.get(selectedDeviceID)) {
-      setSelectedDeviceID(devices.items[0].simNumber)
+    setSelectedDevice(devices.get(selectedDeviceID))
+  }, [devices, selectedDeviceID])
+
+  useEffect(() => {
+    if (devices.items.length > 0) {
+      if (!devices.get(selectedDeviceID)) {
+        setSelectedDeviceID(devices.items[0].simNumber)
+      }
     } else {
-      setSelectedDeviceID(selectedDeviceID)
+      setSelectedDeviceID(null)
     }
   }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID])
 
-  const selectedDevice = devices.get(selectedDeviceID)
-
   const renderScreenContent = function () {
-    return (
-      <>
-        <Text text={selectedDevice.name} />
-        <Text text={selectedDevice.place} />
-        <Text text={selectedDevice.simNumber} />
-        <Button
-          text="get"
-          onPress={() => {
-            selectedDevice.getPhoneNumbers()
-          }}
-        />
-        {selectedDevice.phoneNumbers.map(phoneNumber => (
-          <Text key={phoneNumber} text={phoneNumber} />
-        ))}
-        {selectedDevice.status.getPhoneNumbersLoading
-          ? <Text text="Loading..." />
-          : null
-        }
+    if (selectedDevice?.simNumber) {
+      return (
+        <>
+          <Button
+            preset="card"
+            onPress={() => {
+              selectedDevice.getTemperature()
+            }}
+          >
+            <Text text="Temperature" style={CARD_TITLE} />
+            <Text
+              text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°C` || 'no data'}
+              style={LAST_TEMPERATURE_VALUE}
+            />
+            <Text
+              text={`${moment(selectedDevice.temperaturesView[0]?.ts).format('YYYY-MM-DD HH:mm')}`}
+              // style={LAST_TEMPERATURE_VALUE}
+            />
+          </Button>
 
-        <Button
-          preset="card"
-          onPress={() => {
-            selectedDevice.updatePhoneNumber({ phoneNumber: '123', index: 0 })
-          }}
-        >
-          {selectedDevice.status.updatePhoneNumberLoading[0]
+          <Button preset="card">
+            <View style={{ flexDirection: 'row' }}>
+              <Text text="Thermostat" style={[CARD_TITLE, { flex: 1 }]} />
+              {selectedDevice.status.getThermostatValuesLoading ? (
+                <Text text="loading..." />
+              ) : (
+                <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
+                  <Icon name="refresh" size={20} />
+                </Button>
+              )}
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button
+                text={`Max: ${selectedDevice.thermostat.max}`}
+                onPress={() => {
+                  setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
+                  setSelectedSliderModal('max')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 0.3, margin: 5 }}
+              />
+              <Button
+                text={`Normal: ${selectedDevice.thermostat.nor}`}
+                onPress={() => {
+                  setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
+                  setSelectedSliderModal('nor')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 0.36, margin: 5 }}
+              />
+              <Button
+                text={`Min: ${selectedDevice.thermostat.min}`}
+                onPress={() => {
+                  setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
+                  setSelectedSliderModal('min')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 0.33, margin: 5 }}
+              />
+            </View>
+          </Button>
+
+          <Button preset="card">
+            <View style={{ flexDirection: 'row' }}>
+              <Text text="Alarm" style={[CARD_TITLE, { flex: 1 }]} />
+              {selectedDevice.status.getAlarmValuesLoading ? (
+                <Text text="loading..." />
+              ) : (
+                <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
+                  <Icon name="refresh" size={20} />
+                </Button>
+              )}
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button
+                text={`High: ${selectedDevice.alarm.high[0]} - ${selectedDevice.alarm.high[1]}`}
+                onPress={() => {
+                  setSliderValues(selectedDevice.alarm.high ?? [10, 20])
+                  setSelectedSliderModal('high')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 0.5, margin: 5 }}
+              />
+              <Button
+                text={`Low: ${selectedDevice.alarm.low[0]} - ${selectedDevice.alarm.low[1]}`}
+                onPress={() => {
+                  setSliderValues(selectedDevice.alarm.low ?? [10, 20])
+                  setSelectedSliderModal('low')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 0.5, margin: 5 }}
+              />
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Button
+                text={`Interval: ${selectedDevice.alarm.interval} minutes`}
+                onPress={() => {
+                  setSliderValues([selectedDevice.alarm.interval] ?? [5])
+                  setSelectedSliderModal('interval')
+                  setEditModalVisible(true)
+                }}
+                style={{ flex: 1, margin: 5 }}
+              />
+            </View>
+          </Button>
+
+          {selectedDevice.phoneNumbers.map(phoneNumber => (
+            <Text key={phoneNumber} text={phoneNumber} />
+          ))}
+          {selectedDevice.status.getPhoneNumbersLoading
             ? <Text text="Loading..." />
             : null
           }
-        </Button>
 
-        <Button
-          preset="card"
-          onPress={() => {
-            selectedDevice.getTemperature()
-          }}
-        >
-          <Text text={`${selectedDevice.temperaturesView[0]?.value || 'no data'}`} />
-        </Button>
-        {selectedDevice.temperaturesView.map(({ value, ts }) => (
-          <Text key={`${ts}`} text={`${moment(ts).format('YYYY-MM-DD HH:mm')}  :   ${value}`} />
-        ))}
-      </>
-    )
+          <Button
+            preset="card"
+            onPress={() => {
+              selectedDevice.updatePhoneNumber({ phoneNumber: '123', index: 0 })
+            }}
+          >
+            {selectedDevice.status.updatePhoneNumberLoading[0]
+              ? <Text text="Loading..." />
+              : null
+            }
+          </Button>
+
+          <Button
+            preset="card"
+            onPress={() => {
+              selectedDevice.getTemperature()
+            }}
+          >
+            <Text text={`${selectedDevice.temperaturesView[0]?.value || 'no data'}`} />
+          </Button>
+          {selectedDevice.temperaturesView.map(({ value, ts }) => (
+            <Text key={`${ts}`} text={`${moment(ts).format('YYYY-MM-DD HH:mm')}  :   ${value}`} />
+          ))}
+        </>
+      )
+    }
+
+    return null
   }
 
   return (
     <View style={FULL}>
-      <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
+      <Screen style={CONTAINER} backgroundColor={color.transparent}>
         <Header
           headerTx="mainScreen.title"
           leftIcon="cog"
-          onLeftPress={() => devices.items[0]?.remove()}
+          onLeftPress={() => selectedDevice?.remove()}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
           style={HEADER}
           titleStyle={HEADER_TITLE}
         />
-        {devices.listView.length > 0 && selectedDevice
-          ? (
-            <Picker
-              items={devices.listView.filter(({ value }) => value !== selectedDeviceID)}
-              onItemSelect={item => setSelectedDeviceID(item)}
-              triggerComponent={(
-                <View style={styles.pickerContainer}>
-                  <View style={styles.pickerLabelContainer}>
-                    <Text
-                      style={styles.pickerTextStyle}
-                      numberOfLines={1}
-                    >
-                      {selectedDevice.name}
-                    </Text>
+        {(devices.items.length > 0 && selectedDevice?.simNumber) ? (
+          <Button
+            preset="card"
+            onPress={() => navigation.navigate('list')}
+            style={DEVICE_SELECT_CONTAINER}
+          >
+            <View style={DEVICE_SELECT_TITLE}>
+              <Text
+                style={DEVICE_SELECT_TITLE_TEXT}
+                numberOfLines={1}
+              >
+                {selectedDevice.name}
+              </Text>
 
-                    { selectedDevice.place
-                      ? <Text
-                        style={styles.pickerDetailsStyle}
-                        numberOfLines={1}
-                      >
-                        {selectedDevice.place}
-                      </Text>
-                      : null
-                    }
-                  </View>
+              { selectedDevice.place
+                ? <Text
+                  style={DEVICE_SELECT_DETAILS_TEXT}
+                  numberOfLines={1}
+                >
+                  {selectedDevice.place}
+                </Text>
+                : null
+              }
+            </View>
 
-                  <View style={styles.pickerBorder}/>
-                </View>
-              )}
-              renderOptionComponent={(item, index) => (
-                <View style={styles.pickerContainer}>
-                  <View style={styles.pickerLabelContainer}>
-                    <View style={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-                      <Text style={styles.pickerTextStyle}>{item.label}</Text>
-                      <Text style={styles.pickerDetailsStyle}>{item.value}</Text>
-                    </View>
+            <Icon name="chevron-right" size={25} />
+          </Button>
+        ) : null}
 
-                    { item.details
-                      ? <Text style={styles.pickerDetailsStyle}>{item.details}</Text>
-                      : null
-                    }
-                  </View>
+        {renderScreenContent()}
 
-                  { index ? <View style={styles.pickerBorder}/> : null }
-                </View>
-              )}
-            >
-              {renderScreenContent()}
-            </Picker>
-          )
-          : <Text preset="bold" style={{ alignSelf: 'center', textAlign: 'center' }} tx="mainScreen.noDevice" />
-        }
+        <ConfirmModal
+          title={`Set ${selectedSliderModal} value`}
+          isVisible={isEditModalVisible}
+          onClose={() => setEditModalVisible(false)}
+          onConfirm={() => {
+            if (['max', 'nor', 'min'].includes(selectedSliderModal)) {
+              selectedDevice.updateThermostatValues({ [selectedSliderModal]: sliderValues[0] })
+            } else if (selectedSliderModal === 'interval') {
+              selectedDevice.updateAlarmInterval(sliderValues[0])
+            } else {
+              selectedDevice.updateAlarmValues({ [selectedSliderModal]: sliderValues })
+            }
+          }}
+        >
+          <View>
+            <View style={{ alignSelf: 'center' }}>
+              <Text text={`${sliderValues[0].toFixed(1)}°C ${
+                `${sliderValues[1] ? `- ${sliderValues[1].toFixed(1)}°C` : ''}`}`}/>
+              <MultiSlider
+                values={sliderValues}
+                min={-20}
+                max={50}
+                step={0.1}
+                snapped
+                onValuesChange={values => setSliderValues(
+                  values.map(value => Math.round(value * 10) / 10)
+                )}
+                trackStyle={{
+                  height: 10,
+                  backgroundColor: color.palette.grey,
+                  borderRadius: 5
+                }}
+                markerStyle={{
+                  height: 20,
+                  width: 20,
+                  elevation: 4,
+                  backgroundColor: color.primary
+                }}
+                selectedStyle={{
+                  backgroundColor: color.primary
+                }}
+                markerOffsetY={5}
+              />
+            </View>
+          </View>
+        </ConfirmModal>
       </Screen>
     </View>
   )

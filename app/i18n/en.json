@@ -12,6 +12,9 @@
     "readyForLaunch": "Ready for launch.",
     "noDevice": "No device available.\n\nPlease add a new device by pressing \"+\" button."
   },
+  "deviceListScreen": {
+    "title": "Devices"
+  },
   "addDeviceScreen": {
     "header": "New Device",
     "name": "Name",

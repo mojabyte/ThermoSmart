@@ -21,5 +21,5 @@ export interface RootStore extends Instance<typeof RootStoreModel> {}
  */
 export interface RootStoreSnapshot extends SnapshotOut<typeof RootStoreModel> {
   devices: { items: [] },
-  state: { selectedDeviceID: '' }
+  state: { selectedDeviceID: null }
 }
