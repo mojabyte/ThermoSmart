@@ -44,8 +44,7 @@ export const viewPresets = {
     ...BASE_VIEW,
     elevation: 2,
     backgroundColor: color.primaryDarker,
-    marginHorizontal: spacing[3],
-    marginVertical: spacing[1],
+    margin: spacing[1],
     alignItems: 'flex-start'
   } as ViewStyle,
 }

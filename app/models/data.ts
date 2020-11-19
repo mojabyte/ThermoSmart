@@ -9,7 +9,7 @@ export const DeviceModel = types
     simNumber: types.string,
     place: '',
     password: '123456',
-    phoneNumbers: types.optional(types.array(types.string), []),
+    phoneNumbers: types.optional(types.array(types.maybeNull(types.string)), []),
 
     temperatures: types.map(types.number),
 
@@ -33,10 +33,24 @@ export const DeviceModel = types
       high: [],
       low: [],
       interval: 0
+    }),
+
+    simCharge: '',
+    signalStrength: '',
+
+    laborCheck: types.optional(types.model({
+      mode: types.maybeNull(types.enumeration(['1', '2', '3'])),
+      interval: types.maybeNull(types.number),
+      lastCheckTime: types.maybeNull(types.string)
+    }), {
+      mode: null,
+      interval: null,
+      lastCheckTime: null
     })
   })
   .volatile(() => ({
     status: {
+      updatePasswordLoading: false,
       getPhoneNumbersLoading: false,
       updatePhoneNumberLoading: [],
       getTemperatureLoading: false,
@@ -45,21 +59,33 @@ export const DeviceModel = types
       updateThermostatStatusLoading: false,
       getAlarmValuesLoading: false,
       updateAlarmValuesLoading: false,
-      updateAlarmIntervalLoading: false
+      updateAlarmIntervalLoading: false,
+      sendRpcLoading: false,
+      getSimChargeLoading: false,
+      getSignalStrengthLoading: false
     }
   }))
   .actions(self => ({
     setName(newName: string) {
       self.name = newName
     },
+    setSimNumber(newSimNumber: string) {
+      self.simNumber = newSimNumber
+    },
     setPlace(newPlace: string) {
       self.place = newPlace
+    },
+    setPassword(newPassword: string) {
+      self.password = newPassword
     },
     setPhoneNumbers(newPhoneNumbers: string[]) {
       self.phoneNumbers.replace(newPhoneNumbers)
     },
     setPhoneNumberAtIndex(index: number, newPhoneNumber: string) {
       self.phoneNumbers[index] = newPhoneNumber
+    },
+    removePhoneNumber(index: number) {
+      self.phoneNumbers[index] = null
     },
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
@@ -69,10 +95,19 @@ export const DeviceModel = types
       self.thermostat.nor = nor ?? self.thermostat.nor
       self.thermostat.min = min ?? self.thermostat.min
     },
+    setThermostatStatus(status: boolean) {
+      self.thermostat.isEnabled = status
+    },
     setAlarmValues({ high, low, interval }: { high?: number[]; low?: number[]; interval?: number }) {
       self.alarm.high.replace(high ?? self.alarm.high)
       self.alarm.low.replace(low ?? self.alarm.low)
       self.alarm.interval = interval ?? self.alarm.interval
+    },
+    setSimCharge(charge: string) {
+      self.simCharge = charge
+    },
+    setSignalStrength(strength: string) {
+      self.signalStrength = strength
     },
     setStatus(newStatus: any) {
       self.status = { ...self.status, ...newStatus }
@@ -84,21 +119,17 @@ export const DeviceModel = types
       getParent<typeof DeviceListModel>(self, 2).remove(self)
     },
 
-    updatePhoneNumber({ phoneNumber, index }) {
-      if (index > 4) {
-        // TODO: maximum number of phoneNumbers is reached display appropriate message
-        return
-      }
-      this.setUpdatePhoneNumberLoading(index, true)
+    updatePassword(newPassword: string) {
+      this.setStatus({ updatePasswordLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
         phoneNumber: self.simNumber,
-        type: 'UPDATE_PHONE_NUMBER',
-        message: `*${self.password}#${index + 1}#${phoneNumber}*`,
+        type: 'UPDATE_PASSWORD',
+        message: `*${self.password}#999#${newPassword}#`,
         callback: () => {
-          this.setPhoneNumberAtIndex(index, phoneNumber)
-          this.setUpdatePhoneNumberLoading(index, false)
+          this.setPassword(newPassword)
+          this.setStatus({ updatePasswordLoading: false })
         }
       })
     },
@@ -115,6 +146,34 @@ export const DeviceModel = types
           this.setStatus({ getPhoneNumbersLoading: false })
         },
         hasResponse: true
+      })
+    },
+    updatePhoneNumber({ phoneNumber, index }) {
+      this.setUpdatePhoneNumberLoading(index, true)
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_PHONE_NUMBER',
+        message: `*${self.password}#${index + 1}#${phoneNumber}*`,
+        callback: () => {
+          this.setPhoneNumberAtIndex(index, phoneNumber)
+          this.setUpdatePhoneNumberLoading(index, false)
+        }
+      })
+    },
+    deletePhoneNumber(index: number) {
+      this.setUpdatePhoneNumberLoading(index, true)
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'DELETE_PHONE_NUMBER',
+        message: `*${self.password}#0${index + 1}#`,
+        callback: () => {
+          this.removePhoneNumber(index)
+          this.setUpdatePhoneNumberLoading(index, false)
+        }
       })
     },
 
@@ -199,6 +258,7 @@ export const DeviceModel = types
         type: 'UPDATE_THERMOSTAT_STATUS',
         message: `*${self.password}#${status ? '800' : '808'}#`,
         callback: () => {
+          this.setThermostatStatus(status)
           this.setStatus({ updateThermostatStatusLoading: false })
         },
         hasResponse: false
@@ -284,13 +344,65 @@ export const DeviceModel = types
           this.setStatus({ updateAlarmIntervalLoading: false })
         }
       })
+    },
+
+    sendRpc({ method, value }: { method: string; value: boolean }) {
+      this.setStatus({ sendRpcLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'SEND_RPC',
+        message: `#${!value ? '0' : ''}${method}#`,
+        callback: () => {
+          this.setStatus({ sendRpcLoading: false })
+        }
+      })
+    },
+
+    getSimCharge() {
+      this.setStatus({ getSimChargeLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_SIM_CHARGE',
+        message: '#12#',
+        callback: response => {
+          this.setSimCharge(response)
+          this.setStatus({ getSimChargeLoading: false })
+        },
+        hasResponse: true
+      })
+    },
+    getSignalStrength() {
+      this.setStatus({ getSignalStrengthLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_SIGNAL_STRENGTH',
+        message: '#13#',
+        callback: response => {
+          this.setSignalStrength(response)
+          this.setStatus({ getSignalStrengthLoading: false })
+        },
+        hasResponse: true
+      })
     }
   }))
   .views(self => ({
+    get validPhoneNumbers() {
+      return self.phoneNumbers.filter(v => !!v)
+    },
+    get newPhoneNumberIndex() {
+      const index = self.phoneNumbers.indexOf(null)
+      return index === -1 ? self.phoneNumbers.length : index
+    },
     get temperaturesView() {
       let temperatures = []
       self.temperatures.forEach((value, key) => temperatures.push({ ts: parseInt(key), value }))
-      temperatures = sortBy(({ ts }) => ts, temperatures)
+      temperatures = sortBy(({ ts }) => -ts, temperatures)
       return temperatures
     }
   }))

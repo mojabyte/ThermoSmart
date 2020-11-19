@@ -4,8 +4,8 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
-import { Button, ConfirmModal, Header, Icon, Screen, Text } from "../../components"
-import { color, typography } from "../../theme"
+import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
+import { color, spacing, typography } from "../../theme"
 import { Device, useStores } from '../../models'
 
 const FULL: ViewStyle = {
@@ -185,145 +185,197 @@ export const MainScreen = observer(function MainScreen() {
   const renderScreenContent = function () {
     if (selectedDevice?.simNumber) {
       return (
-        <>
-          <Button
-            preset="card"
-            onPress={() => {
-              selectedDevice.getTemperature()
-            }}
-          >
-            <Text text="Temperature" style={CARD_TITLE} />
-            <Text
-              text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°C` || 'no data'}
-              style={LAST_TEMPERATURE_VALUE}
-            />
-            <Text
-              text={`${moment(selectedDevice.temperaturesView[0]?.ts).format('YYYY-MM-DD HH:mm')}`}
-              // style={LAST_TEMPERATURE_VALUE}
-            />
-          </Button>
+        <View style={{ flex: 1, marginHorizontal: spacing[1] }}>
+          <View style={{ flex: 0.7, flexDirection: 'row' }}>
+            <View style={{ flex: 0.6, flexDirection: 'column' }}>
+              <Button
+                preset="card"
+                onPress={() => {
+                  selectedDevice.getTemperature()
+                }}
+                style={{ flex: 0.7 }}
+              >
+                <Text text="Temperature" style={CARD_TITLE} />
+                <Text
+                  text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°C` || 'no data'}
+                  style={LAST_TEMPERATURE_VALUE}
+                />
+                <Text
+                  text={`${moment(selectedDevice.temperaturesView[0]?.ts).format('YYYY-MM-DD HH:mm')}`}
+                  // style={LAST_TEMPERATURE_VALUE}
+                />
+              </Button>
 
-          <Button preset="card">
-            <View style={{ flexDirection: 'row' }}>
-              <Text text="Thermostat" style={[CARD_TITLE, { flex: 1 }]} />
-              {selectedDevice.status.getThermostatValuesLoading ? (
-                <Text text="loading..." />
-              ) : (
-                <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
-                  <Icon name="refresh" size={20} />
-                </Button>
-              )}
+              <Button preset="card" style={{ flex: 0.3 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text text="Status" style={[CARD_TITLE, { flex: 1 }]} />
+                </View>
+
+                <View style={{ flex:1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Button
+                    text={`${selectedDevice.simCharge} Rial`}
+                    onPress={() => selectedDevice.getSimCharge()}
+                    style={{ flex: 0.5, margin: 3 }}
+                  />
+
+                  <Button
+                    text={`${selectedDevice.signalStrength}`}
+                    onPress={() => selectedDevice.getSignalStrength()}
+                    style={{ flex: 0.5, margin: 3 }}
+                  />
+                </View>
+              </Button>
             </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Button
-                text={`Max: ${selectedDevice.thermostat.max}`}
-                onPress={() => {
-                  setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
-                  setSelectedSliderModal('max')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 0.3, margin: 5 }}
-              />
-              <Button
-                text={`Normal: ${selectedDevice.thermostat.nor}`}
-                onPress={() => {
-                  setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
-                  setSelectedSliderModal('nor')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 0.36, margin: 5 }}
-              />
-              <Button
-                text={`Min: ${selectedDevice.thermostat.min}`}
-                onPress={() => {
-                  setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
-                  setSelectedSliderModal('min')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 0.33, margin: 5 }}
-              />
+            <View style={{ flex: 0.4, flexDirection: 'column' }}>
+              <Button preset="card" style={{ flex: 0.45 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text text="Thermostat" style={[CARD_TITLE, { flex: 1 }]} />
+                  {selectedDevice.status.getThermostatValuesLoading ? (
+                    <Text text="loading..." />
+                  ) : (
+                    <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
+                      <Icon name="refresh" size={20} />
+                    </Button>
+                  )}
+                </View>
+
+                <View style={{ justifyContent: 'space-between' }}>
+                  <Button
+                    text={`Max: ${selectedDevice.thermostat.max}`}
+                    onPress={() => {
+                      setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
+                      setSelectedSliderModal('max')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.3, margin: 3 }}
+                  />
+                  <Button
+                    text={`Normal: ${selectedDevice.thermostat.nor}`}
+                    onPress={() => {
+                      setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
+                      setSelectedSliderModal('nor')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.36, margin: 3 }}
+                  />
+                  <Button
+                    text={`Min: ${selectedDevice.thermostat.min}`}
+                    onPress={() => {
+                      setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
+                      setSelectedSliderModal('min')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.33, margin: 3 }}
+                  />
+                </View>
+              </Button>
+
+              <Button preset="card" style={{ flex: 0.55 }}>
+                <View style={{ flexDirection: 'row' }}>
+                  <Text text="Alarm" style={[CARD_TITLE, { flex: 1 }]} />
+                  {selectedDevice.status.getAlarmValuesLoading ? (
+                    <Text text="loading..." />
+                  ) : (
+                    <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
+                      <Icon name="refresh" size={20} />
+                    </Button>
+                  )}
+                </View>
+
+                <View style={{ justifyContent: 'space-between' }}>
+                  <Button
+                    text={`High: ${selectedDevice.alarm.high[0]} - ${selectedDevice.alarm.high[1]}`}
+                    onPress={() => {
+                      setSliderValues(selectedDevice.alarm.high ?? [10, 20])
+                      setSelectedSliderModal('high')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
+                  />
+                  <Button
+                    text={`Low: ${selectedDevice.alarm.low[0]} - ${selectedDevice.alarm.low[1]}`}
+                    onPress={() => {
+                      setSliderValues(selectedDevice.alarm.low ?? [10, 20])
+                      setSelectedSliderModal('low')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
+                  />
+
+                  <Button
+                    text={`Interval: ${selectedDevice.alarm.interval} min`}
+                    onPress={() => {
+                      setSliderValues([selectedDevice.alarm.interval] ?? [5])
+                      setSelectedSliderModal('interval')
+                      setEditModalVisible(true)
+                    }}
+                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
+                  />
+                </View>
+              </Button>
             </View>
-          </Button>
+          </View>
 
-          <Button preset="card">
-            <View style={{ flexDirection: 'row' }}>
-              <Text text="Alarm" style={[CARD_TITLE, { flex: 1 }]} />
-              {selectedDevice.status.getAlarmValuesLoading ? (
-                <Text text="loading..." />
-              ) : (
-                <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
-                  <Icon name="refresh" size={20} />
-                </Button>
-              )}
-            </View>
+          <View style={{ flex: 0.3, flexDirection: 'row' }}>
+            <Button preset="card" style={{ flex: 0.75 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Text text="Control" style={CARD_TITLE} />
+              </View>
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Button
-                text={`High: ${selectedDevice.alarm.high[0]} - ${selectedDevice.alarm.high[1]}`}
-                onPress={() => {
-                  setSliderValues(selectedDevice.alarm.high ?? [10, 20])
-                  setSelectedSliderModal('high')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 0.5, margin: 5 }}
-              />
-              <Button
-                text={`Low: ${selectedDevice.alarm.low[0]} - ${selectedDevice.alarm.low[1]}`}
-                onPress={() => {
-                  setSliderValues(selectedDevice.alarm.low ?? [10, 20])
-                  setSelectedSliderModal('low')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 0.5, margin: 5 }}
-              />
-            </View>
+              <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flex: 0.3, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text text="Automation" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Button
-                text={`Interval: ${selectedDevice.alarm.interval} minutes`}
-                onPress={() => {
-                  setSliderValues([selectedDevice.alarm.interval] ?? [5])
-                  setSelectedSliderModal('interval')
-                  setEditModalVisible(true)
-                }}
-                style={{ flex: 1, margin: 5 }}
-              />
-            </View>
-          </Button>
+                  <Switch
+                    value={selectedDevice.thermostat.isEnabled}
+                    onToggle={value => selectedDevice.updateThermostatStatus(value)}
+                  />
+                </View>
 
-          {selectedDevice.phoneNumbers.map(phoneNumber => (
-            <Text key={phoneNumber} text={phoneNumber} />
-          ))}
-          {selectedDevice.status.getPhoneNumbersLoading
-            ? <Text text="Loading..." />
-            : null
-          }
+                <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text text="Heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
-          <Button
-            preset="card"
-            onPress={() => {
-              selectedDevice.updatePhoneNumber({ phoneNumber: '123', index: 0 })
-            }}
-          >
-            {selectedDevice.status.updatePhoneNumberLoading[0]
-              ? <Text text="Loading..." />
-              : null
-            }
-          </Button>
+                  <Button
+                    text="ON"
+                    onPress={() => selectedDevice.sendRpc({ method: '50', value: true })}
+                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                  />
 
-          <Button
-            preset="card"
-            onPress={() => {
-              selectedDevice.getTemperature()
-            }}
-          >
-            <Text text={`${selectedDevice.temperaturesView[0]?.value || 'no data'}`} />
-          </Button>
-          {selectedDevice.temperaturesView.map(({ value, ts }) => (
-            <Text key={`${ts}`} text={`${moment(ts).format('YYYY-MM-DD HH:mm')}  :   ${value}`} />
-          ))}
-        </>
+                  <Button
+                    text="OFF"
+                    onPress={() => selectedDevice.sendRpc({ method: '50', value: false })}
+                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                  />
+                </View>
+
+                <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
+                  <Text text="Fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
+
+                  <Button
+                    text="ON"
+                    onPress={() => selectedDevice.sendRpc({ method: '60', value: true })}
+                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                  />
+
+                  <Button
+                    text="OFF"
+                    onPress={() => selectedDevice.sendRpc({ method: '60', value: false })}
+                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                  />
+                </View>
+              </View>
+            </Button>
+
+            <Button preset="card" style={{ flex: 0.25 }} onPress={() => navigation.navigate('options')}>
+              <View style={{ flexDirection: 'row' }}>
+                <Text text="Device Settings" style={CARD_TITLE} />
+              </View>
+
+              <Icon name="arrow-right" size={40} />
+            </Button>
+          </View>
+        </View>
       )
     }
 
@@ -336,7 +388,7 @@ export const MainScreen = observer(function MainScreen() {
         <Header
           headerTx="mainScreen.title"
           leftIcon="cog"
-          onLeftPress={() => selectedDevice?.remove()}
+          onLeftPress={() => {}}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
           style={HEADER}
@@ -385,6 +437,7 @@ export const MainScreen = observer(function MainScreen() {
             } else {
               selectedDevice.updateAlarmValues({ [selectedSliderModal]: sliderValues })
             }
+            setEditModalVisible(false)
           }}
         >
           <View>

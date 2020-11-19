@@ -16,7 +16,10 @@
     "title": "Devices"
   },
   "addDeviceScreen": {
-    "header": "New Device",
+    "header": {
+      "new": "New Device",
+      "edit": "Edit Device"
+    },
     "name": "Name",
     "namePlaceholder": "My Device",
     "simNumber": "SIM Number",
@@ -27,7 +30,14 @@
     },
     "place": "Place",
     "placePlaceholder": "Basement",
-    "add": "Add"
+    "add": "Add",
+    "apply": "Apply"
+  },
+  "deviceOptionsScreen": {
+    "title": "Devices",
+    "newPassword": "New Password",
+    "passwordPlaceholder": "6 digit password, e.g. 123456",
+    "passwordLengthError": "Password should be 6 digits."
   },
   "storybook": {
     "placeholder": "Placeholder",

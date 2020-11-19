@@ -43,6 +43,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
               setSelectedDeviceID(item.value)
               navigation.goBack()
             }}
+            onLongPress={() => devices.get(item.value)?.remove()}
             style={{
               backgroundColor: selectedDeviceID === item.value
                 ? color.palette.greyDarker

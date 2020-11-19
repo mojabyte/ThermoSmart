@@ -1,10 +1,10 @@
 import * as React from "react"
-import { TouchableOpacity, View, ViewStyle } from "react-native"
+import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { Icon } from "../icon/icon"
 import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./listItem.presets"
 import { ListItemProps } from "./listItem.props"
 import { mergeAll, flatten } from "ramda"
-import { color, spacing } from "../../theme"
 
 /**
  * For your text displaying needs.
@@ -20,6 +20,8 @@ export function ListItem(props: ListItemProps) {
     detailsTx,
     detailsText,
     valueText,
+    rightIcon,
+    leftIcon,
     style: styleOverride,
     textStyle: textStyleOverride,
     children,
@@ -32,6 +34,11 @@ export function ListItem(props: ListItemProps) {
   )
 
   const CONTAINER: ViewStyle = {
+    flexDirection: 'row'
+  }
+
+  const MAIN: ViewStyle = {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'
   }
@@ -41,11 +48,15 @@ export function ListItem(props: ListItemProps) {
   return (
     <TouchableOpacity style={viewStyle} {...rest}>
       <View style={CONTAINER}>
-        <View>
-          <Text tx={titleTx} text={titleText} style={textStyle} />
-          <Text tx={detailsTx} text={detailsText} style={textStyle} />
+        {leftIcon ? <Icon name={leftIcon} size={30} /> : null}
+        <View style={MAIN}>
+          <View>
+            <Text tx={titleTx} text={titleText} style={textStyle} />
+            <Text tx={detailsTx} text={detailsText} style={textStyle} />
+          </View>
+          {content}
         </View>
-        {content}
+        {rightIcon ? <Icon name={rightIcon} size={30} /> : null}
       </View>
     </TouchableOpacity>
   )

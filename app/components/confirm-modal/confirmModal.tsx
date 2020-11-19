@@ -49,16 +49,13 @@ export function ConfirmModal(props: ConfirmModalProps) {
         <View style={{ marginVertical: 10 }}>
           <Text text={title} style={textStyle} />
         </View>
-        <View style={{ marginVertical: 10 }}>
+        <View style={{ margin: 10 }}>
           {content}
         </View>
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly'}}>
           <Button text="Cancel" onPress={onClose} />
-          <Button text="Accept" onPress={() => {
-            onConfirm()
-            onClose()
-          }} />
+          <Button text="Accept" onPress={onConfirm} />
         </View>
       </View>
     </Modal>

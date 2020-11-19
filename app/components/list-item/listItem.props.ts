@@ -28,6 +28,16 @@ export interface ListItemProps extends TouchableOpacityProps {
   valueText?: string
 
   /**
+   * Icon displayed on the right side of the component.
+   */
+  rightIcon?: string
+
+  /**
+   * Icon displayed on the left side of the component.
+   */
+  leftIcon?: string
+
+  /**
    * An optional style override useful for padding & margin.
    */
   style?: ViewStyle | ViewStyle[]
