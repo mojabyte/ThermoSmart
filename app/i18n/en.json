@@ -13,7 +13,8 @@
     "noDevice": "No device available.\n\nPlease add a new device by pressing \"+\" button."
   },
   "deviceListScreen": {
-    "title": "Devices"
+    "title": "Devices",
+    "rightHeader": "New Device"
   },
   "addDeviceScreen": {
     "header": {
@@ -21,9 +22,12 @@
       "edit": "Edit Device"
     },
     "name": "Name",
+    "nameErrors": {
+      "required": "Please enter a name for the device"
+    },
     "namePlaceholder": "My Device",
     "simNumber": "SIM Number",
-    "simNumberPlaceholder": "091xxxxxxxx",
+    "simNumberPlaceholder": "09xx xxxxxxx",
     "simNumberErrors": {
       "invalid": "Please enter a valid sim number",
       "exists": "The device with this sim number already exists"
@@ -35,6 +39,10 @@
   },
   "deviceOptionsScreen": {
     "title": "Devices",
+    "rightHeader": "Edit",
+    "simCardChargeCode": "Charge Code",
+    "simCardChargePlaceholder": "Enter charge code",
+    "simCardChargeRequired": "Enter a valid charge code",
     "newPassword": "New Password",
     "passwordPlaceholder": "6 digit password, e.g. 123456",
     "passwordLengthError": "Password should be 6 digits."

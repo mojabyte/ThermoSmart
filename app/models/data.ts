@@ -36,7 +36,11 @@ export const DeviceModel = types
     }),
 
     simCharge: '',
+    simCreditSmsInterval: 1,
     signalStrength: '',
+    powerOutageSmsInterval: 5,
+
+    calibration: 0,
 
     laborCheck: types.optional(types.model({
       mode: types.maybeNull(types.enumeration(['1', '2', '3'])),
@@ -62,7 +66,10 @@ export const DeviceModel = types
       updateAlarmIntervalLoading: false,
       sendRpcLoading: false,
       getSimChargeLoading: false,
-      getSignalStrengthLoading: false
+      getSimCreditSmsIntervalLoading: false,
+      getSignalStrengthLoading: false,
+      getPowerOutageSmsIntervalLoading: false,
+      getCalibrationLoading: false
     }
   }))
   .actions(self => ({
@@ -106,8 +113,17 @@ export const DeviceModel = types
     setSimCharge(charge: string) {
       self.simCharge = charge
     },
+    setSimCreditSmsInterval(interval: number) {
+      self.simCreditSmsInterval = interval
+    },
     setSignalStrength(strength: string) {
       self.signalStrength = strength
+    },
+    setPowerOutageSmsInterval(interval: number) {
+      self.powerOutageSmsInterval = interval
+    },
+    setCalibration(calibration: number) {
+      self.calibration = calibration
     },
     setStatus(newStatus: any) {
       self.status = { ...self.status, ...newStatus }
@@ -141,8 +157,10 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_PHONE_NUMBERS',
         message: `*${self.password}#100#`,
-        callback: response => {
-          this.setPhoneNumbers(response.split('\n'))
+        callback: (response, error) => {
+          if (!error) {
+            this.setPhoneNumbers(response.split('\n'))
+          }
           this.setStatus({ getPhoneNumbersLoading: false })
         },
         hasResponse: true
@@ -191,9 +209,11 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_TEMPERATURE',
         message: `#85#${hour}*`,
-        callback: response => {
-          const ts = `${+moment().set('hour', hour).startOf('hour')}`
-          this.setTemperature({ value: parseFloat(response), ts })
+        callback: (response, error) => {
+          if (!error) {
+            const ts = `${+moment().set('hour', hour).startOf('hour')}`
+            this.setTemperature({ value: parseFloat(response), ts })
+          }
           this.setStatus({ getTemperatureLoading: false })
         },
         hasResponse: true
@@ -208,14 +228,16 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_THERMOSTAT_VALUES',
         message: '#15#',
-        callback: response => {
-          // TODO: update this parse method
-          const values = response.split(',')
-          this.setThermostatValues({
-            max: parseFloat(values[0]),
-            nor: parseFloat(values[1]),
-            min: parseFloat(values[2])
-          })
+        callback: (response, error) => {
+          if (!error) {
+            // TODO: update this parse method
+            const values = response.split(',')
+            this.setThermostatValues({
+              max: parseFloat(values[0]),
+              nor: parseFloat(values[1]),
+              min: parseFloat(values[2])
+            })
+          }
           this.setStatus({ getThermostatValuesLoading: false })
         },
         hasResponse: true
@@ -273,26 +295,32 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_ALARM_VALUES',
         message: '#8000#',
-        callback: response => {
-          // TODO: update this parse method
-          const high = response.split(',').map(str => parseFloat(str))
-          this.setAlarmValues({ high })
+        callback: (response, error) => {
+          if (!error) {
+            // TODO: update this parse method
+            const high = response.split(',').map(str => parseFloat(str))
+            this.setAlarmValues({ high })
+          }
           env.sms.send({
             phoneNumber: self.simNumber,
             type: 'GET_ALARM_VALUES',
             message: '#7000#',
-            callback: response => {
-              // TODO: update this parse method
-              const low = response.split(',').map(str => parseFloat(str))
-              this.setAlarmValues({ low })
+            callback: (response, error) => {
+              if (!error) {
+                // TODO: update this parse method
+                const low = response.split(',').map(str => parseFloat(str))
+                this.setAlarmValues({ low })
+              }
               env.sms.send({
                 phoneNumber: self.simNumber,
                 type: 'GET_ALARM_VALUES',
                 message: '#9000#',
-                callback: response => {
-                  // TODO: update this parse method
-                  const interval = parseFloat(response)
-                  this.setAlarmValues({ interval })
+                callback: (response, error) => {
+                  if (!error) {
+                    // TODO: update this parse method
+                    const interval = parseFloat(response)
+                    this.setAlarmValues({ interval })
+                  }
                   this.setStatus({ getAlarmValuesLoading: false })
                 },
                 hasResponse: true
@@ -368,13 +396,60 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_SIM_CHARGE',
         message: '#12#',
-        callback: response => {
-          this.setSimCharge(response)
+        callback: (response, error) => {
+          if (!error) {
+            this.setSimCharge(response)
+          }
           this.setStatus({ getSimChargeLoading: false })
         },
         hasResponse: true
       })
     },
+    sendSimChargeCode(code: string) {
+      this.setStatus({ getSimChargeLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'SEND_SIM_CHARGE_CODE',
+        message: `*950#${code}*`,
+        callback: () => {
+          this.setStatus({ getSimChargeLoading: false })
+        }
+      })
+    },
+    getSimCreditSmsInterval() {
+      this.setStatus({ getSimCreditSmsIntervalLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_SIM_CREDIT_SMS_INTERVAL',
+        message: '#14#',
+        callback: (response, error) => {
+          if (!error) {
+            this.setSimCreditSmsInterval(parseFloat(response))
+          }
+          this.setStatus({ getSimCreditSmsIntervalLoading: false })
+        },
+        hasResponse: true
+      })
+    },
+    updateSimCreditSmsInterval(interval: number) {
+      this.setStatus({ getSimCreditSmsIntervalLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_SIM_CREDIT_SMS_INTERVAL',
+        message: `*${self.password}#14#${interval}*`,
+        callback: () => {
+          this.setSimCreditSmsInterval(interval)
+          this.setStatus({ getSimCreditSmsIntervalLoading: false })
+        }
+      })
+    },
+
     getSignalStrength() {
       this.setStatus({ getSignalStrengthLoading: true })
 
@@ -383,11 +458,90 @@ export const DeviceModel = types
         phoneNumber: self.simNumber,
         type: 'GET_SIGNAL_STRENGTH',
         message: '#13#',
-        callback: response => {
-          this.setSignalStrength(response)
+        callback: (response, error) => {
+          if (!error) {
+            this.setSignalStrength(response)
+          }
           this.setStatus({ getSignalStrengthLoading: false })
         },
         hasResponse: true
+      })
+    },
+
+    getPowerOutageSmsInterval() {
+      this.setStatus({ getPowerOutageSmsIntervalLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_POWER_OUTAGE_SMS_INTERVAL',
+        message: '#220#',
+        callback: (response, error) => {
+          if (!error) {
+            this.setPowerOutageSmsInterval(parseFloat(response))
+          }
+          this.setStatus({ getPowerOutageSmsIntervalLoading: false })
+        },
+        hasResponse: true
+      })
+    },
+    updatePowerOutageSmsInterval(interval: number) {
+      this.setStatus({ getPowerOutageSmsIntervalLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_POWER_OUTAGE_SMS_INTERVAL',
+        message: `*${self.password}#220#${interval}*`,
+        callback: () => {
+          this.setPowerOutageSmsInterval(interval)
+          this.setStatus({ getPowerOutageSmsIntervalLoading: false })
+        }
+      })
+    },
+
+    getCalibration() {
+      this.setStatus({ getCalibrationLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_CALIBRATION',
+        message: '#695#',
+        callback: (response, error) => {
+          if (!error) {
+            this.setCalibration(parseFloat(response))
+          }
+          this.setStatus({ getCalibrationLoading: false })
+        },
+        hasResponse: true
+      })
+    },
+    updateCalibration(calibration: number) {
+      this.setStatus({ getCalibrationLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'UPDATE_CALIBRATION',
+        message: `*${self.password}#6${calibration > 0 ? '90' : '80'}#${
+          Math.round(Math.abs(calibration) * 10)}*`,
+        callback: () => {
+          this.setStatus({ getCalibrationLoading: false })
+        }
+      })
+    },
+    resetCalibration() {
+      this.setStatus({ getCalibrationLoading: true })
+
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'RESET_CALIBRATION',
+        message: `*${self.password}#685#`,
+        callback: () => {
+          this.setStatus({ getCalibrationLoading: false })
+        }
       })
     }
   }))

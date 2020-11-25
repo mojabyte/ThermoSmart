@@ -50,13 +50,26 @@ const DEVICE_SELECT_CONTAINER: ViewStyle = {
 const DEVICE_SELECT_TITLE: ViewStyle = {
   flex: 1,
   alignSelf: 'center',
-  justifyContent: 'space-around'
+  justifyContent: 'space-around',
+  paddingEnd: spacing[4]
+}
+
+const DEVICE_SELECT_TITLE_ROW: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between'
 }
 
 const DEVICE_SELECT_TITLE_TEXT: TextStyle = {
   fontSize: 20,
   color: color.text,
   textAlign: 'left'
+}
+
+const DEVICE_SELECT_SIM_NUMBER: TextStyle = {
+  fontSize: 12,
+  color: color.palette.lighterGrey,
+  textAlign: 'right'
 }
 
 const DEVICE_SELECT_DETAILS_TEXT: TextStyle = {
@@ -72,8 +85,15 @@ const LAST_TEMPERATURE_VALUE: TextStyle = {
   alignSelf: 'center'
 }
 
+const CARD_TITLE_CONTAINER: ViewStyle = {
+  flexDirection: 'row',
+  alignItems: 'center'
+}
+
 const CARD_TITLE: TextStyle = {
-  fontSize: 14
+  fontSize: 12,
+  lineHeight: 14,
+  paddingStart: spacing[2]
 }
 
 export const MainScreen = observer(function MainScreen() {
@@ -195,9 +215,12 @@ export const MainScreen = observer(function MainScreen() {
                 }}
                 style={{ flex: 0.7 }}
               >
-                <Text text="Temperature" style={CARD_TITLE} />
+                <View style={CARD_TITLE_CONTAINER}>
+                  <Icon name="thermometer-lines" />
+                  <Text text="Temperature" style={CARD_TITLE} />
+                </View>
                 <Text
-                  text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°C` || 'no data'}
+                  text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°c` || 'no data'}
                   style={LAST_TEMPERATURE_VALUE}
                 />
                 <Text
@@ -208,10 +231,13 @@ export const MainScreen = observer(function MainScreen() {
 
               <Button preset="card" style={{ flex: 0.3 }}>
                 <View style={{ flexDirection: 'row' }}>
-                  <Text text="Status" style={[CARD_TITLE, { flex: 1 }]} />
+                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
+                    <Icon name="information" />
+                    <Text text="Status" style={CARD_TITLE} />
+                  </View>
                 </View>
 
-                <View style={{ flex:1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Button
                     text={`${selectedDevice.simCharge} Rial`}
                     onPress={() => selectedDevice.getSimCharge()}
@@ -230,7 +256,10 @@ export const MainScreen = observer(function MainScreen() {
             <View style={{ flex: 0.4, flexDirection: 'column' }}>
               <Button preset="card" style={{ flex: 0.45 }}>
                 <View style={{ flexDirection: 'row' }}>
-                  <Text text="Thermostat" style={[CARD_TITLE, { flex: 1 }]} />
+                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
+                    <Icon name="thermostat" />
+                    <Text text="Thermostat" style={CARD_TITLE} />
+                  </View>
                   {selectedDevice.status.getThermostatValuesLoading ? (
                     <Text text="loading..." />
                   ) : (
@@ -273,7 +302,10 @@ export const MainScreen = observer(function MainScreen() {
 
               <Button preset="card" style={{ flex: 0.55 }}>
                 <View style={{ flexDirection: 'row' }}>
-                  <Text text="Alarm" style={[CARD_TITLE, { flex: 1 }]} />
+                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
+                    <Icon name="alarm" />
+                    <Text text="Alarm" style={CARD_TITLE} />
+                  </View>
                   {selectedDevice.status.getAlarmValuesLoading ? (
                     <Text text="loading..." />
                   ) : (
@@ -320,7 +352,10 @@ export const MainScreen = observer(function MainScreen() {
           <View style={{ flex: 0.3, flexDirection: 'row' }}>
             <Button preset="card" style={{ flex: 0.75 }}>
               <View style={{ flexDirection: 'row' }}>
-                <Text text="Control" style={CARD_TITLE} />
+                <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
+                  <Icon name="camera-control" />
+                  <Text text="Control" style={CARD_TITLE} />
+                </View>
               </View>
 
               <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -401,12 +436,10 @@ export const MainScreen = observer(function MainScreen() {
             style={DEVICE_SELECT_CONTAINER}
           >
             <View style={DEVICE_SELECT_TITLE}>
-              <Text
-                style={DEVICE_SELECT_TITLE_TEXT}
-                numberOfLines={1}
-              >
-                {selectedDevice.name}
-              </Text>
+              <View style={DEVICE_SELECT_TITLE_ROW}>
+                <Text text={selectedDevice.name} numberOfLines={1} style={DEVICE_SELECT_TITLE_TEXT} />
+                <Text text={`0${selectedDevice.simNumber}`} style={DEVICE_SELECT_SIM_NUMBER} />
+              </View>
 
               { selectedDevice.place
                 ? <Text
@@ -442,8 +475,8 @@ export const MainScreen = observer(function MainScreen() {
         >
           <View>
             <View style={{ alignSelf: 'center' }}>
-              <Text text={`${sliderValues[0].toFixed(1)}°C ${
-                `${sliderValues[1] ? `- ${sliderValues[1].toFixed(1)}°C` : ''}`}`}/>
+              <Text text={`${sliderValues[0].toFixed(1)}°c ${
+                `${sliderValues[1] ? `- ${sliderValues[1].toFixed(1)}°c` : ''}`}`}/>
               <MultiSlider
                 values={sliderValues}
                 min={-20}

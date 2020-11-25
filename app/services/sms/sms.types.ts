@@ -14,6 +14,6 @@ export interface SendParams {
   phoneNumber: string
   type: string
   message: string
-  callback: (response?: string) => void
+  callback: (response?: string, error?: string) => void
   hasResponse?: boolean
 }

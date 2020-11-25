@@ -1,6 +1,13 @@
 import { TextInputProps, TextStyle, ViewStyle } from "react-native"
+import { TextInputMaskOptionProp, TextInputMaskTypeProp } from "react-native-masked-text"
 
 export interface TextFieldProps extends TextInputProps {
+  /**
+   * Text-input-mask props
+   */
+  type?: TextInputMaskTypeProp;
+  options?: TextInputMaskOptionProp
+
   /**
    * The placeholder i18n key.
    */

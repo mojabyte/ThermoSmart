@@ -66,6 +66,7 @@ export class Sms {
           const timeout = setTimeout(() => {
             this.pendingList.get(phoneNumber).delete(type)
             console.log('timeout')
+            callback(undefined, 'timeout')
           }, 30000)
 
           type = 'default' // TODO

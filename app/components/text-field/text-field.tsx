@@ -1,5 +1,6 @@
 import React from "react"
 import { View, TextInput, TextStyle, ViewStyle } from "react-native"
+import { TextInputMask } from "react-native-masked-text"
 import { color, spacing, typography } from "../../theme"
 import { translate } from "../../i18n"
 import { Text } from "../text/text"
@@ -36,6 +37,7 @@ const enhance = (style, styleOverride) => {
  */
 export function TextField(props: TextFieldProps) {
   const {
+    type,
     placeholderTx,
     placeholder,
     labelTx,
@@ -60,10 +62,13 @@ export function TextField(props: TextFieldProps) {
   inputStyle = enhance(inputStyle, inputStyleOverride)
   const actualPlaceholder = placeholderTx ? translate(placeholderTx) : placeholder
 
+  const TextInputComponent = type ? TextInputMask : TextInput
+
   return (
     <View style={containerStyle}>
       <Text preset="fieldLabel" tx={labelTx} text={label} />
-      <TextInput
+      <TextInputComponent
+        type={type}
         placeholder={actualPlaceholder}
         placeholderTextColor={color.palette.grey}
         underlineColorAndroid={color.transparent}

@@ -28,6 +28,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
         leftIcon="back"
         onLeftPress={() => navigation.goBack()}
         rightIcon="plus"
+        rightTx="deviceListScreen.rightHeader"
         onRightPress={() => navigation.navigate('add')}
       />
 

@@ -18,8 +18,12 @@ const ROOT: ViewStyle = {
 }
 const TITLE: TextStyle = { textAlign: "center" }
 const TITLE_MIDDLE: ViewStyle = { flex: 1, justifyContent: "center" }
-const LEFT: ViewStyle = { width: 32 }
-const RIGHT: ViewStyle = { width: 32 }
+const SIDE_BUTTONS: ViewStyle = { width: 75, flexDirection: 'row', alignItems: "center" }
+const LEFT: ViewStyle = { justifyContent: 'flex-start' }
+const RIGHT: ViewStyle = { justifyContent: 'flex-end' }
+const SIDE_TEXT: TextStyle = { fontSize: 10, lineHeight: 14, paddingHorizontal: spacing[2] }
+
+const HIT_SLOP = { top: 20, left: 20, right: 20, bottom: 20 }
 
 /**
  * Header that appears on many screens. Will hold navigation buttons and screen title.
@@ -28,8 +32,12 @@ export function Header(props: HeaderProps) {
   const {
     onLeftPress,
     onRightPress,
-    rightIcon,
     leftIcon,
+    rightIcon,
+    leftTx,
+    leftText,
+    rightTx,
+    rightText,
     headerText,
     headerTx,
     style,
@@ -40,21 +48,25 @@ export function Header(props: HeaderProps) {
   return (
     <View style={{ ...ROOT, ...style }}>
       {leftIcon ? (
-        <Button preset="link" onPress={onLeftPress}>
+        <Button preset="link" onPress={onLeftPress} hitSlop={HIT_SLOP} style={[SIDE_BUTTONS, LEFT]}>
           <Icon name={leftIcon} />
+          <Text tx={leftTx} text={leftText} style={SIDE_TEXT} />
         </Button>
       ) : (
-        <View style={LEFT} />
+        <View style={[SIDE_BUTTONS, LEFT]} />
       )}
       <View style={TITLE_MIDDLE}>
         <Text style={{ ...TITLE, ...titleStyle }} text={header} />
       </View>
       {rightIcon ? (
-        <Button preset="link" onPress={onRightPress}>
+        <Button preset="link" onPress={onRightPress} hitSlop={HIT_SLOP} style={[SIDE_BUTTONS, RIGHT]}>
+          { (rightTx || rightText) ? (
+            <Text tx={rightTx} text={rightText} style={SIDE_TEXT} />
+          ) : null}
           <Icon name={rightIcon} />
         </Button>
       ) : (
-        <View style={RIGHT} />
+        <View style={[SIDE_BUTTONS, RIGHT]} />
       )}
     </View>
   )

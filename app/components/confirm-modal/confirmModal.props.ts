@@ -1,7 +1,8 @@
-import { ViewStyle, TextStyle, TouchableOpacityProps } from "react-native"
+import { ViewStyle, TextStyle } from "react-native"
+import { ModalProps } from "react-native-modal"
 import { ConfirmModalPresetNames } from "./confirmModal.presets"
 
-export interface ConfirmModalProps extends TouchableOpacityProps {
+export interface ConfirmModalProps extends ModalProps {
   /**
    * Text which is looked up via i18n.
    */
@@ -15,7 +16,7 @@ export interface ConfirmModalProps extends TouchableOpacityProps {
   /**
    * The state of modal visibility
    */
-  isVisible?: boolean
+  isVisible: boolean
 
   /**
    * The function called when modal be closed
@@ -45,5 +46,5 @@ export interface ConfirmModalProps extends TouchableOpacityProps {
   /**
    * One of the different types of text presets.
    */
-  children?: React.ReactNode
+  children: React.ReactNode
 }

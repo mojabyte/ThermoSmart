@@ -11,7 +11,9 @@ const BASE_VIEW: ViewStyle = {
 }
 
 const BASE_TEXT: TextStyle = {
-  paddingHorizontal: spacing[3],
+  flex: 1,
+  textAlignVertical: 'center',
+  paddingHorizontal: spacing[3]
 }
 
 /**
@@ -31,7 +33,7 @@ export const textPresets = {
     ...BASE_TEXT,
     fontSize: 14,
     color: color.palette.white,
-    fontWeight: "bold"
+    fontWeight: "bold",
   } as TextStyle,
 }
 

@@ -5,6 +5,7 @@ import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./listItem.presets"
 import { ListItemProps } from "./listItem.props"
 import { mergeAll, flatten } from "ramda"
+import { color, spacing } from "../../theme"
 
 /**
  * For your text displaying needs.
@@ -43,20 +44,38 @@ export function ListItem(props: ListItemProps) {
     justifyContent: 'space-between'
   }
 
-  const content = children || <Text text={valueText} style={textStyle} />
+  const DETAILS: TextStyle = {
+    color: color.palette.lightGrey,
+    paddingHorizontal: spacing[3],
+    fontSize: 12
+  }
+
+  const VALUE: TextStyle = {
+    color: color.palette.lighterGrey,
+    paddingHorizontal: spacing[3]
+  }
+
+  const ICON: TextStyle = {
+    paddingHorizontal: spacing[2],
+    justifyContent: 'center'
+  }
+
+  const content = children || <Text text={valueText} style={VALUE} />
 
   return (
     <TouchableOpacity style={viewStyle} {...rest}>
       <View style={CONTAINER}>
-        {leftIcon ? <Icon name={leftIcon} size={30} /> : null}
+        {leftIcon ? <Icon name={leftIcon} size={20} containerStyle={ICON} /> : null}
         <View style={MAIN}>
           <View>
             <Text tx={titleTx} text={titleText} style={textStyle} />
-            <Text tx={detailsTx} text={detailsText} style={textStyle} />
+            { (detailsTx || detailsText) ? (
+              <Text tx={detailsTx} text={detailsText} style={DETAILS} />
+            ) : null }
           </View>
           {content}
         </View>
-        {rightIcon ? <Icon name={rightIcon} size={30} /> : null}
+        {rightIcon ? <Icon name={rightIcon} size={20} containerStyle={ICON} /> : null}
       </View>
     </TouchableOpacity>
   )

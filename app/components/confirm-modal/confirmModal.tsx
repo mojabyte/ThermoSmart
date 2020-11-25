@@ -55,7 +55,7 @@ export function ConfirmModal(props: ConfirmModalProps) {
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly'}}>
           <Button text="Cancel" onPress={onClose} />
-          <Button text="Accept" onPress={onConfirm} />
+          <Button text="Apply" onPress={onConfirm} />
         </View>
       </View>
     </Modal>

@@ -32,6 +32,26 @@ export interface HeaderProps {
   onRightPress?(): void
 
   /**
+   * Text that should appear on the left
+   */
+  leftTx?: string
+
+  /**
+   * Text that should appear on the left non i18n
+   */
+  leftText?: string
+
+ /**
+   * Text that should appear on the right
+   */
+  rightTx?: string
+
+  /**
+   * Text that should appear on the right non i18n
+   */
+  rightText?: string
+
+  /**
    * Container style overrides.
    */
   style?: ViewStyle
