@@ -112,51 +112,7 @@ export const MainScreen = observer(function MainScreen() {
     })
       .then(granted => {
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          /* List SMS messages matching the filter */
-          const filter = {
-            box: 'sent', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
-
-            /**
-             *  the next 3 filters can work together, they are AND-ed
-             *
-             *  minDate, maxDate filters work like this:
-             *    - If and only if you set a maxDate, it's like executing this SQL query:
-             *    "SELECT * from messages WHERE (other filters) AND date <= maxDate"
-             *    - Same for minDate but with "date >= minDate"
-             */
-            // minDate: 1554636310165, // timestamp (in milliseconds since UNIX epoch)
-            // maxDate: 1556277910456, // timestamp (in milliseconds since UNIX epoch)
-            // bodyRegex: '(.*)How are you(.*)', // content regex to match
-
-            /** the next 5 filters should NOT be used together, they are OR-ed so pick one **/
-            // read: 0, // 0 for unread SMS, 1 for SMS already read
-            // _id: 1234, // specify the msg id
-            // thread_id: 12, // specify the conversation thread_id
-            address: '+989179637615', // sender's phone number
-            // body: 'How are you', // content to match
-            /** the next 2 filters can be used for pagination **/
-            // indexFrom: 0, // start from index 0
-            // maxCount: 10, // count of SMS to return each time
-          }
-
-          // SmsAndroid.list(
-          //   JSON.stringify(filter),
-          //   fail => {
-          //     console.log('Failed with this error: ' + fail)
-          //   },
-          //   (count, smsList) => {
-          //     console.log('Count: ', count)
-          //     console.log('List: ')
-          //     const arr = JSON.parse(smsList)
-          //     console.log(arr)
-
-          //     arr.forEach(function(object) {
-          //       console.log('Object: ' + object)
-          //       console.log('-->' + object.date)
-          //       console.log('-->' + object.body)
-          //     })
-          //   },
-          // )
+          // TODO store permissions to display user every time it's denied
         } else {
           console.log("SMS permission denied")
         }
@@ -187,6 +143,7 @@ export const MainScreen = observer(function MainScreen() {
   const [isEditModalVisible, setEditModalVisible] = useState(false)
   const [sliderValues, setSliderValues] = useState([0])
   const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>(null)
+  const [signalIcon, setSignalIcon] = useState('signal-cellular-3')
 
   useEffect(() => {
     setSelectedDevice(devices.get(selectedDeviceID))
@@ -201,6 +158,20 @@ export const MainScreen = observer(function MainScreen() {
       setSelectedDeviceID(null)
     }
   }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID])
+
+  useEffect(() => {
+    if (selectedDevice.signalStrength < 25) {
+      setSignalIcon('signal-off')
+    } else if (selectedDevice.signalStrength < 50) {
+      setSignalIcon('signal-cellular-outline')
+    } else if (selectedDevice.signalStrength < 75) {
+      setSignalIcon('signal-cellular-1')
+    } else if (selectedDevice.signalStrength < 100) {
+      setSignalIcon('signal-cellular-2')
+    } else {
+      setSignalIcon('signal-cellular-3')
+    }
+  }, [selectedDevice.signalStrength])
 
   const renderScreenContent = function () {
     if (selectedDevice?.simNumber) {
@@ -245,10 +216,11 @@ export const MainScreen = observer(function MainScreen() {
                   />
 
                   <Button
-                    text={`${selectedDevice.signalStrength}`}
                     onPress={() => selectedDevice.getSignalStrength()}
                     style={{ flex: 0.5, margin: 3 }}
-                  />
+                  >
+                    <Icon name={signalIcon} />
+                  </Button>
                 </View>
               </Button>
             </View>

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { View, ViewStyle } from "react-native"
+import { ScrollView, View, ViewStyle } from "react-native"
 import { FormProps } from "./form.props"
 import { mergeAll, flatten } from "ramda"
 import { spacing } from "../../theme"
@@ -22,9 +22,9 @@ const INPUTS_CONTAINER: ViewStyle = {
 export function Form(props: FormProps) {
   return (
     <View style={mergeAll(flatten([ROOT, props.style]))}>
-      <View style={INPUTS_CONTAINER}>
+      <ScrollView style={INPUTS_CONTAINER}>
         {props.children}
-      </View>
+      </ScrollView>
       {props.submitButton}
     </View>
   )

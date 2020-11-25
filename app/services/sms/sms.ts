@@ -1,6 +1,6 @@
 import SmsAndroid from 'react-native-get-sms-android'
 import SmsListener from 'react-native-android-sms-listener'
-import { getGeneralApiProblem } from "./sms-problem"
+// import { getGeneralApiProblem } from "./sms-problem"
 import { SmsConfig, DEFAULT_API_CONFIG } from "./sms-config"
 import * as Types from "./sms.types"
 
@@ -31,14 +31,37 @@ export class Sms {
       console.log(body, originatingAddress)
 
       // Get type of received SMS from it's body
-      const getSmsType = () => 'default' // TODO
+      const getSmsType = (body: string) => {
+        if (['*', '#'].includes(body[0])) {
+          return 'other'
+        } else if (body.includes('مقدار  دما')) {
+          return 'GET_TEMPERATURE'
+        } else if (body.includes('مقادير ترموستات')) {
+          return 'GET_THERMOSTAT_VALUES'
+        } else if (body.includes('مقادير هشدار ماكزيمم')) {
+          return 'GET_ALARM_VALUES_HIGH'
+        } else if (body.includes('مقادير هشدار مينيمم')) {
+          return 'GET_ALARM_VALUES_LOW'
+        } else if (body.includes('زمان ارسال پيامك هشدار بعدي')) {
+          return 'GET_ALARM_VALUES_INTERVAL'
+        } else if (body.includes('اعتبار شما')) {
+          return 'GET_SIM_CHARGE'
+        } else if (body.includes('ميزان آنتن دهي')) {
+          return 'GET_SIGNAL_STRENGTH'
+        } else if (body.includes('شماره تلفن هاي موجود')) {
+          return 'GET_PHONE_NUMBERS'
+        }
+        return 'default' // TODO
+      }
       const type = getSmsType(body)
+      console.log(type)
 
       // Check if there exists a pending SMS in the list
       if (
         this.pendingList.has(originatingAddress) &&
         this.pendingList.get(originatingAddress).has(type)
       ) {
+        console.log(this.pendingList.get(originatingAddress))
         const { timeout, callback } = this.pendingList.get(originatingAddress).get(type)
         clearTimeout(timeout) // Clear pending SMS timeout
         if (callback) callback(body)
@@ -52,8 +75,9 @@ export class Sms {
    */
   send({ phoneNumber, type, message, callback, hasResponse }: Types.SendParams) {
     console.log(phoneNumber, type, message)
+    const phoneNumberWithCode = `+98${phoneNumber}`
     SmsAndroid.autoSend(
-      phoneNumber,
+      phoneNumberWithCode,
       message,
       (error: string) => {
         console.log(error)
@@ -64,18 +88,19 @@ export class Sms {
         if (hasResponse) {
           // Clear item from pending list on timeout
           const timeout = setTimeout(() => {
-            this.pendingList.get(phoneNumber).delete(type)
+            this.pendingList.get(phoneNumberWithCode).delete(type)
             console.log('timeout')
             callback(undefined, 'timeout')
           }, 30000)
 
-          type = 'default' // TODO
+          // type = 'default' // TODO
 
           // Add new item to pending list
-          if (!this.pendingList.has(phoneNumber)) {
-            this.pendingList.set(phoneNumber, new Map<string, Types.SmsPendingListItem>())
+          if (!this.pendingList.has(phoneNumberWithCode)) {
+            this.pendingList.set(phoneNumberWithCode, new Map<string, Types.SmsPendingListItem>())
           }
-          this.pendingList.get(phoneNumber).set(type, { callback, timeout })
+          this.pendingList.get(phoneNumberWithCode).set(type, { callback, timeout })
+          console.log(this.pendingList)
         } else {
           callback()
         }

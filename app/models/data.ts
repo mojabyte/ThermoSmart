@@ -3,6 +3,15 @@ import moment from "moment-jalaali"
 import { sortBy } from 'ramda'
 import { Environment } from './environment'
 
+const parseFloats = (string: string) => {
+  const regex = /[+-]?\d+(\.\d+)?/g
+  return string.match(regex).map(v => parseFloat(v))
+}
+
+const toEnDigit = (string: string) => string
+  .replace(/[\u0660-\u0669]/g, c => (c.charCodeAt(0) - 0x0660).toString())
+  .replace(/[\u06f0-\u06f9]/g, c => (c.charCodeAt(0) - 0x06f0).toString())
+
 export const DeviceModel = types
   .model({
     name: types.string,
@@ -35,9 +44,9 @@ export const DeviceModel = types
       interval: 0
     }),
 
-    simCharge: '',
+    simCharge: 0,
     simCreditSmsInterval: 1,
-    signalStrength: '',
+    signalStrength: 100,
     powerOutageSmsInterval: 5,
 
     calibration: 0,
@@ -110,13 +119,13 @@ export const DeviceModel = types
       self.alarm.low.replace(low ?? self.alarm.low)
       self.alarm.interval = interval ?? self.alarm.interval
     },
-    setSimCharge(charge: string) {
+    setSimCharge(charge: number) {
       self.simCharge = charge
     },
     setSimCreditSmsInterval(interval: number) {
       self.simCreditSmsInterval = interval
     },
-    setSignalStrength(strength: string) {
+    setSignalStrength(strength: number) {
       self.signalStrength = strength
     },
     setPowerOutageSmsInterval(interval: number) {
@@ -159,7 +168,9 @@ export const DeviceModel = types
         message: `*${self.password}#100#`,
         callback: (response, error) => {
           if (!error) {
-            this.setPhoneNumbers(response.split('\n'))
+            const phoneNumbers = response.split('\n').slice(1)
+              .map(line => (line[8] !== '0') ? line.slice(7, 18) : null)
+            this.setPhoneNumbers(phoneNumbers)
           }
           this.setStatus({ getPhoneNumbersLoading: false })
         },
@@ -211,8 +222,11 @@ export const DeviceModel = types
         message: `#85#${hour}*`,
         callback: (response, error) => {
           if (!error) {
-            const ts = `${+moment().set('hour', hour).startOf('hour')}`
-            this.setTemperature({ value: parseFloat(response), ts })
+            const value = parseFloats(response)[0]
+            if (value) {
+              const ts = `${+moment().set('hour', hour).startOf('hour')}`
+              this.setTemperature({ value, ts })
+            }
           }
           this.setStatus({ getTemperatureLoading: false })
         },
@@ -230,12 +244,12 @@ export const DeviceModel = types
         message: '#15#',
         callback: (response, error) => {
           if (!error) {
-            // TODO: update this parse method
-            const values = response.split(',')
+            const values = parseFloats(response)
+            console.log(values)
             this.setThermostatValues({
-              max: parseFloat(values[0]),
-              nor: parseFloat(values[1]),
-              min: parseFloat(values[2])
+              max: values[0],
+              nor: values[1],
+              min: values[2]
             })
           }
           this.setStatus({ getThermostatValuesLoading: false })
@@ -293,32 +307,29 @@ export const DeviceModel = types
       const env: Environment = getEnv(self)
       env.sms.send({
         phoneNumber: self.simNumber,
-        type: 'GET_ALARM_VALUES',
+        type: 'GET_ALARM_VALUES_HIGH',
         message: '#8000#',
         callback: (response, error) => {
           if (!error) {
-            // TODO: update this parse method
-            const high = response.split(',').map(str => parseFloat(str))
+            const high = parseFloats(response)
             this.setAlarmValues({ high })
           }
           env.sms.send({
             phoneNumber: self.simNumber,
-            type: 'GET_ALARM_VALUES',
+            type: 'GET_ALARM_VALUES_LOW',
             message: '#7000#',
             callback: (response, error) => {
               if (!error) {
-                // TODO: update this parse method
-                const low = response.split(',').map(str => parseFloat(str))
+                const low = parseFloats(response)
                 this.setAlarmValues({ low })
               }
               env.sms.send({
                 phoneNumber: self.simNumber,
-                type: 'GET_ALARM_VALUES',
+                type: 'GET_ALARM_VALUES_INTERVAL',
                 message: '#9000#',
                 callback: (response, error) => {
                   if (!error) {
-                    // TODO: update this parse method
-                    const interval = parseFloat(response)
+                    const interval = parseFloats(response)[0]
                     this.setAlarmValues({ interval })
                   }
                   this.setStatus({ getAlarmValuesLoading: false })
@@ -398,7 +409,7 @@ export const DeviceModel = types
         message: '#12#',
         callback: (response, error) => {
           if (!error) {
-            this.setSimCharge(response)
+            this.setSimCharge(parseFloats(toEnDigit(response))[0])
           }
           this.setStatus({ getSimChargeLoading: false })
         },
@@ -460,7 +471,7 @@ export const DeviceModel = types
         message: '#13#',
         callback: (response, error) => {
           if (!error) {
-            this.setSignalStrength(response)
+            this.setSignalStrength(parseFloats(response)[0])
           }
           this.setStatus({ getSignalStrengthLoading: false })
         },
