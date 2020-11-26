@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ScrollView, View, ViewStyle } from "react-native"
+import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, ConfirmModal, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
@@ -16,15 +16,18 @@ const ROOT: ViewStyle = {
 const LIST_TITLE_CONTAINER: ViewStyle = {
   flex: 1,
   marginHorizontal: spacing[4],
-  marginTop: spacing[3],
-  borderBottomColor: color.palette.lightGrey,
-  borderBottomWidth: 1
+  marginTop: spacing[4],
+  marginBottom: spacing[1]
+}
+
+const LIST_TITLE: TextStyle = {
+  color: color.primary
 }
 
 const ListTitle = function(props: TextProps) {
   return (
     <View style={LIST_TITLE_CONTAINER}>
-      <Text {...props} />
+      <Text style={LIST_TITLE} {...props} />
     </View>
   )
 }

@@ -136,7 +136,7 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
           forwardedRef={phoneInput}
           type="custom"
           options={{
-            mask: '0999 9999999',
+            mask: '0999 999 9999',
             getRawValue: parseSimNumber,
             validator: value => {
               const parsedValue = parseSimNumber(value)

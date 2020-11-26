@@ -1,6 +1,12 @@
 import { ViewStyle, TextStyle } from "react-native"
+import { HeaderPresetNames } from "./header.presets";
 
 export interface HeaderProps {
+  /**
+   * One of the different types of text presets.
+   */
+  preset?: HeaderPresetNames
+
   /**
    * Main header, e.g. POWERED BY BOWSER
    */

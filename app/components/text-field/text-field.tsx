@@ -19,7 +19,7 @@ const INPUT: TextStyle = {
   minHeight: 44,
   fontSize: 18,
   borderRadius: 4,
-  backgroundColor: color.palette.black,
+  backgroundColor: color.palette.white,
   borderWidth: 1
 }
 
@@ -56,7 +56,7 @@ export function TextField(props: TextFieldProps) {
   let inputStyle: TextStyle = {
     ...INPUT,
     ...{
-      borderColor: errorTx || error ? color.error : color.palette.black
+      borderColor: errorTx || error ? color.error : color.palette.grey
     }
   }
   inputStyle = enhance(inputStyle, inputStyleOverride)
@@ -70,7 +70,7 @@ export function TextField(props: TextFieldProps) {
       <TextInputComponent
         type={type}
         placeholder={actualPlaceholder}
-        placeholderTextColor={color.palette.grey}
+        placeholderTextColor={color.palette.lightGrey}
         underlineColorAndroid={color.transparent}
         {...rest}
         style={inputStyle}

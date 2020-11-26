@@ -30,14 +30,14 @@ export const viewPresets = {
   /**
    * A smaller piece of secondary information.
    */
-  primary: { ...BASE_VIEW, backgroundColor: color.palette.darkPurple } as ViewStyle,
+  primary: { ...BASE_VIEW, backgroundColor: color.background } as ViewStyle,
 }
 
 export const textPresets = {
   primary: {
     ...BASE_TEXT,
     fontSize: 14,
-    color: color.palette.white,
+    color: color.text,
     fontWeight: "bold"
   } as TextStyle
 }

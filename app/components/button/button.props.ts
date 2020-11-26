@@ -13,6 +13,11 @@ export interface ButtonProps extends TouchableOpacityProps {
   text?: string
 
   /**
+   * Whether to display activity indicator
+   */
+  loading?: boolean
+
+  /**
    * An optional style override useful for padding & margin.
    */
   style?: ViewStyle | ViewStyle[]

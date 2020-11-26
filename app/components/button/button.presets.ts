@@ -9,7 +9,8 @@ const BASE_VIEW: ViewStyle = {
   paddingHorizontal: spacing[2],
   borderRadius: 10,
   justifyContent: "center",
-  alignItems: "center"
+  alignItems: "center",
+  overflow: "hidden"
 }
 
 const BASE_TEXT: TextStyle = {
@@ -25,7 +26,7 @@ export const viewPresets = {
   /**
    * A smaller piece of secondary information.
    */
-  primary: { ...BASE_VIEW, backgroundColor: color.palette.orange } as ViewStyle,
+  primary: { ...BASE_VIEW, backgroundColor: color.primary } as ViewStyle,
 
   /**
    * A button without extras.
@@ -43,9 +44,8 @@ export const viewPresets = {
   card: {
     ...BASE_VIEW,
     elevation: 2,
-    backgroundColor: color.primaryDarker,
-    margin: spacing[1],
-    alignItems: 'flex-start'
+    backgroundColor: color.palette.white,
+    margin: spacing[1]
   } as ViewStyle,
 }
 
@@ -62,6 +62,12 @@ export const textPresets = {
     color: color.text,
     paddingHorizontal: 0,
     paddingVertical: 0,
+  } as TextStyle,
+
+  card: {
+    ...BASE_TEXT,
+    color: color.text,
+    textAlign: 'center'
   } as TextStyle,
 }
 

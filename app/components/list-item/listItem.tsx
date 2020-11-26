@@ -45,13 +45,13 @@ export function ListItem(props: ListItemProps) {
   }
 
   const DETAILS: TextStyle = {
-    color: color.palette.lightGrey,
+    color: color.palette.grey,
     paddingHorizontal: spacing[3],
     fontSize: 12
   }
 
   const VALUE: TextStyle = {
-    color: color.palette.lighterGrey,
+    color: color.palette.greyDarker,
     paddingHorizontal: spacing[3]
   }
 

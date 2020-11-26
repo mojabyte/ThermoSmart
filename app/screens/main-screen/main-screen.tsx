@@ -10,27 +10,10 @@ import { Device, useStores } from '../../models'
 
 const FULL: ViewStyle = {
   flex: 1,
-  backgroundColor: color.background
+  backgroundColor: color.palette.offWhite
 }
 const CONTAINER: ViewStyle = {
   backgroundColor: color.transparent
-}
-const TEXT: TextStyle = {
-  color: color.palette.white,
-  fontFamily: typography.primary,
-}
-const BOLD: TextStyle = { fontWeight: "bold" }
-const HEADER: TextStyle = {
-  elevation: 2,
-  backgroundColor: color.primaryDarker
-}
-const HEADER_TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 12,
-  lineHeight: 15,
-  textAlign: "center",
-  letterSpacing: 1.5,
 }
 
 const DEVICE_SELECT_CONTAINER: ViewStyle = {
@@ -44,7 +27,8 @@ const DEVICE_SELECT_CONTAINER: ViewStyle = {
   marginHorizontal: 0,
   marginTop: 0,
   borderTopLeftRadius: 0,
-  borderTopRightRadius: 0
+  borderTopRightRadius: 0,
+  backgroundColor: color.primary
 }
 
 const DEVICE_SELECT_TITLE: ViewStyle = {
@@ -61,14 +45,14 @@ const DEVICE_SELECT_TITLE_ROW: ViewStyle = {
 }
 
 const DEVICE_SELECT_TITLE_TEXT: TextStyle = {
-  fontSize: 20,
-  color: color.text,
+  fontSize: 24,
+  color: color.palette.white,
   textAlign: 'left'
 }
 
 const DEVICE_SELECT_SIM_NUMBER: TextStyle = {
-  fontSize: 12,
-  color: color.palette.lighterGrey,
+  fontSize: 14,
+  color: color.palette.offWhite,
   textAlign: 'right'
 }
 
@@ -91,9 +75,9 @@ const CARD_TITLE_CONTAINER: ViewStyle = {
 }
 
 const CARD_TITLE: TextStyle = {
-  fontSize: 12,
-  lineHeight: 14,
-  paddingStart: spacing[2]
+  fontSize: 14,
+  lineHeight: 16,
+  paddingStart: spacing[1]
 }
 
 export const MainScreen = observer(function MainScreen() {
@@ -184,6 +168,7 @@ export const MainScreen = observer(function MainScreen() {
                 onPress={() => {
                   selectedDevice.getTemperature()
                 }}
+                loading={selectedDevice.status.getTemperatureLoading}
                 style={{ flex: 0.7 }}
               >
                 <View style={CARD_TITLE_CONTAINER}>
@@ -210,39 +195,45 @@ export const MainScreen = observer(function MainScreen() {
 
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Button
+                    preset="card"
                     text={`${selectedDevice.simCharge} Rial`}
                     onPress={() => selectedDevice.getSimCharge()}
+                    loading={selectedDevice.status.getSimChargeLoading}
                     style={{ flex: 0.5, margin: 3 }}
                   />
 
                   <Button
+                    preset="card"
                     onPress={() => selectedDevice.getSignalStrength()}
+                    loading={selectedDevice.status.getSignalStrengthLoading}
                     style={{ flex: 0.5, margin: 3 }}
                   >
-                    <Icon name={signalIcon} />
+                    <Icon name={signalIcon} size={30} />
                   </Button>
                 </View>
               </Button>
             </View>
 
             <View style={{ flex: 0.4, flexDirection: 'column' }}>
-              <Button preset="card" style={{ flex: 0.45 }}>
+              <Button
+                preset="card"
+                loading={selectedDevice.status.getThermostatValuesLoading}
+                style={{ flex: 0.45 }}
+              >
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="thermostat" />
                     <Text text="Thermostat" style={CARD_TITLE} />
                   </View>
-                  {selectedDevice.status.getThermostatValuesLoading ? (
-                    <Text text="loading..." />
-                  ) : (
-                    <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
-                      <Icon name="refresh" size={20} />
-                    </Button>
-                  )}
+
+                  <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
+                    <Icon name="refresh" size={20} />
+                  </Button>
                 </View>
 
                 <View style={{ justifyContent: 'space-between' }}>
                   <Button
+                    preset="card"
                     text={`Max: ${selectedDevice.thermostat.max}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
@@ -252,6 +243,7 @@ export const MainScreen = observer(function MainScreen() {
                     style={{ flex: 0.3, margin: 3 }}
                   />
                   <Button
+                    preset="card"
                     text={`Normal: ${selectedDevice.thermostat.nor}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
@@ -261,6 +253,7 @@ export const MainScreen = observer(function MainScreen() {
                     style={{ flex: 0.36, margin: 3 }}
                   />
                   <Button
+                    preset="card"
                     text={`Min: ${selectedDevice.thermostat.min}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
@@ -272,23 +265,25 @@ export const MainScreen = observer(function MainScreen() {
                 </View>
               </Button>
 
-              <Button preset="card" style={{ flex: 0.55 }}>
+              <Button
+                preset="card"
+                loading={selectedDevice.status.getAlarmValuesLoading}
+                style={{ flex: 0.55 }}
+              >
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="alarm" />
                     <Text text="Alarm" style={CARD_TITLE} />
                   </View>
-                  {selectedDevice.status.getAlarmValuesLoading ? (
-                    <Text text="loading..." />
-                  ) : (
-                    <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
-                      <Icon name="refresh" size={20} />
-                    </Button>
-                  )}
+
+                  <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
+                    <Icon name="refresh" size={20} />
+                  </Button>
                 </View>
 
                 <View style={{ justifyContent: 'space-between' }}>
                   <Button
+                    preset="card"
                     text={`High: ${selectedDevice.alarm.high[0]} - ${selectedDevice.alarm.high[1]}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.alarm.high ?? [10, 20])
@@ -298,6 +293,7 @@ export const MainScreen = observer(function MainScreen() {
                     style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
                   />
                   <Button
+                    preset="card"
                     text={`Low: ${selectedDevice.alarm.low[0]} - ${selectedDevice.alarm.low[1]}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.alarm.low ?? [10, 20])
@@ -308,6 +304,7 @@ export const MainScreen = observer(function MainScreen() {
                   />
 
                   <Button
+                    preset="card"
                     text={`Interval: ${selectedDevice.alarm.interval} min`}
                     onPress={() => {
                       setSliderValues([selectedDevice.alarm.interval] ?? [5])
@@ -344,15 +341,19 @@ export const MainScreen = observer(function MainScreen() {
                   <Text text="Heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
                   <Button
+                    preset="card"
                     text="ON"
                     onPress={() => selectedDevice.sendRpc({ method: '50', value: true })}
                     style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                    textStyle={{ color: color.primary }}
                   />
 
                   <Button
+                    preset="card"
                     text="OFF"
                     onPress={() => selectedDevice.sendRpc({ method: '50', value: false })}
                     style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                    textStyle={{ color: color.error }}
                   />
                 </View>
 
@@ -360,15 +361,19 @@ export const MainScreen = observer(function MainScreen() {
                   <Text text="Fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
                   <Button
+                    preset="card"
                     text="ON"
                     onPress={() => selectedDevice.sendRpc({ method: '60', value: true })}
                     style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                    textStyle={{ color: color.primary }}
                   />
 
                   <Button
+                    preset="card"
                     text="OFF"
                     onPress={() => selectedDevice.sendRpc({ method: '60', value: false })}
                     style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
+                    textStyle={{ color: color.error }}
                   />
                 </View>
               </View>
@@ -393,13 +398,12 @@ export const MainScreen = observer(function MainScreen() {
     <View style={FULL}>
       <Screen style={CONTAINER} backgroundColor={color.transparent}>
         <Header
+          preset="primary"
           headerTx="mainScreen.title"
           leftIcon="cog"
           onLeftPress={() => {}}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
-          style={HEADER}
-          titleStyle={HEADER_TITLE}
         />
         {(devices.items.length > 0 && selectedDevice?.simNumber) ? (
           <Button
@@ -424,7 +428,7 @@ export const MainScreen = observer(function MainScreen() {
               }
             </View>
 
-            <Icon name="chevron-right" size={25} />
+            <Icon name="chevron-right" size={25} color={color.palette.white} />
           </Button>
         ) : null}
 
