@@ -14,7 +14,8 @@ const ACTIVITY_INDICATOR: ViewStyle = {
   bottom: 0,
   backgroundColor: '#fffa',
   justifyContent: 'center',
-  alignItems: 'center'
+  alignItems: 'center',
+  elevation: 2
 }
 
 /**

@@ -1,5 +1,6 @@
-import SmsAndroid from 'react-native-get-sms-android'
-import SmsListener from 'react-native-android-sms-listener'
+import SmsAndroid from "react-native-get-sms-android"
+import SmsListener from "react-native-android-sms-listener"
+import BackgroundTimer from "react-native-background-timer"
 // import { getGeneralApiProblem } from "./sms-problem"
 import { SmsConfig, DEFAULT_API_CONFIG } from "./sms-config"
 import * as Types from "./sms.types"
@@ -63,7 +64,7 @@ export class Sms {
       ) {
         console.log(this.pendingList.get(originatingAddress))
         const { timeout, callback } = this.pendingList.get(originatingAddress).get(type)
-        clearTimeout(timeout) // Clear pending SMS timeout
+        BackgroundTimer.clearTimeout(timeout) // Clear pending SMS timeout
         if (callback) callback(body)
         this.pendingList.get(originatingAddress).delete(type)
       }
@@ -87,7 +88,7 @@ export class Sms {
 
         if (hasResponse) {
           // Clear item from pending list on timeout
-          const timeout = setTimeout(() => {
+          const timeout = BackgroundTimer.setTimeout(() => {
             this.pendingList.get(phoneNumberWithCode).delete(type)
             console.log('timeout')
             callback(undefined, 'timeout')
