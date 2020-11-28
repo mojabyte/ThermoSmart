@@ -41,7 +41,7 @@ export function ConfirmModal(props: ConfirmModalProps) {
       onBackdropPress={onClose}
       onSwipeComplete={onClose}
       onBackButtonPress={onClose}
-      swipeDirection={['down']}
+      // swipeDirection={['down']}
       hideModalContentWhileAnimating
       backdropTransitionOutTiming={0}
       style={modalStyle}

@@ -47,6 +47,9 @@
     "passwordPlaceholder": "6 digit password, e.g. 123456",
     "passwordLengthError": "Password should be 6 digits."
   },
+  "temperatureChartScreen": {
+    "title": "Temperature History"
+  },
   "storybook": {
     "placeholder": "Placeholder",
     "field": "Field"

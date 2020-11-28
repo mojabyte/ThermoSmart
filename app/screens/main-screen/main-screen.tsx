@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
-import { color, spacing, typography } from "../../theme"
+import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
 
 const FULL: ViewStyle = {
@@ -144,18 +144,20 @@ export const MainScreen = observer(function MainScreen() {
   }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID])
 
   useEffect(() => {
-    if (selectedDevice.signalStrength < 25) {
-      setSignalIcon('signal-off')
-    } else if (selectedDevice.signalStrength < 50) {
-      setSignalIcon('signal-cellular-outline')
-    } else if (selectedDevice.signalStrength < 75) {
-      setSignalIcon('signal-cellular-1')
-    } else if (selectedDevice.signalStrength < 100) {
-      setSignalIcon('signal-cellular-2')
-    } else {
-      setSignalIcon('signal-cellular-3')
+    if (selectedDevice) {
+      if (selectedDevice.signalStrength < 25) {
+        setSignalIcon('signal-off')
+      } else if (selectedDevice.signalStrength < 50) {
+        setSignalIcon('signal-cellular-outline')
+      } else if (selectedDevice.signalStrength < 75) {
+        setSignalIcon('signal-cellular-1')
+      } else if (selectedDevice.signalStrength < 100) {
+        setSignalIcon('signal-cellular-2')
+      } else {
+        setSignalIcon('signal-cellular-3')
+      }
     }
-  }, [selectedDevice.signalStrength])
+  }, [selectedDevice])
 
   const renderScreenContent = function () {
     if (selectedDevice?.simNumber) {
@@ -166,14 +168,20 @@ export const MainScreen = observer(function MainScreen() {
               <Button
                 preset="card"
                 onPress={() => {
-                  selectedDevice.getTemperature()
+                  navigation.navigate('chart', { selectedDeviceID })
                 }}
                 loading={selectedDevice.status.getTemperatureLoading}
                 style={{ flex: 0.7 }}
               >
-                <View style={CARD_TITLE_CONTAINER}>
-                  <Icon name="thermometer-lines" />
-                  <Text text="Temperature" style={CARD_TITLE} />
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
+                    <Icon name="thermometer-lines" />
+                    <Text text="Temperature" style={CARD_TITLE} />
+                  </View>
+
+                  <Button preset="link" onPress={() => selectedDevice.getTemperature()}>
+                    <Icon name="refresh" size={20} />
+                  </Button>
                 </View>
                 <Text
                   text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°c` || 'no data'}

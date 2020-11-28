@@ -12,7 +12,8 @@ import {
   DeviceListScreen,
   AddDeviceScreen,
   DeviceOptionsScreen,
-  DevicePhonesScreen
+  DevicePhonesScreen,
+  TemperatureChartScreen
 } from "../screens"
 
 /**
@@ -32,7 +33,8 @@ export type PrimaryParamList = {
   list: undefined
   add: { selectedDeviceID?: string }
   options: undefined
-  phones: undefined
+  phones: undefined,
+  chart: undefined
 }
 
 // Documentation: https://github.com/software-mansion/react-native-screens/tree/master/native-stack
@@ -52,6 +54,8 @@ export function PrimaryNavigator() {
 
       <Stack.Screen name="options" component={DeviceOptionsScreen} />
       <Stack.Screen name="phones" component={DevicePhonesScreen} />
+
+      <Stack.Screen name="chart" component={TemperatureChartScreen} />
     </Stack.Navigator>
   )
 }

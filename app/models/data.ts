@@ -1,4 +1,12 @@
-import { getEnv, types, getParent, destroy, SnapshotIn, Instance } from 'mobx-state-tree'
+import {
+  applySnapshot,
+  getEnv,
+  types,
+  getParent,
+  destroy,
+  SnapshotIn,
+  Instance
+} from 'mobx-state-tree'
 import moment from "moment-jalaali"
 import { sortBy } from 'ramda'
 import { Environment } from './environment'
@@ -140,6 +148,10 @@ export const DeviceModel = types
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
       self.status.updatePhoneNumberLoading[index] = value
     },
+    reset() {
+      // applySnapshot(self, {})
+      self.temperatures.replace(new Map())
+    },
     remove() {
       getParent<typeof DeviceListModel>(self, 2).remove(self)
     },
@@ -233,6 +245,33 @@ export const DeviceModel = types
         hasResponse: true
       })
     },
+    async getLast24Temperatures() {
+      this.setStatus({ getTemperatureLoading: true })
+
+      const env: Environment = getEnv(self)
+      const getTemp = (hour: number) => new Promise<number>((resolve, reject) => env.sms.send({
+        phoneNumber: self.simNumber,
+        type: 'GET_TEMPERATURE',
+        message: `#85#${hour}*`,
+        callback: (response, error) => {
+          if (error) reject(error)
+          const value = parseFloats(response)[0]
+          resolve(value)
+        },
+        hasResponse: true
+      }))
+
+      const hours = [...Array(24)].map((_, i) => +moment().add(-i, 'hours').startOf('hour'))
+
+      for (const ts of hours) {
+        if (!self.temperatures.get(`${ts}`)) {
+          const value = await getTemp((new Date(ts)).getHours())
+          this.setTemperature({ value, ts: `${ts}` })
+        }
+      }
+
+      this.setStatus({ getTemperatureLoading: false })
+    },
 
     getThermostatValues() {
       this.setStatus({ getThermostatValuesLoading: true })
@@ -245,7 +284,6 @@ export const DeviceModel = types
         callback: (response, error) => {
           if (!error) {
             const values = parseFloats(response)
-            console.log(values)
             this.setThermostatValues({
               max: values[0],
               nor: values[1],
