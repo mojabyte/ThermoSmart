@@ -1,5 +1,4 @@
 import {
-  applySnapshot,
   getEnv,
   types,
   getParent,
@@ -9,6 +8,7 @@ import {
 } from 'mobx-state-tree'
 import moment from "moment-jalaali"
 import { sortBy } from 'ramda'
+import { ToastAndroid } from 'react-native'
 import { Environment } from './environment'
 
 const parseFloats = (string: string) => {
@@ -27,6 +27,10 @@ export const DeviceModel = types
     place: '',
     password: '123456',
     phoneNumbers: types.optional(types.array(types.maybeNull(types.string)), []),
+
+    powerStatus: true,
+    heaterStatus: false,
+    fanStatus: false,
 
     temperatures: types.map(types.number),
 
@@ -70,10 +74,11 @@ export const DeviceModel = types
     })
   })
   .volatile(() => ({
-    status: {
+    state: {
       updatePasswordLoading: false,
       getPhoneNumbersLoading: false,
       updatePhoneNumberLoading: [],
+      getStatusLoading: false,
       getTemperatureLoading: false,
       getThermostatValuesLoading: false,
       updateThermostatValuesLoading: false,
@@ -111,6 +116,11 @@ export const DeviceModel = types
     removePhoneNumber(index: number) {
       self.phoneNumbers[index] = null
     },
+    setStatus(power: boolean, heater: boolean, fan: boolean) {
+      self.powerStatus = power
+      self.heaterStatus = heater
+      self.fanStatus = fan
+    },
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
     },
@@ -142,11 +152,11 @@ export const DeviceModel = types
     setCalibration(calibration: number) {
       self.calibration = calibration
     },
-    setStatus(newStatus: any) {
-      self.status = { ...self.status, ...newStatus }
+    setState(newState: any) {
+      self.state = { ...self.state, ...newState }
     },
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
-      self.status.updatePhoneNumberLoading[index] = value
+      self.state.updatePhoneNumberLoading[index] = value
     },
     reset() {
       // applySnapshot(self, {})
@@ -156,8 +166,27 @@ export const DeviceModel = types
       getParent<typeof DeviceListModel>(self, 2).remove(self)
     },
 
+    sendSms(
+      type: string,
+      message: string,
+      callback: (response: string, error: string) => void,
+      hasResponse = true
+    ) {
+      const env: Environment = getEnv(self)
+      env.sms.send({
+        phoneNumber: self.simNumber,
+        type,
+        message,
+        callback: (response, error) => {
+          if (error) ToastAndroid.show('Timeout', ToastAndroid.SHORT)
+          callback(response, error)
+        },
+        hasResponse
+      })
+    },
+
     updatePassword(newPassword: string) {
-      this.setStatus({ updatePasswordLoading: true })
+      this.setState({ updatePasswordLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -166,12 +195,13 @@ export const DeviceModel = types
         message: `*${self.password}#999#${newPassword}#`,
         callback: () => {
           this.setPassword(newPassword)
-          this.setStatus({ updatePasswordLoading: false })
+          this.setState({ updatePasswordLoading: false })
         }
       })
     },
+
     getPhoneNumbers() {
-      this.setStatus({ getPhoneNumbersLoading: true })
+      this.setState({ getPhoneNumbersLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -184,7 +214,7 @@ export const DeviceModel = types
               .map(line => (line[8] !== '0') ? line.slice(7, 18) : null)
             this.setPhoneNumbers(phoneNumbers)
           }
-          this.setStatus({ getPhoneNumbersLoading: false })
+          this.setState({ getPhoneNumbersLoading: false })
         },
         hasResponse: true
       })
@@ -218,9 +248,29 @@ export const DeviceModel = types
       })
     },
 
+    getStatus() {
+      this.setState({ getStatusLoading: true })
+
+      this.sendSms('GET_STATUS', '#0#', (response, error) => {
+        if (!error) {
+          const lines = response.split('\n')
+          const temperature = parseFloats(lines[1])[0]
+          const powerStatus = lines[2].includes('وصل')
+          const heaterStats = lines[3].includes('روشن')
+          const fanStatus = lines[4].includes('روشن')
+          const thermostatStatus = lines[5].includes('اتوماتيك')
+
+          this.setTemperature({ value: temperature, ts: `${+moment()}` })
+          this.setStatus(powerStatus, heaterStats, fanStatus)
+          this.setThermostatStatus(thermostatStatus)
+        }
+        this.setState({ getStatusLoading: false })
+      })
+    },
+
     // hour: an integer in [0, 23]
     getTemperature(hour?: number) {
-      this.setStatus({ getTemperatureLoading: true })
+      this.setState({ getTemperatureLoading: true })
 
       if (!hour) {
         const now = new Date()
@@ -240,13 +290,13 @@ export const DeviceModel = types
               this.setTemperature({ value, ts })
             }
           }
-          this.setStatus({ getTemperatureLoading: false })
+          this.setState({ getTemperatureLoading: false })
         },
         hasResponse: true
       })
     },
     async getLast24Temperatures() {
-      this.setStatus({ getTemperatureLoading: true })
+      this.setState({ getTemperatureLoading: true })
 
       const env: Environment = getEnv(self)
       const getTemp = (hour: number) => new Promise<number>((resolve, reject) => env.sms.send({
@@ -270,11 +320,11 @@ export const DeviceModel = types
         }
       }
 
-      this.setStatus({ getTemperatureLoading: false })
+      this.setState({ getTemperatureLoading: false })
     },
 
     getThermostatValues() {
-      this.setStatus({ getThermostatValuesLoading: true })
+      this.setState({ getThermostatValuesLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -290,13 +340,13 @@ export const DeviceModel = types
               min: values[2]
             })
           }
-          this.setStatus({ getThermostatValuesLoading: false })
+          this.setState({ getThermostatValuesLoading: false })
         },
         hasResponse: true
       })
     },
     updateThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
-      this.setStatus({ updateThermostatValuesLoading: true })
+      this.setState({ updateThermostatValuesLoading: true })
 
       const messages = []
       if (max) messages.push(['3000', Math.round(max * 10)])
@@ -307,7 +357,7 @@ export const DeviceModel = types
       const sendMessage = (messages: [string, number][]) => {
         if (messages.length === 0) {
           this.setThermostatValues({ max, nor, min })
-          this.setStatus({ updateThermostatValuesLoading: false })
+          this.setState({ updateThermostatValuesLoading: false })
           return
         }
         const message = messages.pop()
@@ -324,7 +374,7 @@ export const DeviceModel = types
       sendMessage(messages)
     },
     updateThermostatStatus(status: boolean) {
-      this.setStatus({ updateThermostatStatusLoading: true })
+      this.setState({ updateThermostatStatusLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -333,14 +383,14 @@ export const DeviceModel = types
         message: `*${self.password}#${status ? '800' : '808'}#`,
         callback: () => {
           this.setThermostatStatus(status)
-          this.setStatus({ updateThermostatStatusLoading: false })
+          this.setState({ updateThermostatStatusLoading: false })
         },
         hasResponse: false
       })
     },
 
     getAlarmValues() {
-      this.setStatus({ getAlarmValuesLoading: true })
+      this.setState({ getAlarmValuesLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -370,7 +420,7 @@ export const DeviceModel = types
                     const interval = parseFloats(response)[0]
                     this.setAlarmValues({ interval })
                   }
-                  this.setStatus({ getAlarmValuesLoading: false })
+                  this.setState({ getAlarmValuesLoading: false })
                 },
                 hasResponse: true
               })
@@ -382,7 +432,7 @@ export const DeviceModel = types
       })
     },
     updateAlarmValues({ high, low }: { high?: number[]; low?: number[] }) {
-      this.setStatus({ updateAlarmValuesLoading: true })
+      this.setState({ updateAlarmValuesLoading: true })
 
       const messages = []
       if (high) messages.push(['8000', Math.round(high[0] * 10), Math.round(high[1] * 10)])
@@ -392,7 +442,7 @@ export const DeviceModel = types
       const sendMessage = (messages: [string, number][]) => {
         if (messages.length === 0) {
           this.setAlarmValues({ high, low })
-          this.setStatus({ updateAlarmValuesLoading: false })
+          this.setState({ updateAlarmValuesLoading: false })
           return
         }
         const message = messages.pop()
@@ -409,7 +459,7 @@ export const DeviceModel = types
       sendMessage(messages)
     },
     updateAlarmInterval(interval: number) {
-      this.setStatus({ updateAlarmIntervalLoading: true })
+      this.setState({ updateAlarmIntervalLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -418,13 +468,13 @@ export const DeviceModel = types
         message: `*${self.password}#9000#${interval}*`,
         callback: () => {
           this.setAlarmValues({ interval })
-          this.setStatus({ updateAlarmIntervalLoading: false })
+          this.setState({ updateAlarmIntervalLoading: false })
         }
       })
     },
 
     sendRpc({ method, value }: { method: string; value: boolean }) {
-      this.setStatus({ sendRpcLoading: true })
+      this.setState({ sendRpcLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -432,13 +482,13 @@ export const DeviceModel = types
         type: 'SEND_RPC',
         message: `#${!value ? '0' : ''}${method}#`,
         callback: () => {
-          this.setStatus({ sendRpcLoading: false })
+          this.setState({ sendRpcLoading: false })
         }
       })
     },
 
     getSimCharge() {
-      this.setStatus({ getSimChargeLoading: true })
+      this.setState({ getSimChargeLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -449,13 +499,13 @@ export const DeviceModel = types
           if (!error) {
             this.setSimCharge(parseFloats(toEnDigit(response))[0])
           }
-          this.setStatus({ getSimChargeLoading: false })
+          this.setState({ getSimChargeLoading: false })
         },
         hasResponse: true
       })
     },
     sendSimChargeCode(code: string) {
-      this.setStatus({ getSimChargeLoading: true })
+      this.setState({ getSimChargeLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -463,12 +513,12 @@ export const DeviceModel = types
         type: 'SEND_SIM_CHARGE_CODE',
         message: `*950#${code}*`,
         callback: () => {
-          this.setStatus({ getSimChargeLoading: false })
+          this.setState({ getSimChargeLoading: false })
         }
       })
     },
     getSimCreditSmsInterval() {
-      this.setStatus({ getSimCreditSmsIntervalLoading: true })
+      this.setState({ getSimCreditSmsIntervalLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -479,13 +529,13 @@ export const DeviceModel = types
           if (!error) {
             this.setSimCreditSmsInterval(parseFloat(response))
           }
-          this.setStatus({ getSimCreditSmsIntervalLoading: false })
+          this.setState({ getSimCreditSmsIntervalLoading: false })
         },
         hasResponse: true
       })
     },
     updateSimCreditSmsInterval(interval: number) {
-      this.setStatus({ getSimCreditSmsIntervalLoading: true })
+      this.setState({ getSimCreditSmsIntervalLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -494,13 +544,13 @@ export const DeviceModel = types
         message: `*${self.password}#14#${interval}*`,
         callback: () => {
           this.setSimCreditSmsInterval(interval)
-          this.setStatus({ getSimCreditSmsIntervalLoading: false })
+          this.setState({ getSimCreditSmsIntervalLoading: false })
         }
       })
     },
 
     getSignalStrength() {
-      this.setStatus({ getSignalStrengthLoading: true })
+      this.setState({ getSignalStrengthLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -511,14 +561,14 @@ export const DeviceModel = types
           if (!error) {
             this.setSignalStrength(parseFloats(response)[0])
           }
-          this.setStatus({ getSignalStrengthLoading: false })
+          this.setState({ getSignalStrengthLoading: false })
         },
         hasResponse: true
       })
     },
 
     getPowerOutageSmsInterval() {
-      this.setStatus({ getPowerOutageSmsIntervalLoading: true })
+      this.setState({ getPowerOutageSmsIntervalLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -529,13 +579,13 @@ export const DeviceModel = types
           if (!error) {
             this.setPowerOutageSmsInterval(parseFloat(response))
           }
-          this.setStatus({ getPowerOutageSmsIntervalLoading: false })
+          this.setState({ getPowerOutageSmsIntervalLoading: false })
         },
         hasResponse: true
       })
     },
     updatePowerOutageSmsInterval(interval: number) {
-      this.setStatus({ getPowerOutageSmsIntervalLoading: true })
+      this.setState({ getPowerOutageSmsIntervalLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -544,13 +594,13 @@ export const DeviceModel = types
         message: `*${self.password}#220#${interval}*`,
         callback: () => {
           this.setPowerOutageSmsInterval(interval)
-          this.setStatus({ getPowerOutageSmsIntervalLoading: false })
+          this.setState({ getPowerOutageSmsIntervalLoading: false })
         }
       })
     },
 
     getCalibration() {
-      this.setStatus({ getCalibrationLoading: true })
+      this.setState({ getCalibrationLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -561,13 +611,13 @@ export const DeviceModel = types
           if (!error) {
             this.setCalibration(parseFloat(response))
           }
-          this.setStatus({ getCalibrationLoading: false })
+          this.setState({ getCalibrationLoading: false })
         },
         hasResponse: true
       })
     },
     updateCalibration(calibration: number) {
-      this.setStatus({ getCalibrationLoading: true })
+      this.setState({ getCalibrationLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -576,12 +626,12 @@ export const DeviceModel = types
         message: `*${self.password}#6${calibration > 0 ? '90' : '80'}#${
           Math.round(Math.abs(calibration) * 10)}*`,
         callback: () => {
-          this.setStatus({ getCalibrationLoading: false })
+          this.setState({ getCalibrationLoading: false })
         }
       })
     },
     resetCalibration() {
-      this.setStatus({ getCalibrationLoading: true })
+      this.setState({ getCalibrationLoading: true })
 
       const env: Environment = getEnv(self)
       env.sms.send({
@@ -589,7 +639,7 @@ export const DeviceModel = types
         type: 'RESET_CALIBRATION',
         message: `*${self.password}#685#`,
         callback: () => {
-          this.setStatus({ getCalibrationLoading: false })
+          this.setState({ getCalibrationLoading: false })
         }
       })
     }

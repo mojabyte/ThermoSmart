@@ -167,11 +167,8 @@ export const MainScreen = observer(function MainScreen() {
             <View style={{ flex: 0.6, flexDirection: 'column' }}>
               <Button
                 preset="card"
-                onPress={() => {
-                  navigation.navigate('chart', { selectedDeviceID })
-                }}
-                loading={selectedDevice.status.getTemperatureLoading}
-                style={{ flex: 0.7 }}
+                loading={selectedDevice.state.getStatusLoading}
+                style={{ flex: 0.45 }}
               >
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
@@ -179,7 +176,7 @@ export const MainScreen = observer(function MainScreen() {
                     <Text text="Temperature" style={CARD_TITLE} />
                   </View>
 
-                  <Button preset="link" onPress={() => selectedDevice.getTemperature()}>
+                  <Button preset="link" onPress={() => selectedDevice.getStatus()}>
                     <Icon name="refresh" size={20} />
                   </Button>
                 </View>
@@ -191,9 +188,21 @@ export const MainScreen = observer(function MainScreen() {
                   text={`${moment(selectedDevice.temperaturesView[0]?.ts).format('YYYY-MM-DD HH:mm')}`}
                   // style={LAST_TEMPERATURE_VALUE}
                 />
+
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    navigation.navigate('chart', { selectedDeviceID })
+                  }}
+                  style={{ flexDirection: 'row' }}
+                >
+                  <Icon name="chart-line" />
+                  <Text text="   Chart   " />
+                  <Icon name="chevron-right" />
+                </Button>
               </Button>
 
-              <Button preset="card" style={{ flex: 0.3 }}>
+              <Button preset="card" style={{ flex: 0.55 }}>
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="information" />
@@ -201,23 +210,33 @@ export const MainScreen = observer(function MainScreen() {
                   </View>
                 </View>
 
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Button
-                    preset="card"
-                    text={`${selectedDevice.simCharge} Rial`}
-                    onPress={() => selectedDevice.getSimCharge()}
-                    loading={selectedDevice.status.getSimChargeLoading}
-                    style={{ flex: 0.5, margin: 3 }}
-                  />
+                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly' }}>
+                  <View style={{ flex: 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Button
+                      preset="card"
+                      text={`${selectedDevice.simCharge} Rial`}
+                      onPress={() => selectedDevice.getSimCharge()}
+                      loading={selectedDevice.state.getSimChargeLoading}
+                      style={{ flex: 0.5, margin: 3 }}
+                    />
 
-                  <Button
-                    preset="card"
-                    onPress={() => selectedDevice.getSignalStrength()}
-                    loading={selectedDevice.status.getSignalStrengthLoading}
-                    style={{ flex: 0.5, margin: 3 }}
-                  >
-                    <Icon name={signalIcon} size={30} />
-                  </Button>
+                    <Button
+                      preset="card"
+                      onPress={() => selectedDevice.getSignalStrength()}
+                      loading={selectedDevice.state.getSignalStrengthLoading}
+                      style={{ flex: 0.5, margin: 3 }}
+                    >
+                      <Icon name={signalIcon} size={30} />
+                    </Button>
+                  </View>
+
+                  <View style={{ flexDirection: 'row' }}>
+                    {selectedDevice.powerStatus
+                      ? <Icon name="power-plug" />
+                      : <Icon name="power-plug-off" />
+                    }
+                    <Text text="Power is connected" />
+                  </View>
                 </View>
               </Button>
             </View>
@@ -225,7 +244,7 @@ export const MainScreen = observer(function MainScreen() {
             <View style={{ flex: 0.4, flexDirection: 'column' }}>
               <Button
                 preset="card"
-                loading={selectedDevice.status.getThermostatValuesLoading}
+                loading={selectedDevice.state.getThermostatValuesLoading}
                 style={{ flex: 0.45 }}
               >
                 <View style={{ flexDirection: 'row' }}>
@@ -242,40 +261,48 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ justifyContent: 'space-between' }}>
                   <Button
                     preset="card"
-                    text={`Max: ${selectedDevice.thermostat.max}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
                       setSelectedSliderModal('max')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.3, margin: 3 }}
-                  />
+                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                  >
+                    <Icon name="arrow-collapse-up" />
+                    <Text text={`Max: ${selectedDevice.thermostat.max}°c`} />
+                  </Button>
+
                   <Button
                     preset="card"
-                    text={`Normal: ${selectedDevice.thermostat.nor}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
                       setSelectedSliderModal('nor')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.36, margin: 3 }}
-                  />
+                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                  >
+                    <Icon name="drag-horizontal-variant" />
+                    <Text text={`Normal: ${selectedDevice.thermostat.nor}°c`} />
+                  </Button>
+
                   <Button
                     preset="card"
-                    text={`Min: ${selectedDevice.thermostat.min}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
                       setSelectedSliderModal('min')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3 }}
-                  />
+                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                  >
+                    <Icon name="arrow-collapse-down" />
+                    <Text text={`Min: ${selectedDevice.thermostat.min}°c`} />
+                  </Button>
                 </View>
               </Button>
 
               <Button
                 preset="card"
-                loading={selectedDevice.status.getAlarmValuesLoading}
+                loading={selectedDevice.state.getAlarmValuesLoading}
                 style={{ flex: 0.55 }}
               >
                 <View style={{ flexDirection: 'row' }}>
@@ -348,40 +375,18 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
                   <Text text="Heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
-                  <Button
-                    preset="card"
-                    text="ON"
-                    onPress={() => selectedDevice.sendRpc({ method: '50', value: true })}
-                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
-                    textStyle={{ color: color.primary }}
-                  />
-
-                  <Button
-                    preset="card"
-                    text="OFF"
-                    onPress={() => selectedDevice.sendRpc({ method: '50', value: false })}
-                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
-                    textStyle={{ color: color.error }}
+                  <Switch
+                    value={selectedDevice.heaterStatus}
+                    onToggle={value => () => selectedDevice.sendRpc({ method: '50', value })}
                   />
                 </View>
 
                 <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
                   <Text text="Fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
-                  <Button
-                    preset="card"
-                    text="ON"
-                    onPress={() => selectedDevice.sendRpc({ method: '60', value: true })}
-                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
-                    textStyle={{ color: color.primary }}
-                  />
-
-                  <Button
-                    preset="card"
-                    text="OFF"
-                    onPress={() => selectedDevice.sendRpc({ method: '60', value: false })}
-                    style={{ width: '80%', paddingVertical: 6, marginVertical: 3 }}
-                    textStyle={{ color: color.error }}
+                  <Switch
+                    value={selectedDevice.fanStatus}
+                    onToggle={value => () => selectedDevice.sendRpc({ method: '60', value })}
                   />
                 </View>
               </View>

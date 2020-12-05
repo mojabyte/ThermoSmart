@@ -53,10 +53,10 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   useEffect(() => {
     if (isIntervalModalVisible) {
       if (intervalType === 'simCredit' &&
-        !selectedDevice.status.getSimCreditSmsIntervalLoading) {
+        !selectedDevice.state.getSimCreditSmsIntervalLoading) {
         setIntervalEdit(selectedDevice.simCreditSmsInterval)
       } else if (intervalType === 'powerOutage' &&
-        !selectedDevice.status.getPowerOutageSmsIntervalLoading) {
+        !selectedDevice.state.getPowerOutageSmsIntervalLoading) {
         setIntervalEdit(selectedDevice.powerOutageSmsInterval)
       }
     }
@@ -65,8 +65,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
     intervalType,
     selectedDevice.simCreditSmsInterval,
     selectedDevice.powerOutageSmsInterval,
-    selectedDevice.status.getSimCreditSmsIntervalLoading,
-    selectedDevice.status.getPowerOutageSmsIntervalLoading
+    selectedDevice.state.getSimCreditSmsIntervalLoading,
+    selectedDevice.state.getPowerOutageSmsIntervalLoading
   ])
 
   return (

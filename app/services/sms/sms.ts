@@ -35,6 +35,8 @@ export class Sms {
       const getSmsType = (body: string) => {
         if (['*', '#'].includes(body[0])) {
           return 'other'
+        } else if (body.startsWith(' دما ')) {
+          return 'GET_STATUS'
         } else if (body.includes('مقدار  دما')) {
           return 'GET_TEMPERATURE'
         } else if (body.includes('مقادير ترموستات')) {
