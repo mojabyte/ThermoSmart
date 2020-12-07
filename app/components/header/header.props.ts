@@ -1,5 +1,5 @@
 import { ViewStyle, TextStyle } from "react-native"
-import { HeaderPresetNames } from "./header.presets";
+import { HeaderPresetNames } from "./header.presets"
 
 export interface HeaderProps {
   /**

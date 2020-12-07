@@ -1,7 +1,104 @@
 {
   "common": {
-    "ok": "OK 🇯🇵",
-    "cancel": "Cancel 🇯🇵",
-    "back": "Back 🇯🇵"
+    "ok": "تأیید",
+    "cancel": "لغو",
+    "back": "بازگشت",
+    "apply": "تأیید"
+  },
+  "mainScreen": {
+    "temperatureCard": {
+      "title": "دما",
+      "chart": "نمودار"
+    },
+    "statusCard": {
+      "title": "وضعیت",
+      "powerConnected": "برق دستگاه وصل است",
+      "powerDisconnected": "برق دستگاه قطع است"
+    },
+    "thermostatCard": {
+      "title": "ترموستات"
+    },
+    "alarmCard": {
+      "title": "هشدار"
+    },
+    "controlCard": {
+      "title": "کنترل",
+      "automation": "حالت خودکار",
+      "heater": "هیتر",
+      "fan": "هواکش"
+    },
+    "settingsCard": {
+      "title": "تنظیمات دستگاه"
+    }
+  },
+  "deviceListScreen": {
+    "title": "دستگاه‌ها",
+    "rightHeader": "دستگاه جدید"
+  },
+  "addDeviceScreen": {
+    "header": {
+      "new": "دستگاه جدید",
+      "edit": "ویرایش دستگاه"
+    },
+    "name": "نام",
+    "nameErrors": {
+      "required": "لطفاً نامی برای دستگاه انتخاب کنید"
+    },
+    "namePlaceholder": "سالن",
+    "simNumber": "شماره سیم کارت",
+    "simNumberErrors": {
+      "invalid": "شماره سیم کارت وارد شده نامعتبر است",
+      "exists": "دستگاهی با این شماره وجود دارد"
+    },
+    "place": "مکان",
+    "placePlaceholder": "گلخانه",
+    "add": "افزودن",
+    "apply": "تأیید"
+  },
+  "deviceOptionsScreen": {
+    "title": "دستگاه‌ها",
+    "rightHeader": "ویرایش",
+    "phoneNumbers": "شماره تلفن‌ها",
+    "phoneNumbersDetails": "نمایش و ویرایش شماره تلفن‌های ذخیره شده",
+    "simCard": {
+      "title": "سیم کارت",
+      "credit": "اعتبار",
+      "creditDetails": "موجودی اعتبار سیم کارت",
+      "smsInterval": "بازه‌ی ارسال پیامک",
+      "smsIntervalDetails": "پیامک حاوی موجودی اعتبار سیم کارت",
+      "smsIntervalModalTitle": "بازه‌ی ارسال پیامک موجودی سیم کارت",
+      "smsIntervalValue": "هر %{interval} روز",
+      "charge": "شارژ",
+      "chargeDetails": "شارژ سیم کارت با ارسال کد شارژ به دستگاه",
+      "chargeCode": "کد شارژ",
+      "chargePlaceholder": "کد شارژ را وارد کنید",
+      "chargeRequired": "کد شارژ معتبر نیست",
+      "chargeModalTitle": "شارژ سیم کارت دستگاه"
+    },
+    "powerOutage": {
+      "title": "قطع برق",
+      "smsInterval": "بازه‌ی ارسال پیامک",
+      "smsIntervalDetails": "فاصله‌‌‌ی زمانی ارسال هشدار قطع برق",
+      "smsIntervalValue": "هر %{interval} دقیقه",
+      "smsIntervalModalTitle": "فاصله‌‌‌ی زمانی ارسال پیامک هشدار قطع برق"
+    },
+    "calibration": {
+      "title": "کالیبره کردن سنسور",
+      "offset": "میزان کالیبره",
+      "offsetDetails": "کالیبره کردن دماسنج دستگاه"
+    },
+    "password": {
+      "change": "تغییر رمز عبور",
+      "new": "رمز عبور جدید",
+      "placeholder": "رمز عبور ۶ رقمی، مثال: 123456",
+      "lengthError": "رمز عبور باید ۶ رقمی و فقط عدد باشد."
+    }
+  },
+  "devicePhonesScreen": {
+    "title": "%{name} شماره تلفن‌های",
+    "new": "شماره تلفن جدید"
+  },
+  "temperatureChartScreen": {
+    "title": "Temperature History"
   }
 }

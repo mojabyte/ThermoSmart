@@ -7,6 +7,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import { useStores } from '../../models'
 import { color, spacing } from "../../theme"
 import { TextProps } from "../../components/text/text.props"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -82,18 +83,28 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
 
       <ScrollView>
         <ListItem
-          titleText="Phone Numbers"
-          detailsText="View and edit saved phone numbers"
-          rightIcon="chevron-right"
+          titleTx="deviceOptionsScreen.phoneNumbers"
+          detailsTx="deviceOptionsScreen.phoneNumbersDetails"
+          rightIcon="chevron-right-ltr"
           leftIcon="card-account-phone"
           onPress={() => navigation.navigate('phones')}
         />
 
-        <ListTitle text="SIM Card" />
+        <ListItem
+          titleTx="deviceOptionsScreen.password.change"
+          rightIcon="chevron-right-ltr"
+          leftIcon="key-change"
+          onPress={() => {
+            setPasswordEdit(selectedDevice.password)
+            setPasswordModalVisible(true)
+          }}
+        />
+
+        <ListTitle tx="deviceOptionsScreen.simCard.title" />
 
         <ListItem
-          titleText="Credit"
-          detailsText="Remaining credit of the SIM card"
+          titleTx="deviceOptionsScreen.simCard.credit"
+          detailsTx="deviceOptionsScreen.simCard.creditDetails"
           rightIcon="refresh"
           leftIcon="sim"
           valueText={`${selectedDevice.simCharge} Rial`}
@@ -103,11 +114,14 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         />
 
         <ListItem
-          titleText="SMS Interval"
-          detailsText="Interval of the remaining credit SMS"
-          rightIcon="chevron-right"
+          titleTx="deviceOptionsScreen.simCard.smsInterval"
+          detailsTx="deviceOptionsScreen.simCard.smsIntervalDetails"
+          rightIcon="chevron-right-ltr"
           leftIcon="message-text-clock"
-          valueText={`${selectedDevice.simCreditSmsInterval} day(s)`}
+          valueText={translate(
+            'deviceOptionsScreen.simCard.smsIntervalValue',
+            { interval: selectedDevice.simCreditSmsInterval }
+          )}
           onPress={() => {
             setIntervalType('simCredit')
             setIntervalModalVisible(true)
@@ -115,23 +129,26 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         />
 
         <ListItem
-          titleText="Charge"
-          detailsText="Charge the device SIM card"
-          rightIcon="chevron-right"
+          titleTx="deviceOptionsScreen.simCard.charge"
+          detailsTx="deviceOptionsScreen.simCard.chargeDetails"
+          rightIcon="chevron-right-ltr"
           leftIcon="credit-card-plus"
           onPress={() => {
             setSimModalVisible(true)
           }}
         />
 
-        <ListTitle text="Power Outage" />
+        <ListTitle tx="deviceOptionsScreen.powerOutage.title" />
 
         <ListItem
-          titleText="SMS Interval"
-          detailsText="Interval of warning SMS"
-          rightIcon="chevron-right"
+          titleTx="deviceOptionsScreen.powerOutage.smsInterval"
+          detailsTx="deviceOptionsScreen.powerOutage.smsIntervalDetails"
+          rightIcon="chevron-right-ltr"
           leftIcon="message-text-clock"
-          valueText={`${selectedDevice.powerOutageSmsInterval} minutes`}
+          valueText={translate(
+            'deviceOptionsScreen.powerOutage.smsIntervalValue',
+            { interval: selectedDevice.powerOutageSmsInterval }
+          )}
           onPress={() => {
             setIntervalType('powerOutage')
             setIntervalEdit(selectedDevice.powerOutageSmsInterval)
@@ -139,12 +156,12 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           }}
         />
 
-        <ListTitle text="Sensor Calibration" />
+        <ListTitle tx="deviceOptionsScreen.calibration.title" />
 
         <ListItem
-          titleText="Calibration Offset"
-          detailsText="Calibration offset of thermometer"
-          rightIcon="chevron-right"
+          titleTx="deviceOptionsScreen.calibration.offset"
+          detailsTx="deviceOptionsScreen.calibration.offsetDetails"
+          rightIcon="chevron-right-ltr"
           leftIcon="crosshairs"
           valueText={`${selectedDevice.calibration.toFixed(1)}°c`}
           onPress={() => {
@@ -152,20 +169,11 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
             setIntervalModalVisible(true)
           }}
         />
-
-        <ListItem
-          titleText="Change Password"
-          rightIcon="chevron-right"
-          leftIcon="key-change"
-          onPress={() => {
-            setPasswordEdit(selectedDevice.password)
-            setPasswordModalVisible(true)
-          }}
-        />
       </ScrollView>
 
       <ConfirmModal
-        title="Update Device Password"
+        titleTx="deviceOptionsScreen.password.change"
+        titleIcon="key-change"
         isVisible={isPasswordModalVisible}
         onClose={() => {
           setPasswordModalVisible(false)
@@ -173,7 +181,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         }}
         onConfirm={() => {
           if (passwordEdit.length < 6) {
-            setPasswordError("deviceOptionsScreen.passwordLengthError")
+            setPasswordError("deviceOptionsScreen.password.lengthError")
           } else {
             setPasswordError('')
             if (passwordEdit !== selectedDevice.password) {
@@ -185,8 +193,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       >
         <View>
           <TextField
-            labelTx="deviceOptionsScreen.newPassword"
-            placeholderTx="deviceOptionsScreen.passwordPlaceholder"
+            labelTx="deviceOptionsScreen.password.new"
+            placeholderTx="deviceOptionsScreen.password.placeholder"
             errorTx={passwordError}
             value={passwordEdit}
             keyboardType="numeric"
@@ -197,7 +205,11 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       </ConfirmModal>
 
       <ConfirmModal
-        title={'SIM Card Credit SMS Interval'}
+        titleTx={intervalType === 'simCredit'
+          ? "deviceOptionsScreen.simCard.smsIntervalModalTitle"
+          : "deviceOptionsScreen.powerOutage.smsIntervalModalTitle"
+        }
+        titleIcon="message-text-clock"
         isVisible={isIntervalModalVisible}
         onClose={() => {
           setIntervalModalVisible(false)
@@ -224,7 +236,14 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
             }}
           >
             <Icon name="refresh" containerStyle={{ marginEnd: spacing[2] }} />
-            <Text text={`${intervalEdit} days`}/>
+            <Text
+              text={translate(
+                intervalType === 'simCredit'
+                  ? 'deviceOptionsScreen.simCard.smsIntervalValue'
+                  : 'deviceOptionsScreen.powerOutage.smsIntervalValue',
+                { interval: intervalEdit }
+              )}
+            />
           </Button>
           <MultiSlider
             values={[intervalEdit]}
@@ -253,7 +272,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       </ConfirmModal>
 
       <ConfirmModal
-        title="Charge SIM Card"
+        titleTx="deviceOptionsScreen.simCard.chargeModalTitle"
+        titleIcon="credit-card-plus"
         isVisible={isSimModalVisible}
         onClose={() => {
           setSimModalVisible(false)
@@ -262,7 +282,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         }}
         onConfirm={() => {
           if (!simCardChargeCode?.length) {
-            setSimCardChargeError("deviceOptionsScreen.simCardChargeRequired")
+            setSimCardChargeError("deviceOptionsScreen.simCard.chargeRequired")
           } else {
             setSimCardChargeError('')
             selectedDevice.sendSimChargeCode(simCardChargeCode)
@@ -273,8 +293,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       >
         <View>
           <TextField
-            labelTx="deviceOptionsScreen.simCardChargeCode"
-            placeholderTx="deviceOptionsScreen.simCardChargePlaceholder"
+            labelTx="deviceOptionsScreen.simCard.chargeCode"
+            placeholderTx="deviceOptionsScreen.simCard.chargePlaceholder"
             errorTx={simCardChargeError}
             value={simCardChargeCode}
             keyboardType="numeric"

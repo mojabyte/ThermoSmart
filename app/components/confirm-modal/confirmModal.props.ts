@@ -6,12 +6,17 @@ export interface ConfirmModalProps extends ModalProps {
   /**
    * Text which is looked up via i18n.
    */
-  tx?: string
+  titleTx?: string
 
   /**
    * The title to display if not using `tx` or nested components.
    */
-  title?: string
+  titleText?: string
+
+  /**
+   * The icon to display before title.
+   */
+  titleIcon?: string
 
   /**
    * The state of modal visibility

@@ -1,15 +1,17 @@
 import React from "react"
-import { ViewStyle, Animated, Easing, TouchableWithoutFeedback } from "react-native"
+import { I18nManager, ViewStyle, Animated, Easing, TouchableWithoutFeedback } from "react-native"
 import { color } from "../../theme"
 import { SwitchProps } from "./switch.props"
 import { mergeAll, flatten } from "ramda"
+
+const RTL = I18nManager.isRTL ? -1 : 1
 
 // dimensions
 const THUMB_SIZE = 30
 const WIDTH = 56
 const MARGIN = 2
-const OFF_POSITION = -0.5
-const ON_POSITION = WIDTH - THUMB_SIZE - MARGIN
+const OFF_POSITION = -0.5 * RTL
+const ON_POSITION = (WIDTH - THUMB_SIZE - MARGIN) * RTL
 const BORDER_RADIUS = (THUMB_SIZE * 3) / 4
 
 // colors
@@ -50,7 +52,7 @@ const enhance = (style, newStyles): any => {
   return mergeAll(flatten([style, newStyles]))
 }
 
-const makeAnimatedValue = (switchOn) => new Animated.Value(switchOn ? 1 : 0)
+const makeAnimatedValue = (switchOn: boolean) => new Animated.Value(switchOn ? 1 : 0)
 
 export function Switch(props: SwitchProps) {
   const [timer] = React.useState<Animated.Value>(makeAnimatedValue(props.value))

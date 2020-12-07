@@ -14,6 +14,7 @@ import "./utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowSafeAreaInsets } from "react-native-safe-area-context"
+import moment from "moment-jalaali"
 import * as storage from "./utils/storage"
 import {
   useBackButtonHandler,
@@ -48,6 +49,7 @@ function App() {
 
   // Kick off initial async loading actions, like loading fonts and RootStore
   useEffect(() => {
+    moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
     ;(async () => {
       setupRootStore().then(setRootStore)
     })()

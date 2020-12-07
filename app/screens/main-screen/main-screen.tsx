@@ -17,13 +17,13 @@ const CONTAINER: ViewStyle = {
 }
 
 const DEVICE_SELECT_CONTAINER: ViewStyle = {
-  height: 65,
+  height: 50,
   justifyContent: 'space-between',
   alignItems: 'center',
   flexDirection: 'row',
   paddingHorizontal: '7%',
   paddingTop: 0,
-  paddingBottom: 10,
+  paddingBottom: 5,
   marginHorizontal: 0,
   marginTop: 0,
   borderTopLeftRadius: 0,
@@ -64,8 +64,8 @@ const DEVICE_SELECT_DETAILS_TEXT: TextStyle = {
 }
 
 const LAST_TEMPERATURE_VALUE: TextStyle = {
-  fontSize: 30,
-  paddingVertical: 10,
+  fontSize: 28,
+  paddingVertical: spacing[2],
   alignSelf: 'center'
 }
 
@@ -77,7 +77,16 @@ const CARD_TITLE_CONTAINER: ViewStyle = {
 const CARD_TITLE: TextStyle = {
   fontSize: 14,
   lineHeight: 16,
-  paddingStart: spacing[1]
+  paddingHorizontal: spacing[1]
+}
+
+const getTimeFormat = (ts: string) => {
+  const date = moment(ts).isAfter(moment().startOf('day'))
+    ? 'امروز'
+    : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
+      ? 'دیروز'
+      : moment(ts).format('jDD jMMM'))
+  return `${date}   ${moment(ts).format('HH:mm')}`
 }
 
 export const MainScreen = observer(function MainScreen() {
@@ -173,7 +182,7 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="thermometer-lines" />
-                    <Text text="Temperature" style={CARD_TITLE} />
+                    <Text tx="mainScreen.temperatureCard.title" style={CARD_TITLE} />
                   </View>
 
                   <Button preset="link" onPress={() => selectedDevice.getStatus()}>
@@ -185,20 +194,20 @@ export const MainScreen = observer(function MainScreen() {
                   style={LAST_TEMPERATURE_VALUE}
                 />
                 <Text
-                  text={`${moment(selectedDevice.temperaturesView[0]?.ts).format('YYYY-MM-DD HH:mm')}`}
-                  // style={LAST_TEMPERATURE_VALUE}
+                  text={getTimeFormat(selectedDevice.temperaturesView[0]?.ts)}
+                  style={{ fontSize: 12 }}
                 />
 
                 <Button
-                  preset="card"
+                  preset="link"
                   onPress={() => {
                     navigation.navigate('chart', { selectedDeviceID })
                   }}
-                  style={{ flexDirection: 'row' }}
+                  style={{ flexDirection: 'row', paddingVertical: spacing[2] }}
                 >
                   <Icon name="chart-line" />
-                  <Text text="   Chart   " />
-                  <Icon name="chevron-right" />
+                  <Text tx="mainScreen.temperatureCard.chart" style={{ paddingHorizontal: spacing[3] }} />
+                  <Icon name="chevron-right-ltr" />
                 </Button>
               </Button>
 
@@ -206,7 +215,7 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="information" />
-                    <Text text="Status" style={CARD_TITLE} />
+                    <Text tx="mainScreen.statusCard.title" style={CARD_TITLE} />
                   </View>
                 </View>
 
@@ -231,11 +240,17 @@ export const MainScreen = observer(function MainScreen() {
                   </View>
 
                   <View style={{ flexDirection: 'row' }}>
-                    {selectedDevice.powerStatus
-                      ? <Icon name="power-plug" />
-                      : <Icon name="power-plug-off" />
-                    }
-                    <Text text="Power is connected" />
+                    {selectedDevice.powerStatus ? (
+                      <>
+                        <Icon name="power-plug" />
+                        <Text tx="mainScreen.statusCard.powerConnected" />
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="power-plug-off" />
+                        <Text tx="mainScreen.statusCard.powerDisconnected" />
+                      </>
+                    )}
                   </View>
                 </View>
               </Button>
@@ -250,7 +265,7 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="thermostat" />
-                    <Text text="Thermostat" style={CARD_TITLE} />
+                    <Text tx="mainScreen.thermostatCard.title" style={CARD_TITLE} />
                   </View>
 
                   <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
@@ -308,7 +323,7 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ flexDirection: 'row' }}>
                   <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                     <Icon name="alarm" />
-                    <Text text="Alarm" style={CARD_TITLE} />
+                    <Text tx="mainScreen.alarmCard.title" style={CARD_TITLE} />
                   </View>
 
                   <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
@@ -358,13 +373,13 @@ export const MainScreen = observer(function MainScreen() {
               <View style={{ flexDirection: 'row' }}>
                 <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                   <Icon name="camera-control" />
-                  <Text text="Control" style={CARD_TITLE} />
+                  <Text tx="mainScreen.controlCard.title" style={CARD_TITLE} />
                 </View>
               </View>
 
               <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                 <View style={{ flex: 0.3, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text text="Automation" style={[CARD_TITLE, { marginVertical: 3 }]} />
+                  <Text tx="mainScreen.controlCard.automation" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
                   <Switch
                     value={selectedDevice.thermostat.isEnabled}
@@ -373,7 +388,7 @@ export const MainScreen = observer(function MainScreen() {
                 </View>
 
                 <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text text="Heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
+                  <Text tx="mainScreen.controlCard.heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
                   <Switch
                     value={selectedDevice.heaterStatus}
@@ -382,7 +397,7 @@ export const MainScreen = observer(function MainScreen() {
                 </View>
 
                 <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text text="Fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
+                  <Text tx="mainScreen.controlCard.fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
 
                   <Switch
                     value={selectedDevice.fanStatus}
@@ -394,10 +409,10 @@ export const MainScreen = observer(function MainScreen() {
 
             <Button preset="card" style={{ flex: 0.25 }} onPress={() => navigation.navigate('options')}>
               <View style={{ flexDirection: 'row' }}>
-                <Text text="Device Settings" style={CARD_TITLE} />
+                <Text tx="mainScreen.settingsCard.title" style={CARD_TITLE} />
               </View>
 
-              <Icon name="arrow-right" size={40} />
+              <Icon name="arrow-right-ltr" size={40} />
             </Button>
           </View>
         </View>
@@ -441,14 +456,14 @@ export const MainScreen = observer(function MainScreen() {
               }
             </View>
 
-            <Icon name="chevron-right" size={25} color={color.palette.white} />
+            <Icon name="chevron-right-ltr" size={25} color={color.palette.white} />
           </Button>
         ) : null}
 
         {renderScreenContent()}
 
         <ConfirmModal
-          title={`Set ${selectedSliderModal} value`}
+          titleText={`Set ${selectedSliderModal} value`}
           isVisible={isEditModalVisible}
           onClose={() => setEditModalVisible(false)}
           onConfirm={() => {

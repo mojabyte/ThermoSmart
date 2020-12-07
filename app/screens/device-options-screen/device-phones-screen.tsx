@@ -5,6 +5,7 @@ import { ConfirmModal, Header, ListItem, Screen, TextField } from "../../compone
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from '../../models'
 import { color } from "../../theme"
+import { translate } from "../../i18n"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -25,7 +26,7 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
   return (
     <Screen preset="scroll" style={ROOT}>
       <Header
-        headerText={`${selectedDevice.name} Phone Numbers`}
+        headerText={translate('devicePhonesScreen.title', { name: selectedDevice.name })}
         leftIcon="back"
         onLeftPress={() => navigation.goBack()}
         rightIcon="refresh"
@@ -53,7 +54,7 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
 
         {selectedDevice.validPhoneNumbers.length < 5 ? (
           <ListItem
-            titleText="New Phone Number"
+            titleTx="devicePhonesScreen.new"
             leftIcon="plus-circle-outline"
             onPress={() => {
               setPhoneNumberEdit('')

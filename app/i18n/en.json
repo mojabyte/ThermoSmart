@@ -2,10 +2,8 @@
   "common": {
     "ok": "OK!",
     "cancel": "Cancel",
-    "back": "Back"
-  },
-  "errors": {
-    "invalidEmail": "Invalid email address."
+    "back": "Back",
+    "apply": "Apply"
   },
   "mainScreen": {
     "title": "SMART GREENHOUSE",
@@ -40,12 +38,45 @@
   "deviceOptionsScreen": {
     "title": "Devices",
     "rightHeader": "Edit",
-    "simCardChargeCode": "Charge Code",
-    "simCardChargePlaceholder": "Enter charge code",
-    "simCardChargeRequired": "Enter a valid charge code",
-    "newPassword": "New Password",
-    "passwordPlaceholder": "6 digit password, e.g. 123456",
-    "passwordLengthError": "Password should be 6 digits."
+    "phoneNumbers": "Phone Numbers",
+    "phoneNumbersDetails": "View and edit saved phone numbers",
+    "simCard": {
+      "title": "SIM Card",
+      "credit": "Credit",
+      "creditDetails": "Remaining credit of the SIM card",
+      "smsInterval": "SMS Interval",
+      "smsIntervalDetails": "Interval of the remaining credit SMS",
+      "smsIntervalModalTitle": "SIM Card Credit SMS Interval",
+      "smsIntervalValue": "every %{interval} day(s)",
+      "charge": "Charge",
+      "chargeDetails": "Charge the device SIM card",
+      "chargeCode": "Charge Code",
+      "chargePlaceholder": "Enter charge code",
+      "chargeRequired": "Enter a valid charge code",
+      "chargeModalTitle": "Charge SIM Card"
+    },
+    "powerOutage": {
+      "title": "Power Outage",
+      "smsInterval": "SMS Interval",
+      "smsIntervalDetails": "Interval of the power outage SMS",
+      "smsIntervalValue": "every %{interval} minute(s)",
+      "smsIntervalModalTitle": "Power outage SMS interval"
+    },
+    "calibration": {
+      "title": "Sensor Calibration",
+      "offset": "Calibration Offset",
+      "offsetDetails": "Calibration offset of thermometer"
+    },
+    "password": {
+      "change": "Change Password",
+      "new": "New Password",
+      "placeholder": "6 digit password, e.g. 123456",
+      "lengthError": "Password should be 6 digits."
+    }
+  },
+  "devicePhonesScreen": {
+    "title": "%{name} Phone Numbers",
+    "new": "New Phone Number"
   },
   "temperatureChartScreen": {
     "title": "Temperature History"

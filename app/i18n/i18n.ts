@@ -12,3 +12,6 @@ const fallback = { languageTag: "en", isRTL: false }
 const { languageTag } =
   RNLocalize.findBestAvailableLanguage(Object.keys(i18n.translations)) || fallback
 i18n.locale = languageTag
+
+// TODO: Add language state to mobx & read it in app start
+i18n.locale = 'fa'

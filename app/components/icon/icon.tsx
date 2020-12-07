@@ -1,5 +1,5 @@
 import * as React from "react"
-import { View } from "react-native"
+import { I18nManager, View } from "react-native"
 import VectorIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { IconProps } from './icon.props'
 import { color as colors } from "../../theme"
@@ -10,7 +10,11 @@ export function Icon(props: IconProps) {
   const getIconName = (name: string) => {
     switch (name) {
       case 'back':
-        return 'arrow-left'
+        return I18nManager.isRTL ? 'arrow-right' : 'arrow-left'
+      case 'chevron-right-ltr':
+        return I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
+      case 'arrow-right-ltr':
+        return I18nManager.isRTL ? 'arrow-left' : 'arrow-right'
       default:
         return name
     }

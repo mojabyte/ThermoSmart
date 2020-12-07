@@ -3,9 +3,12 @@ import { View } from "react-native"
 import Modal from 'react-native-modal'
 import { Text } from "../text/text"
 import { Button } from "../button/button"
+import { Icon } from "../icon/icon"
 import { modalPresets, viewPresets, textPresets } from "./confirmModal.presets"
 import { ConfirmModalProps } from "./confirmModal.props"
 import { mergeAll, flatten } from "ramda"
+import { translate } from "../../i18n"
+import { spacing } from "../../theme"
 
 /**
  * For your text displaying needs.
@@ -16,8 +19,9 @@ export function ConfirmModal(props: ConfirmModalProps) {
   // grab the props
   const {
     preset = "primary",
-    tx,
-    title,
+    titleTx,
+    titleText,
+    titleIcon,
     isVisible = false,
     onClose = () => null,
     onConfirm = () => null,
@@ -35,6 +39,8 @@ export function ConfirmModal(props: ConfirmModalProps) {
 
   const content = children || null
 
+  const title = titleText || (titleTx && translate(titleTx)) || ""
+
   return (
     <Modal
       isVisible={isVisible}
@@ -48,16 +54,17 @@ export function ConfirmModal(props: ConfirmModalProps) {
       {...rest}
     >
       <View style={viewStyle}>
-        <View style={{ marginVertical: 10 }}>
+        <View style={{ margin: spacing[3], flexDirection: 'row' }}>
+          { titleIcon && <Icon name={titleIcon} size={20} /> }
           <Text text={title} style={textStyle} />
         </View>
-        <View style={{ margin: 10 }}>
+        <View style={{ margin: spacing[3] }}>
           {content}
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-evenly'}}>
-          <Button text="Cancel" onPress={onClose} />
-          <Button text="Apply" onPress={onConfirm} />
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <Button preset="link" tx="common.cancel" onPress={onClose} style={{ flex: 1, marginHorizontal: spacing[2], alignItems: 'center' }} />
+          <Button tx="common.apply" onPress={onConfirm} style={{ flex: 1, marginHorizontal: spacing[2] }} />
         </View>
       </View>
     </Modal>
