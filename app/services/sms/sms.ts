@@ -29,7 +29,8 @@ export class Sms {
     this.pendingList = new Map()
 
     SmsListener.addListener(({ body, originatingAddress }: any) => {
-      console.log(body, originatingAddress)
+      console.log(originatingAddress)
+      console.log(body)
 
       // Get type of received SMS from it's body
       const getSmsType = (body: string) => {
@@ -53,6 +54,10 @@ export class Sms {
           return 'GET_SIGNAL_STRENGTH'
         } else if (body.includes('شماره تلفن هاي موجود')) {
           return 'GET_PHONE_NUMBERS'
+        } else if (body.includes(' در حافظه ثبت شد')) {
+          return 'UPDATE_PHONE_NUMBER'
+        } else if (body.includes(' از حافظه حذف شد')) {
+          return 'DELETE_PHONE_NUMBER'
         }
         return 'default' // TODO
       }
@@ -70,7 +75,7 @@ export class Sms {
         if (callback) callback(body)
         this.pendingList.get(originatingAddress).delete(type)
       }
-    }) // => {body: "123", timestamp: 1602276693000, originatingAddress: "09179637615"}
+    })
   }
 
   /**

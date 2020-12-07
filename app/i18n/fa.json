@@ -95,8 +95,9 @@
     }
   },
   "devicePhonesScreen": {
-    "title": "%{name} شماره تلفن‌های",
-    "new": "شماره تلفن جدید"
+    "title": "شماره تلفن‌های %{name}",
+    "new": "شماره تلفن جدید",
+    "updateModalTitle": "ویرایش شماره تلفن %{index}#"
   },
   "temperatureChartScreen": {
     "title": "Temperature History"

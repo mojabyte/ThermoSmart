@@ -1,10 +1,11 @@
+import { observable } from 'mobx'
 import {
   getEnv,
   types,
   getParent,
   destroy,
   SnapshotIn,
-  Instance
+  Instance,
 } from 'mobx-state-tree'
 import moment from "moment-jalaali"
 import { sortBy } from 'ramda'
@@ -77,7 +78,7 @@ export const DeviceModel = types
     state: {
       updatePasswordLoading: false,
       getPhoneNumbersLoading: false,
-      updatePhoneNumberLoading: [],
+      updatePhoneNumberLoading: observable([false, false, false, false, false]),
       getStatusLoading: false,
       getTemperatureLoading: false,
       getThermostatValuesLoading: false,
@@ -188,63 +189,46 @@ export const DeviceModel = types
     updatePassword(newPassword: string) {
       this.setState({ updatePasswordLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_PASSWORD',
-        message: `*${self.password}#999#${newPassword}#`,
-        callback: () => {
-          this.setPassword(newPassword)
-          this.setState({ updatePasswordLoading: false })
-        }
+      this.sendSms('UPDATE_PASSWORD', `*${self.password}#999#${newPassword}#`, () => {
+        this.setPassword(newPassword)
+        this.setState({ updatePasswordLoading: false })
       })
     },
 
     getPhoneNumbers() {
       this.setState({ getPhoneNumbersLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_PHONE_NUMBERS',
-        message: `*${self.password}#100#`,
-        callback: (response, error) => {
-          if (!error) {
-            const phoneNumbers = response.split('\n').slice(1)
-              .map(line => (line[8] !== '0') ? line.slice(7, 18) : null)
-            this.setPhoneNumbers(phoneNumbers)
-          }
-          this.setState({ getPhoneNumbersLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_PHONE_NUMBERS', `*${self.password}#100#`, (response, error) => {
+        if (!error) {
+          const phoneNumbers = response.split('\n').slice(1)
+            .map(line => (line[8] !== '0') ? line.slice(7, 18) : null)
+          this.setPhoneNumbers(phoneNumbers)
+        }
+        this.setState({ getPhoneNumbersLoading: false })
       })
     },
     updatePhoneNumber({ phoneNumber, index }) {
       this.setUpdatePhoneNumberLoading(index, true)
+      this.setPhoneNumberAtIndex(index, phoneNumber)
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_PHONE_NUMBER',
-        message: `*${self.password}#${index + 1}#${phoneNumber}*`,
-        callback: () => {
-          this.setPhoneNumberAtIndex(index, phoneNumber)
+      this.sendSms(
+        'UPDATE_PHONE_NUMBER',
+        `*${self.password}#${index + 1}#${phoneNumber}*`,
+        (_, error) => {
+          if (error) {
+            this.removePhoneNumber(index)
+          }
           this.setUpdatePhoneNumberLoading(index, false)
-        }
-      })
+        })
     },
     deletePhoneNumber(index: number) {
       this.setUpdatePhoneNumberLoading(index, true)
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'DELETE_PHONE_NUMBER',
-        message: `*${self.password}#0${index + 1}#`,
-        callback: () => {
+      this.sendSms('DELETE_PHONE_NUMBER', `*${self.password}#0${index + 1}#`, (_, error) => {
+        if (!error) {
           this.removePhoneNumber(index)
-          this.setUpdatePhoneNumberLoading(index, false)
         }
+        this.setUpdatePhoneNumberLoading(index, false)
       })
     },
 
@@ -277,39 +261,32 @@ export const DeviceModel = types
         hour = now.getHours()
       }
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_TEMPERATURE',
-        message: `#85#${hour}*`,
-        callback: (response, error) => {
-          if (!error) {
-            const value = parseFloats(response)[0]
-            if (value) {
-              const ts = `${+moment().set('hour', hour).startOf('hour')}`
-              this.setTemperature({ value, ts })
-            }
+      this.sendSms('GET_TEMPERATURE', `#85#${hour}*`, (response, error) => {
+        if (!error) {
+          const value = parseFloats(response)[0]
+          if (value) {
+            const ts = `${+moment().set('hour', hour).startOf('hour')}`
+            this.setTemperature({ value, ts })
           }
-          this.setState({ getTemperatureLoading: false })
-        },
-        hasResponse: true
+        }
+        this.setState({ getTemperatureLoading: false })
       })
     },
     async getLast24Temperatures() {
       this.setState({ getTemperatureLoading: true })
 
-      const env: Environment = getEnv(self)
-      const getTemp = (hour: number) => new Promise<number>((resolve, reject) => env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_TEMPERATURE',
-        message: `#85#${hour}*`,
-        callback: (response, error) => {
-          if (error) reject(error)
+      const getTemp = (hour: number) => new Promise<number>((resolve, reject) => this.sendSms(
+        'GET_TEMPERATURE',
+        `#85#${hour}*`,
+        (response, error) => {
+          if (error) {
+            reject(error)
+            return
+          }
           const value = parseFloats(response)[0]
           resolve(value)
-        },
-        hasResponse: true
-      }))
+        }
+      ))
 
       const hours = [...Array(24)].map((_, i) => +moment().add(-i, 'hours').startOf('hour'))
 
@@ -326,23 +303,16 @@ export const DeviceModel = types
     getThermostatValues() {
       this.setState({ getThermostatValuesLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_THERMOSTAT_VALUES',
-        message: '#15#',
-        callback: (response, error) => {
-          if (!error) {
-            const values = parseFloats(response)
-            this.setThermostatValues({
-              max: values[0],
-              nor: values[1],
-              min: values[2]
-            })
-          }
-          this.setState({ getThermostatValuesLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_THERMOSTAT_VALUES', '#15#', (response, error) => {
+        if (!error) {
+          const values = parseFloats(response)
+          this.setThermostatValues({
+            max: values[0],
+            nor: values[1],
+            min: values[2]
+          })
+        }
+        this.setState({ getThermostatValuesLoading: false })
       })
     },
     updateThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
@@ -353,7 +323,6 @@ export const DeviceModel = types
       if (nor) messages.push(['2000', Math.round(nor * 10)])
       if (min) messages.push(['1000', Math.round(min * 10)])
 
-      const env: Environment = getEnv(self)
       const sendMessage = (messages: [string, number][]) => {
         if (messages.length === 0) {
           this.setThermostatValues({ max, nor, min })
@@ -361,14 +330,12 @@ export const DeviceModel = types
           return
         }
         const message = messages.pop()
-        env.sms.send({
-          phoneNumber: self.simNumber,
-          type: 'UPDATE_THERMOSTAT_VALUES',
-          message: `*${self.password}#${message[0]}#${message[1]}*`,
-          callback: () => {
-            sendMessage(messages)
-          }
-        })
+
+        this.sendSms(
+          'UPDATE_THERMOSTAT_VALUES',
+          `*${self.password}#${message[0]}#${message[1]}*`,
+          () => { sendMessage(messages) }
+        )
       }
 
       sendMessage(messages)
@@ -376,59 +343,37 @@ export const DeviceModel = types
     updateThermostatStatus(status: boolean) {
       this.setState({ updateThermostatStatusLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_THERMOSTAT_STATUS',
-        message: `*${self.password}#${status ? '800' : '808'}#`,
-        callback: () => {
+      this.sendSms(
+        'UPDATE_THERMOSTAT_STATUS',
+        `*${self.password}#${status ? '800' : '808'}#`,
+        () => {
           this.setThermostatStatus(status)
           this.setState({ updateThermostatStatusLoading: false })
-        },
-        hasResponse: false
-      })
+        }
+      )
     },
 
     getAlarmValues() {
       this.setState({ getAlarmValuesLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_ALARM_VALUES_HIGH',
-        message: '#8000#',
-        callback: (response, error) => {
+      this.sendSms('GET_ALARM_VALUES_HIGH', '#8000#', (response, error) => {
+        if (!error) {
+          const high = parseFloats(response)
+          this.setAlarmValues({ high })
+        }
+        this.sendSms('GET_ALARM_VALUES_LOW', '#7000#', (response, error) => {
           if (!error) {
-            const high = parseFloats(response)
-            this.setAlarmValues({ high })
+            const low = parseFloats(response)
+            this.setAlarmValues({ low })
           }
-          env.sms.send({
-            phoneNumber: self.simNumber,
-            type: 'GET_ALARM_VALUES_LOW',
-            message: '#7000#',
-            callback: (response, error) => {
-              if (!error) {
-                const low = parseFloats(response)
-                this.setAlarmValues({ low })
-              }
-              env.sms.send({
-                phoneNumber: self.simNumber,
-                type: 'GET_ALARM_VALUES_INTERVAL',
-                message: '#9000#',
-                callback: (response, error) => {
-                  if (!error) {
-                    const interval = parseFloats(response)[0]
-                    this.setAlarmValues({ interval })
-                  }
-                  this.setState({ getAlarmValuesLoading: false })
-                },
-                hasResponse: true
-              })
-            },
-            hasResponse: true
+          this.sendSms('GET_ALARM_VALUES_INTERVAL', '#9000#', (response, error) => {
+            if (!error) {
+              const interval = parseFloats(response)[0]
+              this.setAlarmValues({ interval })
+            }
+            this.setState({ getAlarmValuesLoading: false })
           })
-        },
-        hasResponse: true
+        })
       })
     },
     updateAlarmValues({ high, low }: { high?: number[]; low?: number[] }) {
@@ -438,7 +383,6 @@ export const DeviceModel = types
       if (high) messages.push(['8000', Math.round(high[0] * 10), Math.round(high[1] * 10)])
       if (low) messages.push(['7000', Math.round(low[0] * 10), Math.round(low[1] * 10)])
 
-      const env: Environment = getEnv(self)
       const sendMessage = (messages: [string, number][]) => {
         if (messages.length === 0) {
           this.setAlarmValues({ high, low })
@@ -446,14 +390,11 @@ export const DeviceModel = types
           return
         }
         const message = messages.pop()
-        env.sms.send({
-          phoneNumber: self.simNumber,
-          type: 'UPDATE_ALARM_VALUES',
-          message: `*${self.password}#${message[0]}#${message[1]}*${message[2]}*`,
-          callback: () => {
-            sendMessage(messages)
-          }
-        })
+        this.sendSms(
+          'UPDATE_ALARM_VALUES',
+          `*${self.password}#${message[0]}#${message[1]}*${message[2]}*`,
+          () => { sendMessage(messages) }
+        )
       }
 
       sendMessage(messages)
@@ -461,186 +402,111 @@ export const DeviceModel = types
     updateAlarmInterval(interval: number) {
       this.setState({ updateAlarmIntervalLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_ALARM_VALUES',
-        message: `*${self.password}#9000#${interval}*`,
-        callback: () => {
-          this.setAlarmValues({ interval })
-          this.setState({ updateAlarmIntervalLoading: false })
-        }
+      this.sendSms('UPDATE_ALARM_VALUES', `*${self.password}#9000#${interval}*`, () => {
+        this.setAlarmValues({ interval })
+        this.setState({ updateAlarmIntervalLoading: false })
       })
     },
 
     sendRpc({ method, value }: { method: string; value: boolean }) {
       this.setState({ sendRpcLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'SEND_RPC',
-        message: `#${!value ? '0' : ''}${method}#`,
-        callback: () => {
-          this.setState({ sendRpcLoading: false })
-        }
+      this.sendSms('SEND_RPC', `#${!value ? '0' : ''}${method}#`, () => {
+        this.setState({ sendRpcLoading: false })
       })
     },
 
     getSimCharge() {
       this.setState({ getSimChargeLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_SIM_CHARGE',
-        message: '#12#',
-        callback: (response, error) => {
-          if (!error) {
-            this.setSimCharge(parseFloats(toEnDigit(response))[0])
-          }
-          this.setState({ getSimChargeLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_SIM_CHARGE', '#12#', (response, error) => {
+        if (!error) {
+          this.setSimCharge(parseFloats(toEnDigit(response))[0])
+        }
+        this.setState({ getSimChargeLoading: false })
       })
     },
     sendSimChargeCode(code: string) {
       this.setState({ getSimChargeLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'SEND_SIM_CHARGE_CODE',
-        message: `*950#${code}*`,
-        callback: () => {
-          this.setState({ getSimChargeLoading: false })
-        }
+      this.sendSms('SEND_SIM_CHARGE_CODE', `*950#${code}*`, () => {
+        this.setState({ getSimChargeLoading: false })
       })
     },
     getSimCreditSmsInterval() {
       this.setState({ getSimCreditSmsIntervalLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_SIM_CREDIT_SMS_INTERVAL',
-        message: '#14#',
-        callback: (response, error) => {
-          if (!error) {
-            this.setSimCreditSmsInterval(parseFloat(response))
-          }
-          this.setState({ getSimCreditSmsIntervalLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_SIM_CREDIT_SMS_INTERVAL', '#14#', (response, error) => {
+        if (!error) {
+          this.setSimCreditSmsInterval(parseFloat(response))
+        }
+        this.setState({ getSimCreditSmsIntervalLoading: false })
       })
     },
     updateSimCreditSmsInterval(interval: number) {
       this.setState({ getSimCreditSmsIntervalLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_SIM_CREDIT_SMS_INTERVAL',
-        message: `*${self.password}#14#${interval}*`,
-        callback: () => {
-          this.setSimCreditSmsInterval(interval)
-          this.setState({ getSimCreditSmsIntervalLoading: false })
-        }
+      this.sendSms('UPDATE_SIM_CREDIT_SMS_INTERVAL', `*${self.password}#14#${interval}*`, () => {
+        this.setSimCreditSmsInterval(interval)
+        this.setState({ getSimCreditSmsIntervalLoading: false })
       })
     },
 
     getSignalStrength() {
       this.setState({ getSignalStrengthLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_SIGNAL_STRENGTH',
-        message: '#13#',
-        callback: (response, error) => {
-          if (!error) {
-            this.setSignalStrength(parseFloats(response)[0])
-          }
-          this.setState({ getSignalStrengthLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_SIGNAL_STRENGTH', '#13#', (response, error) => {
+        if (!error) {
+          this.setSignalStrength(parseFloats(response)[0])
+        }
+        this.setState({ getSignalStrengthLoading: false })
       })
     },
 
     getPowerOutageSmsInterval() {
       this.setState({ getPowerOutageSmsIntervalLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_POWER_OUTAGE_SMS_INTERVAL',
-        message: '#220#',
-        callback: (response, error) => {
-          if (!error) {
-            this.setPowerOutageSmsInterval(parseFloat(response))
-          }
-          this.setState({ getPowerOutageSmsIntervalLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_POWER_OUTAGE_SMS_INTERVAL', '#220#', (response, error) => {
+        if (!error) {
+          this.setPowerOutageSmsInterval(parseFloat(response))
+        }
+        this.setState({ getPowerOutageSmsIntervalLoading: false })
       })
     },
     updatePowerOutageSmsInterval(interval: number) {
       this.setState({ getPowerOutageSmsIntervalLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_POWER_OUTAGE_SMS_INTERVAL',
-        message: `*${self.password}#220#${interval}*`,
-        callback: () => {
-          this.setPowerOutageSmsInterval(interval)
-          this.setState({ getPowerOutageSmsIntervalLoading: false })
-        }
+      this.sendSms('UPDATE_POWER_OUTAGE_SMS_INTERVAL', `*${self.password}#220#${interval}*`, () => {
+        this.setPowerOutageSmsInterval(interval)
+        this.setState({ getPowerOutageSmsIntervalLoading: false })
       })
     },
 
     getCalibration() {
       this.setState({ getCalibrationLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'GET_CALIBRATION',
-        message: '#695#',
-        callback: (response, error) => {
-          if (!error) {
-            this.setCalibration(parseFloat(response))
-          }
-          this.setState({ getCalibrationLoading: false })
-        },
-        hasResponse: true
+      this.sendSms('GET_CALIBRATION', '#695#', (response, error) => {
+        if (!error) {
+          this.setCalibration(parseFloat(response))
+        }
+        this.setState({ getCalibrationLoading: false })
       })
     },
     updateCalibration(calibration: number) {
       this.setState({ getCalibrationLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'UPDATE_CALIBRATION',
-        message: `*${self.password}#6${calibration > 0 ? '90' : '80'}#${
+      this.sendSms(
+        'UPDATE_CALIBRATION',
+        `*${self.password}#6${calibration > 0 ? '90' : '80'}#${
           Math.round(Math.abs(calibration) * 10)}*`,
-        callback: () => {
-          this.setState({ getCalibrationLoading: false })
-        }
-      })
+        () => { this.setState({ getCalibrationLoading: false }) }
+      )
     },
     resetCalibration() {
       this.setState({ getCalibrationLoading: true })
 
-      const env: Environment = getEnv(self)
-      env.sms.send({
-        phoneNumber: self.simNumber,
-        type: 'RESET_CALIBRATION',
-        message: `*${self.password}#685#`,
-        callback: () => {
-          this.setState({ getCalibrationLoading: false })
-        }
+      this.sendSms('RESET_CALIBRATION', `*${self.password}#685#`, () => {
+        this.setState({ getCalibrationLoading: false })
       })
     }
   }))

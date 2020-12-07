@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
-import { ScrollView, View, ViewStyle } from "react-native"
-import { ConfirmModal, Header, ListItem, Screen, TextField } from "../../components"
+import { ActivityIndicator, ScrollView, View, ViewStyle } from "react-native"
+import { ConfirmModal, Header, ListItem, Screen, Text, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from '../../models'
 import { color } from "../../theme"
@@ -10,6 +10,17 @@ import { translate } from "../../i18n"
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
   flex: 1
+}
+
+const ACTIVITY_INDICATOR: ViewStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: '#fffa',
+  justifyContent: 'center',
+  alignItems: 'center'
 }
 
 export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
@@ -33,23 +44,26 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
         onRightPress={() => selectedDevice.getPhoneNumbers()}
       />
 
-      <ScrollView>
-        {selectedDevice.validPhoneNumbers.map(phoneNumber => {
-          const index = selectedDevice.phoneNumbers.indexOf(phoneNumber)
-          return (
-            <ListItem
-              key={phoneNumber}
-              titleText={phoneNumber}
-              rightIcon="pencil"
-              leftIcon={`numeric-${index + 1}-circle-outline`}
-              onPress={() => {
-                setPhoneNumberEdit(phoneNumber)
-                setEditIndex(index)
-                setEditModalVisible(true)
-              }}
-              onLongPress={() => selectedDevice.deletePhoneNumber(index)}
-            />
-          )
+      <ScrollView keyboardShouldPersistTaps="handled">
+        {selectedDevice.phoneNumbers.map((phoneNumber, index) => {
+          if (phoneNumber) {
+            return (
+              <ListItem
+                key={`${index}-${phoneNumber}`}
+                titleText={phoneNumber}
+                loading={selectedDevice.state.updatePhoneNumberLoading[index]}
+                rightIcon="pencil"
+                leftIcon={`numeric-${index + 1}-circle-outline`}
+                onPress={() => {
+                  setPhoneNumberEdit(phoneNumber)
+                  setEditIndex(index)
+                  setEditModalVisible(true)
+                }}
+                onLongPress={() => selectedDevice.deletePhoneNumber(index)}
+              />
+            )
+          }
+          return null
         })}
 
         {selectedDevice.validPhoneNumbers.length < 5 ? (
@@ -65,8 +79,11 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
         ) : null}
       </ScrollView>
 
+      {selectedDevice.state.getPhoneNumbersLoading &&
+        <ActivityIndicator color="black" size="large" style={ACTIVITY_INDICATOR} />}
+
       <ConfirmModal
-        title={`Update Phone Number #${editIndex + 1}`}
+        titleText={translate('devicePhonesScreen.updateModalTitle', { index: editIndex + 1 })}
         isVisible={isEditModalVisible}
         onClose={() => setEditModalVisible(false)}
         onConfirm={() => {

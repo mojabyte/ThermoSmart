@@ -76,7 +76,8 @@
   },
   "devicePhonesScreen": {
     "title": "%{name} Phone Numbers",
-    "new": "New Phone Number"
+    "new": "New Phone Number",
+    "updateModalTitle": "Update Phone Number #%{index}"
   },
   "temperatureChartScreen": {
     "title": "Temperature History"

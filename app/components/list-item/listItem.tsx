@@ -1,5 +1,5 @@
 import * as React from "react"
-import { TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
 import { Icon } from "../icon/icon"
 import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./listItem.presets"
@@ -21,6 +21,7 @@ export function ListItem(props: ListItemProps) {
     detailsTx,
     detailsText,
     valueText,
+    loading,
     rightIcon,
     leftIcon,
     style: styleOverride,
@@ -60,10 +61,21 @@ export function ListItem(props: ListItemProps) {
     justifyContent: 'center'
   }
 
+  const ACTIVITY_INDICATOR: ViewStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fffa',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+
   const content = children || <Text text={valueText} style={VALUE} />
 
   return (
-    <TouchableOpacity style={viewStyle} {...rest}>
+    <TouchableOpacity disabled={loading} style={viewStyle} {...rest}>
       <View style={CONTAINER}>
         {leftIcon ? <Icon name={leftIcon} size={20} containerStyle={ICON} /> : null}
         <View style={MAIN}>
@@ -77,6 +89,12 @@ export function ListItem(props: ListItemProps) {
         </View>
         {rightIcon ? <Icon name={rightIcon} size={20} containerStyle={ICON} /> : null}
       </View>
+
+      {loading ? (
+        <View style={ACTIVITY_INDICATOR}>
+          <ActivityIndicator color={color.palette.greyDarker} />
+        </View>
+      ) : null}
     </TouchableOpacity>
   )
 }

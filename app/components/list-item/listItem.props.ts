@@ -28,6 +28,11 @@ export interface ListItemProps extends TouchableOpacityProps {
   valueText?: string
 
   /**
+   * Whether to display activity indicator
+   */
+  loading?: boolean
+
+  /**
    * Icon displayed on the right side of the component.
    */
   rightIcon?: string
