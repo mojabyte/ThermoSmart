@@ -61,21 +61,16 @@ export function ListItem(props: ListItemProps) {
     justifyContent: 'center'
   }
 
-  const ACTIVITY_INDICATOR: ViewStyle = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#fffa',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
+  const getLoadingStyle = (loading: boolean) => ({ opacity: loading ? 0.3 : 1 })
 
   const content = children || <Text text={valueText} style={VALUE} />
 
   return (
-    <TouchableOpacity disabled={loading} style={viewStyle} {...rest}>
+    <TouchableOpacity
+      disabled={loading}
+      style={[viewStyle, getLoadingStyle(loading)]}
+      {...rest}
+    >
       <View style={CONTAINER}>
         {leftIcon ? <Icon name={leftIcon} size={20} containerStyle={ICON} /> : null}
         <View style={MAIN}>
@@ -87,14 +82,11 @@ export function ListItem(props: ListItemProps) {
           </View>
           {content}
         </View>
-        {rightIcon ? <Icon name={rightIcon} size={20} containerStyle={ICON} /> : null}
+        {loading
+          ? <ActivityIndicator color={color.palette.greyDarker} style={ICON} />
+          : rightIcon && <Icon name={rightIcon} size={20} containerStyle={ICON} />
+        }
       </View>
-
-      {loading ? (
-        <View style={ACTIVITY_INDICATOR}>
-          <ActivityIndicator color={color.palette.greyDarker} />
-        </View>
-      ) : null}
     </TouchableOpacity>
   )
 }

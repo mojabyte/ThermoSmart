@@ -43,6 +43,57 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   const [intervalEdit, setIntervalEdit] = useState<number>()
   const [intervalType, setIntervalType] = useState('simCredit')
 
+  const rangeModalConfigs = {
+    simCredit: {
+      title: 'deviceOptionsScreen.simCard.smsIntervalModalTitle',
+      titleIcon: 'message-text-clock',
+      min: 1,
+      max: 31,
+      step: 1,
+      onConfirm: () => {
+        selectedDevice.updateSimCreditSmsInterval(intervalEdit)
+      },
+      onRefresh: () => {
+        selectedDevice.getSimCreditSmsInterval()
+      },
+      parseValue: (value: number) => translate(
+        'deviceOptionsScreen.simCard.smsIntervalValue',
+        { interval: value }
+      )
+    },
+    powerOutage: {
+      title: 'deviceOptionsScreen.powerOutage.smsIntervalModalTitle',
+      titleIcon: 'message-text-clock',
+      min: 5,
+      max: 121,
+      step: 1,
+      onConfirm: () => {
+        selectedDevice.updatePowerOutageSmsInterval(intervalEdit)
+      },
+      onRefresh: () => {
+        selectedDevice.getPowerOutageSmsInterval()
+      },
+      parseValue: (value: number) => translate(
+        'deviceOptionsScreen.powerOutage.smsIntervalValue',
+        { interval: value }
+      )
+    },
+    calibration: {
+      title: 'deviceOptionsScreen.calibration.title',
+      titleIcon: 'crosshairs',
+      min: -10,
+      max: 10,
+      step: 0.1,
+      onConfirm: () => {
+        selectedDevice.updateCalibration(intervalEdit)
+      },
+      onRefresh: () => {
+        selectedDevice.getCalibration()
+      },
+      parseValue: (value: number) => `${value.toFixed(1)}°c`
+    }
+  }
+
   const [isSimModalVisible, setSimModalVisible] = useState(false)
   const [simCardChargeCode, setSimCardChargeCode] = useState<string>()
   const [simCardChargeError, setSimCardChargeError] = useState<string>()
@@ -92,6 +143,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
 
         <ListItem
           titleTx="deviceOptionsScreen.password.change"
+          loading={selectedDevice.state.updatePasswordLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="key-change"
           onPress={() => {
@@ -105,17 +157,19 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         <ListItem
           titleTx="deviceOptionsScreen.simCard.credit"
           detailsTx="deviceOptionsScreen.simCard.creditDetails"
+          loading={selectedDevice.state.getSimCreditLoading}
           rightIcon="refresh"
           leftIcon="sim"
           valueText={`${selectedDevice.simCharge} Rial`}
           onPress={() => {
-            selectedDevice.getSimCharge()
+            selectedDevice.getSimCredit()
           }}
         />
 
         <ListItem
           titleTx="deviceOptionsScreen.simCard.smsInterval"
           detailsTx="deviceOptionsScreen.simCard.smsIntervalDetails"
+          loading={selectedDevice.state.getSimCreditSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="message-text-clock"
           valueText={translate(
@@ -143,6 +197,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         <ListItem
           titleTx="deviceOptionsScreen.powerOutage.smsInterval"
           detailsTx="deviceOptionsScreen.powerOutage.smsIntervalDetails"
+          loading={selectedDevice.state.getPowerOutageSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="message-text-clock"
           valueText={translate(
@@ -161,12 +216,24 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         <ListItem
           titleTx="deviceOptionsScreen.calibration.offset"
           detailsTx="deviceOptionsScreen.calibration.offsetDetails"
+          loading={selectedDevice.state.getCalibrationLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="crosshairs"
           valueText={`${selectedDevice.calibration.toFixed(1)}°c`}
           onPress={() => {
-            setIntervalType('powerOutage')
+            setIntervalType('calibration')
+            setIntervalEdit(selectedDevice.calibration)
             setIntervalModalVisible(true)
+          }}
+        />
+
+        <ListItem
+          titleTx="deviceOptionsScreen.calibration.reset"
+          detailsTx="deviceOptionsScreen.calibration.resetDetails"
+          loading={selectedDevice.state.resetCalibrationLoading}
+          leftIcon="reload"
+          onPress={() => {
+            selectedDevice.resetCalibration()
           }}
         />
       </ScrollView>
@@ -193,7 +260,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       >
         <View>
           <TextField
-            labelTx="deviceOptionsScreen.password.new"
+            labelTx="deviceOptionsScreen.password.password"
             placeholderTx="deviceOptionsScreen.password.placeholder"
             errorTx={passwordError}
             value={passwordEdit}
@@ -205,21 +272,14 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       </ConfirmModal>
 
       <ConfirmModal
-        titleTx={intervalType === 'simCredit'
-          ? "deviceOptionsScreen.simCard.smsIntervalModalTitle"
-          : "deviceOptionsScreen.powerOutage.smsIntervalModalTitle"
-        }
-        titleIcon="message-text-clock"
+        titleTx={rangeModalConfigs[intervalType].title}
+        titleIcon={rangeModalConfigs[intervalType].titleIcon}
         isVisible={isIntervalModalVisible}
         onClose={() => {
           setIntervalModalVisible(false)
         }}
         onConfirm={() => {
-          if (intervalType === 'simCredit') {
-            selectedDevice.updateSimCreditSmsInterval(intervalEdit)
-          } else if (intervalType === 'powerOutage') {
-            selectedDevice.updatePowerOutageSmsInterval(intervalEdit)
-          }
+          rangeModalConfigs[intervalType].onConfirm()
           setIntervalModalVisible(false)
         }}
       >
@@ -227,29 +287,18 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           <Button
             preset="link"
             style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={() => {
-              if (intervalType === 'simCredit') {
-                selectedDevice.getSimCreditSmsInterval()
-              } else if (intervalType === 'powerOutage') {
-                selectedDevice.getPowerOutageSmsInterval()
-              }
-            }}
+            onPress={rangeModalConfigs[intervalType].onRefresh}
           >
             <Icon name="refresh" containerStyle={{ marginEnd: spacing[2] }} />
             <Text
-              text={translate(
-                intervalType === 'simCredit'
-                  ? 'deviceOptionsScreen.simCard.smsIntervalValue'
-                  : 'deviceOptionsScreen.powerOutage.smsIntervalValue',
-                { interval: intervalEdit }
-              )}
+              text={rangeModalConfigs[intervalType].parseValue(intervalEdit)}
             />
           </Button>
           <MultiSlider
             values={[intervalEdit]}
-            min={1}
-            max={99}
-            step={1}
+            min={rangeModalConfigs[intervalType].min}
+            max={rangeModalConfigs[intervalType].max}
+            step={rangeModalConfigs[intervalType].step}
             snapped
             onValuesChange={values => setIntervalEdit(values[0])}
             trackStyle={{

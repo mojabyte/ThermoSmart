@@ -14,7 +14,7 @@ import { Environment } from './environment'
 
 const parseFloats = (string: string) => {
   const regex = /[+-]?\d+(\.\d+)?/g
-  return string.match(regex).map(v => parseFloat(v))
+  return string.match(regex)?.map(v => parseFloat(v)) || []
 }
 
 const toEnDigit = (string: string) => string
@@ -88,11 +88,12 @@ export const DeviceModel = types
       updateAlarmValuesLoading: false,
       updateAlarmIntervalLoading: false,
       sendRpcLoading: false,
-      getSimChargeLoading: false,
+      getSimCreditLoading: false,
       getSimCreditSmsIntervalLoading: false,
       getSignalStrengthLoading: false,
       getPowerOutageSmsIntervalLoading: false,
-      getCalibrationLoading: false
+      getCalibrationLoading: false,
+      resetCalibrationLoading: false
     }
   }))
   .actions(self => ({
@@ -189,10 +190,15 @@ export const DeviceModel = types
     updatePassword(newPassword: string) {
       this.setState({ updatePasswordLoading: true })
 
-      this.sendSms('UPDATE_PASSWORD', `*${self.password}#999#${newPassword}#`, () => {
-        this.setPassword(newPassword)
-        this.setState({ updatePasswordLoading: false })
-      })
+      this.sendSms('UPDATE_PASSWORD', `*${self.password}#999#${newPassword}#`,
+        (response, error) => {
+          if (!error) {
+            this.setPassword(newPassword)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updatePasswordLoading: false })
+        }
+      )
     },
 
     getPhoneNumbers() {
@@ -416,21 +422,21 @@ export const DeviceModel = types
       })
     },
 
-    getSimCharge() {
-      this.setState({ getSimChargeLoading: true })
+    getSimCredit() {
+      this.setState({ getSimCreditLoading: true })
 
       this.sendSms('GET_SIM_CHARGE', '#12#', (response, error) => {
         if (!error) {
           this.setSimCharge(parseFloats(toEnDigit(response))[0])
         }
-        this.setState({ getSimChargeLoading: false })
+        this.setState({ getSimCreditLoading: false })
       })
     },
     sendSimChargeCode(code: string) {
-      this.setState({ getSimChargeLoading: true })
+      this.setState({ getSimCreditLoading: true })
 
       this.sendSms('SEND_SIM_CHARGE_CODE', `*950#${code}*`, () => {
-        this.setState({ getSimChargeLoading: false })
+        this.setState({ getSimCreditLoading: false })
       })
     },
     getSimCreditSmsInterval() {
@@ -438,7 +444,7 @@ export const DeviceModel = types
 
       this.sendSms('GET_SIM_CREDIT_SMS_INTERVAL', '#14#', (response, error) => {
         if (!error) {
-          this.setSimCreditSmsInterval(parseFloat(response))
+          this.setSimCreditSmsInterval(parseFloats(response)[0])
         }
         this.setState({ getSimCreditSmsIntervalLoading: false })
       })
@@ -446,10 +452,17 @@ export const DeviceModel = types
     updateSimCreditSmsInterval(interval: number) {
       this.setState({ getSimCreditSmsIntervalLoading: true })
 
-      this.sendSms('UPDATE_SIM_CREDIT_SMS_INTERVAL', `*${self.password}#14#${interval}*`, () => {
-        this.setSimCreditSmsInterval(interval)
-        this.setState({ getSimCreditSmsIntervalLoading: false })
-      })
+      this.sendSms(
+        'UPDATE_SIM_CREDIT_SMS_INTERVAL',
+        `*${self.password}#14#${interval}*`,
+        (response, error) => {
+          if (!error) {
+            this.setSimCreditSmsInterval(interval)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ getSimCreditSmsIntervalLoading: false })
+        }
+      )
     },
 
     getSignalStrength() {
@@ -468,7 +481,7 @@ export const DeviceModel = types
 
       this.sendSms('GET_POWER_OUTAGE_SMS_INTERVAL', '#220#', (response, error) => {
         if (!error) {
-          this.setPowerOutageSmsInterval(parseFloat(response))
+          this.setPowerOutageSmsInterval(parseFloats(response)[0])
         }
         this.setState({ getPowerOutageSmsIntervalLoading: false })
       })
@@ -476,10 +489,17 @@ export const DeviceModel = types
     updatePowerOutageSmsInterval(interval: number) {
       this.setState({ getPowerOutageSmsIntervalLoading: true })
 
-      this.sendSms('UPDATE_POWER_OUTAGE_SMS_INTERVAL', `*${self.password}#220#${interval}*`, () => {
-        this.setPowerOutageSmsInterval(interval)
-        this.setState({ getPowerOutageSmsIntervalLoading: false })
-      })
+      this.sendSms(
+        'UPDATE_POWER_OUTAGE_SMS_INTERVAL',
+        `*${self.password}#220#${interval}*`,
+        (response, error) => {
+          if (!error) {
+            this.setPowerOutageSmsInterval(interval)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ getPowerOutageSmsIntervalLoading: false })
+        }
+      )
     },
 
     getCalibration() {
@@ -487,7 +507,8 @@ export const DeviceModel = types
 
       this.sendSms('GET_CALIBRATION', '#695#', (response, error) => {
         if (!error) {
-          this.setCalibration(parseFloat(response))
+          const sign = response.includes('كاهش') ? -1 : 1
+          this.setCalibration((parseFloats(response)[0] || 0) * sign)
         }
         this.setState({ getCalibrationLoading: false })
       })
@@ -495,18 +516,29 @@ export const DeviceModel = types
     updateCalibration(calibration: number) {
       this.setState({ getCalibrationLoading: true })
 
+      const diff = Math.round((calibration - self.calibration) * 10)
+
       this.sendSms(
         'UPDATE_CALIBRATION',
-        `*${self.password}#6${calibration > 0 ? '90' : '80'}#${
-          Math.round(Math.abs(calibration) * 10)}*`,
-        () => { this.setState({ getCalibrationLoading: false }) }
+        `*${self.password}#6${diff > 0 ? '90' : '80'}#${Math.abs(diff)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setCalibration(calibration)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ getCalibrationLoading: false })
+        }
       )
     },
     resetCalibration() {
-      this.setState({ getCalibrationLoading: true })
+      this.setState({ resetCalibrationLoading: true })
 
-      this.sendSms('RESET_CALIBRATION', `*${self.password}#685#`, () => {
-        this.setState({ getCalibrationLoading: false })
+      this.sendSms('RESET_CALIBRATION', `*${self.password}#685#`, (response, error) => {
+        if (!error) {
+          this.setCalibration(0)
+          ToastAndroid.show(response, ToastAndroid.SHORT)
+        }
+        this.setState({ resetCalibrationLoading: false })
       })
     }
   }))

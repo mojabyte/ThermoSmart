@@ -224,8 +224,8 @@ export const MainScreen = observer(function MainScreen() {
                     <Button
                       preset="card"
                       text={`${selectedDevice.simCharge} Rial`}
-                      onPress={() => selectedDevice.getSimCharge()}
-                      loading={selectedDevice.state.getSimChargeLoading}
+                      onPress={() => selectedDevice.getSimCredit()}
+                      loading={selectedDevice.state.getSimCreditLoading}
                       style={{ flex: 0.5, margin: 3 }}
                     />
 

@@ -1,3 +1,4 @@
+// import { DeviceEventEmitter } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
 import SmsListener from "react-native-android-sms-listener"
 import BackgroundTimer from "react-native-background-timer"
@@ -28,9 +29,15 @@ export class Sms {
     this.config = config
     this.pendingList = new Map()
 
+    // DeviceEventEmitter.addListener('sms_onDelivery', (msg) => {
+    //   console.log(msg)
+    // })
+
     SmsListener.addListener(({ body, originatingAddress }: any) => {
       console.log(originatingAddress)
       console.log(body)
+
+      // TODO: getSmsType based on regex -> performance check
 
       // Get type of received SMS from it's body
       const getSmsType = (body: string) => {
@@ -58,6 +65,22 @@ export class Sms {
           return 'UPDATE_PHONE_NUMBER'
         } else if (body.includes(' از حافظه حذف شد')) {
           return 'DELETE_PHONE_NUMBER'
+        } else if (body.includes('رمز دستگاه  به')) {
+          return 'UPDATE_PASSWORD'
+        } else if (body.includes('تعداد روز ارسال دوره اي شارژ سيمكارت:')) {
+          return 'GET_SIM_CREDIT_SMS_INTERVAL'
+        } else if (body.includes('دوره اي شارژ سيمكارت به')) {
+          return 'UPDATE_SIM_CREDIT_SMS_INTERVAL'
+        } else if (body.includes(' پيامك هشدار قطع برق :')) {
+          return 'GET_POWER_OUTAGE_SMS_INTERVAL'
+        } else if (body.includes('پيامك هشدار برق  به')) {
+          return 'UPDATE_POWER_OUTAGE_SMS_INTERVAL'
+        } else if (body.includes('در حالت كارخانه') || body.includes('يافته')) {
+          return 'GET_CALIBRATION'
+        } else if (body.includes('به حالت كارخانه')) {
+          return 'RESET_CALIBRATION'
+        } else if (body.includes('كاليبره سنسور')) {
+          return 'UPDATE_CALIBRATION'
         }
         return 'default' // TODO
       }
@@ -99,7 +122,7 @@ export class Sms {
             this.pendingList.get(phoneNumberWithCode).delete(type)
             console.log('timeout')
             callback(undefined, 'timeout')
-          }, 30000)
+          }, 60000)
 
           // type = 'default' // TODO
 

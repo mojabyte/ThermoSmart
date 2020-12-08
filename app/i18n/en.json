@@ -65,11 +65,13 @@
     "calibration": {
       "title": "Sensor Calibration",
       "offset": "Calibration Offset",
-      "offsetDetails": "Calibration offset of thermometer"
+      "offsetDetails": "Calibration offset of thermometer",
+      "reset": "Factory Reset",
+      "resetDetails": "Reset sensor calibration to factory default"
     },
     "password": {
       "change": "Change Password",
-      "new": "New Password",
+      "password": "Password",
       "placeholder": "6 digit password, e.g. 123456",
       "lengthError": "Password should be 6 digits."
     }

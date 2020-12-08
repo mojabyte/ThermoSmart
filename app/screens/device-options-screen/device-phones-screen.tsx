@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ActivityIndicator, ScrollView, View, ViewStyle } from "react-native"
-import { ConfirmModal, Header, ListItem, Screen, Text, TextField } from "../../components"
+import { ConfirmModal, Header, ListItem, Screen, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from '../../models'
 import { color } from "../../theme"
