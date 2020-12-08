@@ -49,12 +49,24 @@ export class Sms {
           return 'GET_TEMPERATURE'
         } else if (body.includes('مقادير ترموستات')) {
           return 'GET_THERMOSTAT_VALUES'
+        } else if (body.includes('مقدار ماكزيمم به')) {
+          return 'UPDATE_THERMOSTAT_MAX'
+        } else if (body.includes('مقدار نرمال به')) {
+          return 'UPDATE_THERMOSTAT_NOR'
+        } else if (body.includes('مقدار مينيمم به')) {
+          return 'UPDATE_THERMOSTAT_MIN'
         } else if (body.includes('مقادير هشدار ماكزيمم')) {
           return 'GET_ALARM_VALUES_HIGH'
+        } else if (body.includes('ماكزيمم هشدار تغيير')) {
+          return 'UPDATE_ALARM_HIGH'
         } else if (body.includes('مقادير هشدار مينيمم')) {
           return 'GET_ALARM_VALUES_LOW'
-        } else if (body.includes('زمان ارسال پيامك هشدار بعدي')) {
+        } else if (body.includes('مينيمم هشدار تغيير')) {
+          return 'UPDATE_ALARM_LOW'
+        } else if (body.includes('هشدار بعدي :')) {
           return 'GET_ALARM_VALUES_INTERVAL'
+        } else if (body.includes('هشدار بعدي به')) {
+          return 'UPDATE_ALARM_INTERVAL'
         } else if (body.includes('اعتبار شما')) {
           return 'GET_SIM_CHARGE'
         } else if (body.includes('ميزان آنتن دهي')) {
@@ -81,6 +93,12 @@ export class Sms {
           return 'RESET_CALIBRATION'
         } else if (body.includes('كاليبره سنسور')) {
           return 'UPDATE_CALIBRATION'
+        } else if (body.includes('حالت اتوماتيك') || body.includes('حالت دستي')) {
+          return 'UPDATE_THERMOSTAT_STATUS'
+        } else if (body.includes('هيتر روشن شد') || body.includes('هيتر خاموش شد')) {
+          return 'UPDATE_HEATER_STATUS'
+        } else if (body.includes('هواكش روشن شد') || body.includes('هواكش خاموش شد')) {
+          return 'UPDATE_FAN_STATUS'
         }
         return 'default' // TODO
       }

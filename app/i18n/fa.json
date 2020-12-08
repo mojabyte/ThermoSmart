@@ -25,10 +25,23 @@
       "title": "کنترل",
       "automation": "حالت خودکار",
       "heater": "هیتر",
-      "fan": "هواکش"
+      "fan": "هواکش",
+      "disableAutomationToast": "ابتدا حالت خودکار را غیرفعال کنید"
     },
     "settingsCard": {
       "title": "تنظیمات دستگاه"
+    },
+    "thermostatModal": {
+      "title": "مقدار %{type} ترموستات",
+      "max": "ماکزیمم",
+      "nor": "نرمال",
+      "min": "مینیمم"
+    },
+    "alarmModal": {
+      "title": "مقادیر %{type} هشدار",
+      "high": "ماکزیمم",
+      "low": "مینیمم",
+      "intervalTitle": "بازه‌ی زمانی تکرار هشدار"
     }
   },
   "deviceListScreen": {

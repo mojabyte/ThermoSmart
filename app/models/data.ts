@@ -82,12 +82,16 @@ export const DeviceModel = types
       getStatusLoading: false,
       getTemperatureLoading: false,
       getThermostatValuesLoading: false,
-      updateThermostatValuesLoading: false,
+      updateThermostatMaxValueLoading: false,
+      updateThermostatNorValueLoading: false,
+      updateThermostatMinValueLoading: false,
       updateThermostatStatusLoading: false,
       getAlarmValuesLoading: false,
-      updateAlarmValuesLoading: false,
+      updateAlarmHighLoading: false,
+      updateAlarmLowLoading: false,
       updateAlarmIntervalLoading: false,
-      sendRpcLoading: false,
+      updateHeaterStatusLoading: false,
+      updateFanStatusLoading: false,
       getSimCreditLoading: false,
       getSimCreditSmsIntervalLoading: false,
       getSignalStrengthLoading: false,
@@ -122,6 +126,12 @@ export const DeviceModel = types
       self.powerStatus = power
       self.heaterStatus = heater
       self.fanStatus = fan
+    },
+    setHeaterStatus(status: boolean) {
+      self.heaterStatus = status
+    },
+    setFanStatus(status: boolean) {
+      self.fanStatus = status
     },
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
@@ -321,8 +331,53 @@ export const DeviceModel = types
         this.setState({ getThermostatValuesLoading: false })
       })
     },
+    updateThermostatMaxValue(value: number) {
+      this.setState({ updateThermostatMaxValueLoading: true })
+
+      this.sendSms(
+        'UPDATE_THERMOSTAT_MAX',
+        `*${self.password}#3000#${Math.round(value * 10)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setThermostatValues({ max: value })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateThermostatMaxValueLoading: false })
+        }
+      )
+    },
+    updateThermostatNorValue(value: number) {
+      this.setState({ updateThermostatNorValueLoading: true })
+
+      this.sendSms(
+        'UPDATE_THERMOSTAT_NOR',
+        `*${self.password}#2000#${Math.round(value * 10)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setThermostatValues({ nor: value })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateThermostatNorValueLoading: false })
+        }
+      )
+    },
+    updateThermostatMinValue(value: number) {
+      this.setState({ updateThermostatMinValueLoading: true })
+
+      this.sendSms(
+        'UPDATE_THERMOSTAT_MIN',
+        `*${self.password}#1000#${Math.round(value * 10)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setThermostatValues({ min: value })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateThermostatMinValueLoading: false })
+        }
+      )
+    },
     updateThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
-      this.setState({ updateThermostatValuesLoading: true })
+      this.setState({ updateThermostatValuesLoading: { max: !!max, nor: !!nor, min: !!min } })
 
       const messages = []
       if (max) messages.push(['3000', Math.round(max * 10)])
@@ -351,9 +406,12 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_THERMOSTAT_STATUS',
-        `*${self.password}#${status ? '800' : '808'}#`,
-        () => {
-          this.setThermostatStatus(status)
+        `*${self.password}#80${status ? '0' : '8'}#`,
+        (response, error) => {
+          if (!error) {
+            this.setThermostatStatus(status)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
           this.setState({ updateThermostatStatusLoading: false })
         }
       )
@@ -405,20 +463,72 @@ export const DeviceModel = types
 
       sendMessage(messages)
     },
+    updateAlarmHigh(values: number[]) {
+      this.setState({ updateAlarmHighLoading: true })
+
+      this.sendSms(
+        'UPDATE_ALARM_HIGH',
+        `*${self.password}#8000#${Math.round(values[0] * 10)}*${Math.round(values[1] * 10)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setAlarmValues({ high: values })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateAlarmHighLoading: false })
+        }
+      )
+    },
+    updateAlarmLow(values: number[]) {
+      this.setState({ updateAlarmLowLoading: true })
+
+      this.sendSms(
+        'UPDATE_ALARM_LOW',
+        `*${self.password}#7000#${Math.round(values[0] * 10)}*${Math.round(values[1] * 10)}*`,
+        (response, error) => {
+          if (!error) {
+            this.setAlarmValues({ low: values })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateAlarmLowLoading: false })
+        }
+      )
+    },
     updateAlarmInterval(interval: number) {
       this.setState({ updateAlarmIntervalLoading: true })
 
-      this.sendSms('UPDATE_ALARM_VALUES', `*${self.password}#9000#${interval}*`, () => {
-        this.setAlarmValues({ interval })
-        this.setState({ updateAlarmIntervalLoading: false })
-      })
+      this.sendSms(
+        'UPDATE_ALARM_INTERVAL',
+        `*${self.password}#9000#${interval}*`,
+        (response, error) => {
+          if (!error) {
+            this.setAlarmValues({ interval })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ updateAlarmIntervalLoading: false })
+        }
+      )
     },
 
-    sendRpc({ method, value }: { method: string; value: boolean }) {
-      this.setState({ sendRpcLoading: true })
+    updateHeaterStatus(status: boolean) {
+      this.setState({ updateHeaterStatusLoading: true })
 
-      this.sendSms('SEND_RPC', `#${!value ? '0' : ''}${method}#`, () => {
-        this.setState({ sendRpcLoading: false })
+      this.sendSms('UPDATE_HEATER_STATUS', `#${status ? '' : '0'}50#`, (response, error) => {
+        if (!error) {
+          this.setHeaterStatus(status)
+          ToastAndroid.show(response, ToastAndroid.SHORT)
+        }
+        this.setState({ updateHeaterStatusLoading: false })
+      })
+    },
+    updateFanStatus(status: boolean) {
+      this.setState({ updateFanStatusLoading: true })
+
+      this.sendSms('UPDATE_FAN_STATUS', `#${status ? '' : '0'}60#`, (response, error) => {
+        if (!error) {
+          this.setFanStatus(status)
+          ToastAndroid.show(response, ToastAndroid.SHORT)
+        }
+        this.setState({ updateFanStatusLoading: false })
       })
     },
 

@@ -13,6 +13,11 @@ export interface SwitchProps {
   onToggle?: (newValue: boolean) => void
 
   /**
+   * Whether to display loading indicator
+   */
+  loading?: boolean
+
+  /**
    * A style override to apply to the container.  Useful for margins and paddings.
    */
   style?: ViewStyle | ViewStyle[]

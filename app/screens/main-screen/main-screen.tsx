@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { PermissionsAndroid, TextStyle, View, ViewStyle } from "react-native"
+import { PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
@@ -7,6 +7,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
+import { translate } from "../../i18n"
 
 const FULL: ViewStyle = {
   flex: 1,
@@ -135,7 +136,7 @@ export const MainScreen = observer(function MainScreen() {
   const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
   const [isEditModalVisible, setEditModalVisible] = useState(false)
   const [sliderValues, setSliderValues] = useState([0])
-  const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>(null)
+  const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>('max')
   const [signalIcon, setSignalIcon] = useState('signal-cellular-3')
 
   useEffect(() => {
@@ -167,6 +168,86 @@ export const MainScreen = observer(function MainScreen() {
       }
     }
   }, [selectedDevice])
+
+  const rangeModalTempProps = {
+    min: 0,
+    max: 40,
+    step: 0.1
+  }
+
+  const rangeModalThermoProps = {
+    title: translate(
+      'mainScreen.thermostatModal.title',
+      ({ type: translate(`mainScreen.thermostatModal.${selectedSliderModal}`) })
+    ),
+    titleIcon: 'thermostat',
+    parseValues: (values: number[]) => `${values[0].toFixed(1)}°c`
+  }
+
+  const rangeModalAlarmProps = {
+    title: translate(
+      'mainScreen.alarmModal.title',
+      ({ type: translate(`mainScreen.alarmModal.${selectedSliderModal}`) })
+    ),
+    titleIcon: 'alarm',
+    parseValues: (values: number[]) => `${values[0].toFixed(1)}°c - ${values[1].toFixed(1)}°c`
+  }
+
+  const rangeModalProps = {
+    max: {
+      ...rangeModalTempProps,
+      ...rangeModalThermoProps,
+      onConfirm: () => {
+        selectedDevice.updateThermostatMaxValue(sliderValues[0])
+      }
+    },
+    nor: {
+      ...rangeModalTempProps,
+      ...rangeModalThermoProps,
+      onConfirm: () => {
+        selectedDevice.updateThermostatNorValue(sliderValues[0])
+      }
+    },
+    min: {
+      ...rangeModalTempProps,
+      ...rangeModalThermoProps,
+      onConfirm: () => {
+        selectedDevice.updateThermostatMinValue(sliderValues[0])
+      }
+    },
+    high: {
+      ...rangeModalTempProps,
+      ...rangeModalAlarmProps,
+      min: 30,
+      max: 45,
+      onConfirm: () => {
+        selectedDevice.updateAlarmHigh(sliderValues)
+      }
+    },
+    low: {
+      ...rangeModalTempProps,
+      ...rangeModalAlarmProps,
+      min: 0,
+      max: 20,
+      onConfirm: () => {
+        selectedDevice.updateAlarmLow(sliderValues)
+      }
+    },
+    interval: {
+      title: translate('mainScreen.alarmModal.intervalTitle'),
+      titleIcon: 'message-text-clock',
+      min: 5,
+      max: 120,
+      step: 1,
+      onConfirm: () => {
+        selectedDevice.updateAlarmInterval(sliderValues[0])
+      },
+      parseValues: (values: number[]) => translate(
+        'deviceOptionsScreen.powerOutage.smsIntervalValue',
+        { interval: values[0] }
+      )
+    }
+  }
 
   const renderScreenContent = function () {
     if (selectedDevice?.simNumber) {
@@ -281,10 +362,11 @@ export const MainScreen = observer(function MainScreen() {
                       setSelectedSliderModal('max')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                    loading={selectedDevice.state.updateThermostatMaxValueLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
                   >
-                    <Icon name="arrow-collapse-up" />
-                    <Text text={`Max: ${selectedDevice.thermostat.max}°c`} />
+                    <Icon name="arrow-collapse-up" containerStyle={{ paddingEnd: spacing[4] }} />
+                    <Text text={`${selectedDevice.thermostat.max}°c`} style={{ paddingStart: spacing[4] }} />
                   </Button>
 
                   <Button
@@ -294,10 +376,11 @@ export const MainScreen = observer(function MainScreen() {
                       setSelectedSliderModal('nor')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                    loading={selectedDevice.state.updateThermostatNorValueLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
                   >
-                    <Icon name="drag-horizontal-variant" />
-                    <Text text={`Normal: ${selectedDevice.thermostat.nor}°c`} />
+                    <Icon name="drag-horizontal-variant" containerStyle={{ paddingEnd: spacing[4] }} />
+                    <Text text={`${selectedDevice.thermostat.nor}°c`} style={{ paddingStart: spacing[4] }} />
                   </Button>
 
                   <Button
@@ -307,10 +390,11 @@ export const MainScreen = observer(function MainScreen() {
                       setSelectedSliderModal('min')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, flexDirection: 'row' }}
+                    loading={selectedDevice.state.updateThermostatMinValueLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
                   >
-                    <Icon name="arrow-collapse-down" />
-                    <Text text={`Min: ${selectedDevice.thermostat.min}°c`} />
+                    <Icon name="arrow-collapse-down" containerStyle={{ paddingEnd: spacing[4] }} />
+                    <Text text={`${selectedDevice.thermostat.min}°c`} style={{ paddingStart: spacing[4] }} />
                   </Button>
                 </View>
               </Button>
@@ -334,24 +418,30 @@ export const MainScreen = observer(function MainScreen() {
                 <View style={{ justifyContent: 'space-between' }}>
                   <Button
                     preset="card"
-                    text={`High: ${selectedDevice.alarm.high[0]} - ${selectedDevice.alarm.high[1]}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.alarm.high ?? [10, 20])
                       setSelectedSliderModal('high')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
-                  />
+                    loading={selectedDevice.state.updateAlarmHighLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                  >
+                    <Icon name="arrow-expand-up" containerStyle={{ paddingEnd: spacing[3] }} />
+                    <Text text={`${selectedDevice.alarm.high[0]}°c - ${selectedDevice.alarm.high[1]}°c`} />
+                  </Button>
                   <Button
                     preset="card"
-                    text={`Low: ${selectedDevice.alarm.low[0]} - ${selectedDevice.alarm.low[1]}`}
                     onPress={() => {
                       setSliderValues(selectedDevice.alarm.low ?? [10, 20])
                       setSelectedSliderModal('low')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
-                  />
+                    loading={selectedDevice.state.updateAlarmLowLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                  >
+                    <Icon name="arrow-expand-down" containerStyle={{ paddingEnd: spacing[3] }} />
+                    <Text text={`${selectedDevice.alarm.low[0]}°c - ${selectedDevice.alarm.low[1]}°c`} />
+                  </Button>
 
                   <Button
                     preset="card"
@@ -361,15 +451,19 @@ export const MainScreen = observer(function MainScreen() {
                       setSelectedSliderModal('interval')
                       setEditModalVisible(true)
                     }}
-                    style={{ flex: 0.33, margin: 3, paddingHorizontal: 5 }}
-                  />
+                    loading={selectedDevice.state.updateAlarmIntervalLoading}
+                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                  >
+                    <Icon name="message-text-clock" containerStyle={{ paddingEnd: spacing[4] }} />
+                    <Text text={`${selectedDevice.alarm.interval} دقیقه`} />
+                  </Button>
                 </View>
               </Button>
             </View>
           </View>
 
           <View style={{ flex: 0.3, flexDirection: 'row' }}>
-            <Button preset="card" style={{ flex: 0.75 }}>
+            <Button preset="card" loading={selectedDevice.state.getStatusLoading} style={{ flex: 0.75 }}>
               <View style={{ flexDirection: 'row' }}>
                 <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
                   <Icon name="camera-control" />
@@ -383,6 +477,7 @@ export const MainScreen = observer(function MainScreen() {
 
                   <Switch
                     value={selectedDevice.thermostat.isEnabled}
+                    loading={selectedDevice.state.updateThermostatStatusLoading}
                     onToggle={value => selectedDevice.updateThermostatStatus(value)}
                   />
                 </View>
@@ -392,7 +487,17 @@ export const MainScreen = observer(function MainScreen() {
 
                   <Switch
                     value={selectedDevice.heaterStatus}
-                    onToggle={value => () => selectedDevice.sendRpc({ method: '50', value })}
+                    loading={selectedDevice.state.updateHeaterStatusLoading}
+                    onToggle={value => {
+                      if (selectedDevice.thermostat.isEnabled) {
+                        ToastAndroid.show(
+                          translate('mainScreen.controlCard.disableAutomationToast'),
+                          ToastAndroid.SHORT
+                        )
+                      } else {
+                        selectedDevice.updateHeaterStatus(value)
+                      }
+                    }}
                   />
                 </View>
 
@@ -401,7 +506,17 @@ export const MainScreen = observer(function MainScreen() {
 
                   <Switch
                     value={selectedDevice.fanStatus}
-                    onToggle={value => () => selectedDevice.sendRpc({ method: '60', value })}
+                    loading={selectedDevice.state.updateFanStatusLoading}
+                    onToggle={value => {
+                      if (selectedDevice.thermostat.isEnabled) {
+                        ToastAndroid.show(
+                          translate('mainScreen.controlCard.disableAutomationToast'),
+                          ToastAndroid.SHORT
+                        )
+                      } else {
+                        selectedDevice.updateFanStatus(value)
+                      }
+                    }}
                   />
                 </View>
               </View>
@@ -429,7 +544,7 @@ export const MainScreen = observer(function MainScreen() {
           preset="primary"
           headerTx="mainScreen.title"
           leftIcon="cog"
-          onLeftPress={() => {}}
+          // onLeftPress={() => {}}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
         />
@@ -463,29 +578,22 @@ export const MainScreen = observer(function MainScreen() {
         {renderScreenContent()}
 
         <ConfirmModal
-          titleText={`Set ${selectedSliderModal} value`}
+          titleText={rangeModalProps[selectedSliderModal].title}
           isVisible={isEditModalVisible}
           onClose={() => setEditModalVisible(false)}
           onConfirm={() => {
-            if (['max', 'nor', 'min'].includes(selectedSliderModal)) {
-              selectedDevice.updateThermostatValues({ [selectedSliderModal]: sliderValues[0] })
-            } else if (selectedSliderModal === 'interval') {
-              selectedDevice.updateAlarmInterval(sliderValues[0])
-            } else {
-              selectedDevice.updateAlarmValues({ [selectedSliderModal]: sliderValues })
-            }
+            rangeModalProps[selectedSliderModal].onConfirm()
             setEditModalVisible(false)
           }}
         >
           <View>
             <View style={{ alignSelf: 'center' }}>
-              <Text text={`${sliderValues[0].toFixed(1)}°c ${
-                `${sliderValues[1] ? `- ${sliderValues[1].toFixed(1)}°c` : ''}`}`}/>
+              <Text text={rangeModalProps[selectedSliderModal].parseValues(sliderValues)}/>
               <MultiSlider
                 values={sliderValues}
-                min={-20}
-                max={50}
-                step={0.1}
+                min={rangeModalProps[selectedSliderModal].min}
+                max={rangeModalProps[selectedSliderModal].max}
+                step={rangeModalProps[selectedSliderModal].step}
                 snapped
                 onValuesChange={values => setSliderValues(
                   values.map(value => Math.round(value * 10) / 10)

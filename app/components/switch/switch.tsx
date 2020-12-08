@@ -1,4 +1,5 @@
 import React from "react"
+import { ActivityIndicator } from "react-native"
 import { I18nManager, ViewStyle, Animated, Easing, TouchableWithoutFeedback } from "react-native"
 import { color } from "../../theme"
 import { SwitchProps } from "./switch.props"
@@ -46,6 +47,8 @@ const THUMB: ViewStyle = {
   shadowOpacity: 1,
   shadowRadius: 2,
   elevation: 2,
+  justifyContent: 'center',
+  alignItems: 'center'
 }
 
 const enhance = (style, newStyles): any => {
@@ -55,7 +58,12 @@ const enhance = (style, newStyles): any => {
 const makeAnimatedValue = (switchOn: boolean) => new Animated.Value(switchOn ? 1 : 0)
 
 export function Switch(props: SwitchProps) {
-  const [timer] = React.useState<Animated.Value>(makeAnimatedValue(props.value))
+  const value = React.useMemo(
+    () => props.loading ? !props.value : props.value,
+    [props.loading, props.value]
+  )
+
+  const [timer] = React.useState<Animated.Value>(makeAnimatedValue(value))
   const startAnimation = React.useMemo(
     () => (newValue: boolean) => {
       const toValue = newValue ? 1 : 0
@@ -70,16 +78,16 @@ export function Switch(props: SwitchProps) {
     [timer],
   )
 
-  const [previousValue, setPreviousValue] = React.useState<boolean>(props.value)
+  const [previousValue, setPreviousValue] = React.useState<boolean>(value)
   React.useEffect(() => {
-    if (props.value !== previousValue) {
-      startAnimation(props.value)
-      setPreviousValue(props.value)
+    if (value !== previousValue) {
+      startAnimation(value)
+      setPreviousValue(value)
     }
-  }, [previousValue, props.value, startAnimation])
+  }, [previousValue, value, startAnimation])
 
-  const handlePress = React.useMemo(() => () => props.onToggle && props.onToggle(!props.value), [
-    props,
+  const handlePress = React.useMemo(() => () => props.onToggle && props.onToggle(!value), [
+    props, value
   ])
 
   if (!timer) {
@@ -95,21 +103,23 @@ export function Switch(props: SwitchProps) {
 
   let trackStyle = TRACK
   trackStyle = enhance(trackStyle, {
-    backgroundColor: props.value ? ON_COLOR : OFF_COLOR,
-    borderColor: props.value ? BORDER_ON_COLOR : BORDER_OFF_COLOR,
+    backgroundColor: value ? ON_COLOR : OFF_COLOR,
+    borderColor: value ? BORDER_ON_COLOR : BORDER_OFF_COLOR,
   })
-  trackStyle = enhance(trackStyle, props.value ? props.trackOnStyle : props.trackOffStyle)
+  trackStyle = enhance(trackStyle, value ? props.trackOnStyle : props.trackOffStyle)
 
   let thumbStyle = THUMB
   thumbStyle = enhance(thumbStyle, {
     transform: [{ translateX }],
   })
-  thumbStyle = enhance(thumbStyle, props.value ? props.thumbOnStyle : props.thumbOffStyle)
+  thumbStyle = enhance(thumbStyle, value ? props.thumbOnStyle : props.thumbOffStyle)
 
   return (
-    <TouchableWithoutFeedback onPress={handlePress} style={style}>
+    <TouchableWithoutFeedback disabled={props.loading} onPress={handlePress} style={style}>
       <Animated.View style={trackStyle}>
-        <Animated.View style={thumbStyle} />
+        <Animated.View style={thumbStyle}>
+          {props.loading && <ActivityIndicator color="#000" />}
+        </Animated.View>
       </Animated.View>
     </TouchableWithoutFeedback>
   )

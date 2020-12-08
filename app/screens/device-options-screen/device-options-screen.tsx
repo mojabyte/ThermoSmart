@@ -43,7 +43,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   const [intervalEdit, setIntervalEdit] = useState<number>()
   const [intervalType, setIntervalType] = useState('simCredit')
 
-  const rangeModalConfigs = {
+  const rangeModalProps = {
     simCredit: {
       title: 'deviceOptionsScreen.simCard.smsIntervalModalTitle',
       titleIcon: 'message-text-clock',
@@ -272,14 +272,14 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       </ConfirmModal>
 
       <ConfirmModal
-        titleTx={rangeModalConfigs[intervalType].title}
-        titleIcon={rangeModalConfigs[intervalType].titleIcon}
+        titleTx={rangeModalProps[intervalType].title}
+        titleIcon={rangeModalProps[intervalType].titleIcon}
         isVisible={isIntervalModalVisible}
         onClose={() => {
           setIntervalModalVisible(false)
         }}
         onConfirm={() => {
-          rangeModalConfigs[intervalType].onConfirm()
+          rangeModalProps[intervalType].onConfirm()
           setIntervalModalVisible(false)
         }}
       >
@@ -287,18 +287,18 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           <Button
             preset="link"
             style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={rangeModalConfigs[intervalType].onRefresh}
+            onPress={rangeModalProps[intervalType].onRefresh}
           >
             <Icon name="refresh" containerStyle={{ marginEnd: spacing[2] }} />
             <Text
-              text={rangeModalConfigs[intervalType].parseValue(intervalEdit)}
+              text={rangeModalProps[intervalType].parseValue(intervalEdit)}
             />
           </Button>
           <MultiSlider
             values={[intervalEdit]}
-            min={rangeModalConfigs[intervalType].min}
-            max={rangeModalConfigs[intervalType].max}
-            step={rangeModalConfigs[intervalType].step}
+            min={rangeModalProps[intervalType].min}
+            max={rangeModalProps[intervalType].max}
+            step={rangeModalProps[intervalType].step}
             snapped
             onValuesChange={values => setIntervalEdit(values[0])}
             trackStyle={{

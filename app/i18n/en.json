@@ -7,8 +7,43 @@
   },
   "mainScreen": {
     "title": "SMART GREENHOUSE",
-    "readyForLaunch": "Ready for launch.",
-    "noDevice": "No device available.\n\nPlease add a new device by pressing \"+\" button."
+    "temperatureCard": {
+      "title": "Temperature",
+      "chart": "Chart"
+    },
+    "statusCard": {
+      "title": "Status",
+      "powerConnected": "Power is connected",
+      "powerDisconnected": "Power is disconnected"
+    },
+    "thermostatCard": {
+      "title": "Thermostat"
+    },
+    "alarmCard": {
+      "title": "Alarm"
+    },
+    "controlCard": {
+      "title": "Control",
+      "automation": "Automation",
+      "heater": "Heater",
+      "fan": "Fan",
+      "disableAutomationToast": "First turn off the automation"
+    },
+    "settingsCard": {
+      "title": "Device Settings"
+    },
+    "thermostatModal": {
+      "title": "Thermostat %{type} value",
+      "max": "maximum",
+      "nor": "normal",
+      "min": "minimum"
+    },
+    "alarmModal": {
+      "title": "Alarm %{type} values",
+      "high": "maximum",
+      "low": "minimum",
+      "intervalTitle": "Alarm interval"
+    }
   },
   "deviceListScreen": {
     "title": "Devices",
