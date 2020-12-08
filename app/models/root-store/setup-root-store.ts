@@ -44,7 +44,6 @@ export async function setupRootStore() {
     // load data from storage
     data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || initialState
     rootStore = RootStoreModel.create(data, env)
-    console.log(data)
   } catch (e) {
     console.log(e)
     // await storage.clear()

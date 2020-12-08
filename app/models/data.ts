@@ -10,6 +10,7 @@ import {
 import moment from "moment-jalaali"
 import { sortBy } from 'ramda'
 import { ToastAndroid } from 'react-native'
+import SmsAndroid from "react-native-get-sms-android"
 import { Environment } from './environment'
 
 const parseFloats = (string: string) => {
@@ -72,7 +73,11 @@ export const DeviceModel = types
       mode: null,
       interval: null,
       lastCheckTime: null
-    })
+    }),
+
+    syncDate: types.optional(types.model({
+      status: types.number
+    }), { status: 0 })
   })
   .volatile(() => ({
     state: {
@@ -170,6 +175,9 @@ export const DeviceModel = types
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
       self.state.updatePhoneNumberLoading[index] = value
     },
+    setSyncDate(newSyncDate: { status?: number }) {
+      self.syncDate = { ...self.syncDate, ...newSyncDate }
+    },
     reset() {
       // applySnapshot(self, {})
       self.temperatures.replace(new Map())
@@ -248,21 +256,25 @@ export const DeviceModel = types
       })
     },
 
+    parseStatusMessage(message: string) {
+      const lines = message.split('\n')
+      const temperature = parseFloats(lines[1])[0]
+      const powerStatus = lines[2].includes('وصل')
+      const heaterStats = lines[3].includes('روشن')
+      const fanStatus = lines[4].includes('روشن')
+      const thermostatStatus = lines[5].includes('اتوماتيك')
+
+      this.setTemperature({ value: temperature, ts: `${+moment()}` })
+      this.setStatus(powerStatus, heaterStats, fanStatus)
+      this.setThermostatStatus(thermostatStatus)
+    },
     getStatus() {
       this.setState({ getStatusLoading: true })
 
       this.sendSms('GET_STATUS', '#0#', (response, error) => {
         if (!error) {
-          const lines = response.split('\n')
-          const temperature = parseFloats(lines[1])[0]
-          const powerStatus = lines[2].includes('وصل')
-          const heaterStats = lines[3].includes('روشن')
-          const fanStatus = lines[4].includes('روشن')
-          const thermostatStatus = lines[5].includes('اتوماتيك')
-
-          this.setTemperature({ value: temperature, ts: `${+moment()}` })
-          this.setStatus(powerStatus, heaterStats, fanStatus)
-          this.setThermostatStatus(thermostatStatus)
+          this.parseStatusMessage(response)
+          this.setSyncDate({ status: +moment() })
         }
         this.setState({ getStatusLoading: false })
       })
@@ -650,6 +662,50 @@ export const DeviceModel = types
         }
         this.setState({ resetCalibrationLoading: false })
       })
+    },
+
+    restoreFromMessages() {
+      /* List SMS messages matching the filter */
+      const filter = {
+        box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
+
+        /**
+         *  the next 3 filters can work together, they are AND-ed
+         *
+         *  minDate, maxDate filters work like this:
+         *    - If and only if you set a maxDate, it's like executing this SQL query:
+         *    "SELECT * from messages WHERE (other filters) AND date <= maxDate"
+         *    - Same for minDate but with "date >= minDate"
+         */
+        minDate: self.syncDate.status + 1, // timestamp (in milliseconds since UNIX epoch)
+        // maxDate: 1556277910456, // timestamp (in milliseconds since UNIX epoch)
+        bodyRegex: '^ دما (?s).*', // content regex to match
+
+        /** the next 5 filters should NOT be used together, they are OR-ed so pick one **/
+        // read: 0, // 0 for unread SMS, 1 for SMS already read
+        // _id: 1234, // specify the msg id
+        // thread_id: 12, // specify the conversation thread_id
+        address: `+98${self.simNumber}`, // sender's phone number
+        // body: 'How are you', // content to match
+        /** the next 2 filters can be used for pagination **/
+        // indexFrom: 0, // start from index 0
+        maxCount: 1, // count of SMS to return each time
+      }
+
+      SmsAndroid.list(
+        JSON.stringify(filter),
+        fail => {
+          console.log('Failed with this error: ' + fail)
+        },
+        (count, smsList) => {
+          // console.log(count)
+          const arr = JSON.parse(smsList)
+          if (arr.length > 0) {
+            this.parseStatusMessage(arr[0].body)
+            this.setSyncDate({ status: arr[0].date })
+          }
+        },
+      )
     }
   }))
   .views(self => ({

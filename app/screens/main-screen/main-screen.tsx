@@ -166,6 +166,8 @@ export const MainScreen = observer(function MainScreen() {
       } else {
         setSignalIcon('signal-cellular-3')
       }
+
+      selectedDevice.restoreFromMessages()
     }
   }, [selectedDevice])
 

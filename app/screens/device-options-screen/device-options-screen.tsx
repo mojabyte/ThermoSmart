@@ -152,6 +152,16 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           }}
         />
 
+        <ListItem
+          titleText="Restore"
+          // loading={selectedDevice.state.updatePasswordLoading}
+          // rightIcon="chevron-right-ltr"
+          leftIcon="refresh"
+          onPress={() => {
+            selectedDevice.restoreFromMessages()
+          }}
+        />
+
         <ListTitle tx="deviceOptionsScreen.simCard.title" />
 
         <ListItem
