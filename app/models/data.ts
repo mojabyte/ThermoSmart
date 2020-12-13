@@ -132,6 +132,9 @@ export const DeviceModel = types
       self.heaterStatus = heater
       self.fanStatus = fan
     },
+    setPowerStatus(status: boolean) {
+      self.powerStatus = status
+    },
     setHeaterStatus(status: boolean) {
       self.heaterStatus = status
     },
@@ -705,6 +708,25 @@ export const DeviceModel = types
           }
         },
       )
+
+      const env: Environment = getEnv(self)
+      env.sms.subscribe({
+        phoneNumber: self.simNumber,
+        subscriptions: [
+          {
+            type: 'GET_STATUS',
+            callback: payload => this.parseStatusMessage(payload, +moment())
+          },
+          {
+            type: 'UPDATE_POWER_STATUS',
+            callback: () => this.setPowerStatus(false)
+          },
+          {
+            type: 'GET_SIM_CHARGE',
+            callback: payload => this.setSimCharge(parseFloats(toEnDigit(payload))[0])
+          },
+        ]
+      })
     }
   }))
   .views(self => ({

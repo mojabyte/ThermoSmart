@@ -21,6 +21,11 @@ export class Sms {
   pendingList: Types.SmsPendingList
 
   /**
+   * List of subscriptions
+   */
+  subscriptionsList: Types.SmsSubscriptionList
+
+  /**
    * Creates the api.
    *
    * @param config The configuration to use.
@@ -28,6 +33,7 @@ export class Sms {
   constructor(config: SmsConfig = DEFAULT_API_CONFIG) {
     this.config = config
     this.pendingList = new Map()
+    this.subscriptionsList = new Map()
 
     // DeviceEventEmitter.addListener('sms_onDelivery', (msg) => {
     //   console.log(msg)
@@ -99,6 +105,8 @@ export class Sms {
           return 'UPDATE_HEATER_STATUS'
         } else if (body.includes('هواكش روشن شد') || body.includes('هواكش خاموش شد')) {
           return 'UPDATE_FAN_STATUS'
+        } else if (body.includes('برق قطع شد')) {
+          return 'UPDATE_POWER_STATUS'
         }
         return 'default' // TODO
       }
@@ -115,6 +123,13 @@ export class Sms {
         BackgroundTimer.clearTimeout(timeout) // Clear pending SMS timeout
         if (callback) callback(body)
         this.pendingList.get(originatingAddress).delete(type)
+      } else if (
+        this.subscriptionsList.has(originatingAddress) &&
+        this.subscriptionsList.get(originatingAddress).has(type)
+      ) {
+        console.log(this.subscriptionsList.get(originatingAddress))
+        const { callback } = this.subscriptionsList.get(originatingAddress).get(type)
+        if (callback) callback(body)
       }
     })
   }
@@ -125,35 +140,55 @@ export class Sms {
   send({ phoneNumber, type, message, callback, hasResponse }: Types.SendParams) {
     console.log(phoneNumber, type, message)
     const phoneNumberWithCode = `+98${phoneNumber}`
-    SmsAndroid.autoSend(
-      phoneNumberWithCode,
-      message,
-      (error: string) => {
-        console.log(error)
-      },
-      () => {
-        console.log(`message: ${message} sent successfully`)
+    if (!(this.pendingList.has(phoneNumberWithCode) &&
+      this.pendingList.get(phoneNumberWithCode).has(type))) {
+      SmsAndroid.autoSend(
+        phoneNumberWithCode,
+        message,
+        (error: string) => {
+          console.log(error)
+        },
+        () => {
+          console.log(`message: ${message} sent successfully`)
 
-        if (hasResponse) {
-          // Clear item from pending list on timeout
-          const timeout = BackgroundTimer.setTimeout(() => {
-            this.pendingList.get(phoneNumberWithCode).delete(type)
-            console.log('timeout')
-            callback(undefined, 'timeout')
-          }, 60000)
+          if (hasResponse) {
+            // Clear item from pending list on timeout
+            const timeout = BackgroundTimer.setTimeout(() => {
+              this.pendingList.get(phoneNumberWithCode).delete(type)
+              console.log('timeout')
+              callback(undefined, 'timeout')
+            }, 60000)
 
-          // type = 'default' // TODO
+            // type = 'default' // TODO
 
-          // Add new item to pending list
-          if (!this.pendingList.has(phoneNumberWithCode)) {
-            this.pendingList.set(phoneNumberWithCode, new Map<string, Types.SmsPendingListItem>())
+            // Add new item to pending list
+            if (!this.pendingList.has(phoneNumberWithCode)) {
+              this.pendingList.set(phoneNumberWithCode, new Map<string, Types.SmsPendingListItem>())
+            }
+            this.pendingList.get(phoneNumberWithCode).set(type, { callback, timeout })
+            console.log(this.pendingList)
+          } else {
+            callback()
           }
-          this.pendingList.get(phoneNumberWithCode).set(type, { callback, timeout })
-          console.log(this.pendingList)
-        } else {
-          callback()
         }
-      }
-    )
+      )
+    }
+  }
+
+  /**
+   * Subscribe for incoming messages
+   */
+  subscribe({ phoneNumber, subscriptions }: Types.SubscribeParams) {
+    console.log(phoneNumber, subscriptions)
+    const phoneNumberWithCode = `+98${phoneNumber}`
+    if (!this.subscriptionsList.has(phoneNumberWithCode)) {
+      this.subscriptionsList.set(
+        phoneNumberWithCode,
+        new Map<string, Types.SmsSubscriptionListItem>()
+      )
+    }
+    subscriptions.forEach(({ type, callback }) => {
+      this.subscriptionsList.get(phoneNumberWithCode).set(type, { callback })
+    })
   }
 }

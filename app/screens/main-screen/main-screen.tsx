@@ -249,7 +249,7 @@ export const MainScreen = observer(function MainScreen() {
       ({ type: translate(`mainScreen.alarmModal.${selectedSliderModal}`) })
     ),
     titleIcon: 'alarm',
-    parseValues: (values: number[]) => `${values[0].toFixed(1)}°c - ${values[1].toFixed(1)}°c`
+    parseValues: (values: number[]) => `${values[1].toFixed(1)}°c - ${values[0].toFixed(1)}°c`
   }
 
   const rangeModalProps = {
@@ -449,7 +449,10 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.alarm.high ?? [10, 20])
+                    setSliderValues(selectedDevice.alarm.high[0]
+                      ? [selectedDevice.alarm.high[1], selectedDevice.alarm.high[0]]
+                      : [30, 40]
+                    )
                     setSelectedSliderModal('high')
                     setEditModalVisible(true)
                   }}
@@ -463,7 +466,10 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.alarm.low ?? [10, 20])
+                    setSliderValues(selectedDevice.alarm.low[0]
+                      ? selectedDevice.alarm.low
+                      : [10, 20]
+                    )
                     setSelectedSliderModal('low')
                     setEditModalVisible(true)
                   }}
@@ -479,7 +485,10 @@ export const MainScreen = observer(function MainScreen() {
                   preset="card"
                   text={`Interval: ${selectedDevice.alarm.interval} min`}
                   onPress={() => {
-                    setSliderValues([selectedDevice.alarm.interval] ?? [5])
+                    setSliderValues(selectedDevice.alarm.interval
+                      ? [selectedDevice.alarm.interval]
+                      : [5]
+                    )
                     setSelectedSliderModal('interval')
                     setEditModalVisible(true)
                   }}
@@ -589,7 +598,7 @@ export const MainScreen = observer(function MainScreen() {
         <Header
           preset="primary"
           headerTx="mainScreen.title"
-          leftIcon="cog"
+          // leftIcon="cog"
           // onLeftPress={() => {}}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
