@@ -7,7 +7,7 @@ export const palette = {
   angry: "#dd3333",
   greenDarker: '#388E3C',
   greenLighter: '#C8E6C9',
-  green: '#4CDF50',
+  green: '#1CCF20',
   indigo: '#536DFE',
   greyDarker: '#414141',
   grey: '#757575',

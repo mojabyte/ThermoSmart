@@ -3,7 +3,9 @@
     "ok": "تأیید",
     "cancel": "لغو",
     "back": "بازگشت",
-    "apply": "تأیید"
+    "apply": "تأیید",
+    "edit": "ویرایش",
+    "remove": "حذف"
   },
   "mainScreen": {
     "temperatureCard": {

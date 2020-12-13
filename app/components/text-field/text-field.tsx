@@ -20,12 +20,17 @@ const INPUT: TextStyle = {
   fontSize: 18,
   borderRadius: 4,
   backgroundColor: color.palette.white,
-  borderWidth: 1
+  borderWidth: 1,
+  paddingHorizontal: spacing[3]
 }
 
 // currently we have no presets, but that changes quickly when you build your app.
 const PRESETS: { [name: string]: ViewStyle } = {
   default: {}
+}
+
+const LABEL: TextStyle = {
+  marginBottom: spacing[1]
 }
 
 const enhance = (style, styleOverride) => {
@@ -56,7 +61,7 @@ export function TextField(props: TextFieldProps) {
   let inputStyle: TextStyle = {
     ...INPUT,
     ...{
-      borderColor: errorTx || error ? color.error : color.palette.grey
+      borderColor: errorTx || error ? color.error : color.palette.greyLighter
     }
   }
   inputStyle = enhance(inputStyle, inputStyleOverride)
@@ -66,7 +71,7 @@ export function TextField(props: TextFieldProps) {
 
   return (
     <View style={containerStyle}>
-      <Text preset="fieldLabel" tx={labelTx} text={label} />
+      <Text preset="fieldLabel" tx={labelTx} text={label} style={LABEL} />
       <TextInputComponent
         type={type}
         placeholder={actualPlaceholder}

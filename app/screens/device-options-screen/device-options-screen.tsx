@@ -22,6 +22,7 @@ const LIST_TITLE_CONTAINER: ViewStyle = {
 }
 
 const LIST_TITLE: TextStyle = {
+  fontSize: 16,
   color: color.primary
 }
 

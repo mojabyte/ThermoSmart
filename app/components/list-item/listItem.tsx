@@ -52,8 +52,11 @@ export function ListItem(props: ListItemProps) {
   }
 
   const VALUE: TextStyle = {
-    color: color.palette.greyDarker,
-    paddingHorizontal: spacing[3]
+    color: color.palette.greyDarker
+  }
+
+  const VALUE_CONTAINER: ViewStyle = {
+    paddingEnd: spacing[3]
   }
 
   const ICON: TextStyle = {
@@ -76,11 +79,14 @@ export function ListItem(props: ListItemProps) {
         <View style={MAIN}>
           <View>
             <Text tx={titleTx} text={titleText} style={textStyle} />
-            { (detailsTx || detailsText) ? (
+            { (detailsTx || detailsText) && (
               <Text tx={detailsTx} text={detailsText} style={DETAILS} />
-            ) : null }
+            ) }
           </View>
-          {content}
+
+          <View style={VALUE_CONTAINER}>
+            {content}
+          </View>
         </View>
         {loading
           ? <ActivityIndicator color={color.palette.greyDarker} style={ICON} />

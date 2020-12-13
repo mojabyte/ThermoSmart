@@ -1,10 +1,11 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, View, ViewStyle } from "react-native"
-import { Header, Icon, ListItem, Screen, Text } from "../../components"
+import { OptionsModal, Header, Icon, ListItem, Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
-import { useStores } from "../../models"
+import { Device, useStores } from "../../models"
 import { color, spacing } from "../../theme"
+import { toJS } from "mobx"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -22,9 +23,18 @@ const STATUS_ICON_STYLE: ViewStyle = {
 }
 
 export const DeviceListScreen = observer(function DeviceListScreen() {
+  const navigation = useNavigation()
   const { devices, state: { selectedDeviceID, setSelectedDeviceID } } = useStores()
 
-  const navigation = useNavigation()
+  const [isOptionsModalVisible, setOptionsModalVisible] = useState(false)
+  const [selectedDevice, setSelectedDevice] = useState<Device>(null)
+
+  useEffect(() => {
+    devices.items.forEach(device => {
+      device.restoreFromMessages()
+    })
+  }, [devices.items])
+
   return (
     <Screen style={ROOT}>
       <Header
@@ -38,6 +48,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
 
       <FlatList
         data={devices.listView}
+        extraData={toJS(devices.items)}
         keyExtractor={item => item.value}
         renderItem={({ item }) => {
           const device = devices.get(item.value)
@@ -49,10 +60,13 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
                 setSelectedDeviceID(item.value)
                 setTimeout(() => navigation.navigate('main'))
               }}
-              onLongPress={() => device.remove()}
+              onLongPress={() => {
+                setSelectedDevice(device)
+                setOptionsModalVisible(true)
+              }}
               style={{
                 backgroundColor: selectedDeviceID === item.value
-                  ? color.palette.offWhite
+                  ? color.palette.greenLighter
                   : color.transparent
               }}
             >
@@ -61,7 +75,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
                 <View style={{ flexDirection: 'row-reverse', marginTop: spacing[1] }}>
                   <Text
                     text={`${device.temperaturesView[0]?.value.toFixed(1) ?? '---'}°c`}
-                    style={{ marginStart: spacing[1] }}
+                    style={{ width: 40 }}
                   />
 
                   {device.fanStatus
@@ -87,6 +101,30 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
           )
         }}
         ItemSeparatorComponent={() => <View style={SEPARATOR} />}
+      />
+
+      <OptionsModal
+        isVisible={isOptionsModalVisible}
+        onClose={() => setOptionsModalVisible(false)}
+        titleText={selectedDevice?.name}
+        content={[
+          {
+            title: 'common.edit',
+            icon: 'pencil',
+            onPress: () => {
+              setOptionsModalVisible(false)
+              navigation.navigate('add', { selectedDeviceID: selectedDevice.simNumber })
+            }
+          },
+          {
+            title: 'common.remove',
+            icon: 'trash-can',
+            onPress: () => {
+              setOptionsModalVisible(false)
+              selectedDevice.remove()
+            }
+          }
+        ]}
       />
     </Screen>
   )

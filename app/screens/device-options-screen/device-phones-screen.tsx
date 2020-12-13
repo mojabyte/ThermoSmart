@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ActivityIndicator, ScrollView, View, ViewStyle } from "react-native"
-import { ConfirmModal, Header, ListItem, Screen, TextField } from "../../components"
+import { ConfirmModal, Header, ListItem, OptionsModal, Screen, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from '../../models'
 import { color } from "../../theme"
@@ -33,6 +33,7 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
   const [isEditModalVisible, setEditModalVisible] = useState(false)
   const [phoneNumberEdit, setPhoneNumberEdit] = useState<string>(null)
   const [editIndex, setEditIndex] = useState<number>(null)
+  const [isOptionsModalVisible, setOptionsModalVisible] = useState(false)
 
   return (
     <Screen preset="scroll" style={ROOT}>
@@ -59,7 +60,11 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
                   setEditIndex(index)
                   setEditModalVisible(true)
                 }}
-                onLongPress={() => selectedDevice.deletePhoneNumber(index)}
+                onLongPress={() => {
+                  setPhoneNumberEdit(phoneNumber)
+                  setEditIndex(index)
+                  setOptionsModalVisible(true)
+                }}
               />
             )
           }
@@ -101,6 +106,22 @@ export const DevicePhonesScreen = observer(function DevicePhonesScreen() {
           />
         </View>
       </ConfirmModal>
+
+      <OptionsModal
+        isVisible={isOptionsModalVisible}
+        onClose={() => setOptionsModalVisible(false)}
+        titleText={phoneNumberEdit}
+        content={[
+          {
+            title: 'common.remove',
+            icon: 'trash-can',
+            onPress: () => {
+              setOptionsModalVisible(false)
+              selectedDevice.deletePhoneNumber(editIndex)
+            }
+          }
+        ]}
+      />
     </Screen>
   )
 })
