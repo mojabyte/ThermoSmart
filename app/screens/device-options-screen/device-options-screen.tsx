@@ -170,11 +170,15 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.getSimCreditLoading}
           rightIcon="refresh"
           leftIcon="sim"
-          valueText={`${selectedDevice.simCharge} Rial`}
           onPress={() => {
             selectedDevice.getSimCredit()
           }}
-        />
+        >
+          <View style={{ flexDirection: 'row' }}>
+            <Text text={`${selectedDevice.simCharge}`} />
+            <Icon name="currency-rial" containerStyle={{ marginHorizontal: spacing[1] }} />
+          </View>
+        </ListItem>
 
         <ListItem
           titleTx="deviceOptionsScreen.simCard.smsInterval"

@@ -58,8 +58,8 @@ const DEVICE_SELECT_SIM_NUMBER: TextStyle = {
 }
 
 const DEVICE_SELECT_DETAILS_TEXT: TextStyle = {
-  fontSize: 18,
-  color: color.text,
+  fontSize: 16,
+  color: color.palette.offWhite,
   opacity: 0.75,
   textAlign: 'left'
 }
@@ -70,7 +70,32 @@ const LAST_TEMPERATURE_VALUE: TextStyle = {
   alignSelf: 'center'
 }
 
+const getTimeFormat = (ts: string) => {
+  const date = moment(ts).isAfter(moment().startOf('day'))
+    ? 'امروز'
+    : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
+      ? 'دیروز'
+      : moment(ts).format('jDD jMMM'))
+  return `${date}   ${moment(ts).format('HH:mm')}`
+}
+
+type CardProps = {
+  title?: string,
+  titleIcon?: string,
+  loading?: boolean,
+  onRefresh?: () => void,
+  containerStyle?: ViewStyle,
+  contentStyle?: ViewStyle,
+  children?: React.ReactNode
+}
+
+const CARD_HEADER: ViewStyle = {
+  flexDirection: 'row'
+}
+
 const CARD_TITLE_CONTAINER: ViewStyle = {
+  flex: 1,
+  alignSelf: 'flex-start',
   flexDirection: 'row',
   alignItems: 'center'
 }
@@ -81,14 +106,46 @@ const CARD_TITLE: TextStyle = {
   paddingHorizontal: spacing[1]
 }
 
-const getTimeFormat = (ts: string) => {
-  const date = moment(ts).isAfter(moment().startOf('day'))
-    ? 'امروز'
-    : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
-      ? 'دیروز'
-      : moment(ts).format('jDD jMMM'))
-  return `${date}   ${moment(ts).format('HH:mm')}`
+const CARD_CONTENT_CONTAINER: ViewStyle = {
+  flex: 1,
+  justifyContent: 'space-between',
+  alignItems: 'center'
 }
+
+const Card = observer(function Card({
+  title,
+  titleIcon,
+  loading,
+  onRefresh,
+  containerStyle,
+  contentStyle,
+  children
+}: CardProps) {
+  return (
+    <Button
+      preset="card"
+      loading={loading}
+      style={containerStyle}
+    >
+      <View style={CARD_HEADER}>
+        <View style={CARD_TITLE_CONTAINER}>
+          {titleIcon && <Icon name={titleIcon} />}
+          {title && <Text tx={title} style={CARD_TITLE} />}
+        </View>
+
+        {onRefresh && (
+          <Button preset="link" onPress={onRefresh}>
+            <Icon name="refresh" size={20} />
+          </Button>
+        )}
+      </View>
+
+      <View style={[CARD_CONTENT_CONTAINER, contentStyle]}>
+        {children}
+      </View>
+    </Button>
+  )
+})
 
 export const MainScreen = observer(function MainScreen() {
   const navigation = useNavigation()
@@ -257,29 +314,23 @@ export const MainScreen = observer(function MainScreen() {
         <View style={{ flex: 1, marginHorizontal: spacing[1] }}>
           <View style={{ flex: 0.7, flexDirection: 'row' }}>
             <View style={{ flex: 0.6, flexDirection: 'column' }}>
-              <Button
-                preset="card"
+              <Card
+                title="mainScreen.temperatureCard.title"
+                titleIcon="thermometer-lines"
                 loading={selectedDevice.state.getStatusLoading}
-                style={{ flex: 0.45 }}
+                onRefresh={() => selectedDevice.getStatus()}
+                containerStyle={{ flex: 0.45 }}
               >
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
-                    <Icon name="thermometer-lines" />
-                    <Text tx="mainScreen.temperatureCard.title" style={CARD_TITLE} />
-                  </View>
-
-                  <Button preset="link" onPress={() => selectedDevice.getStatus()}>
-                    <Icon name="refresh" size={20} />
-                  </Button>
-                </View>
                 <Text
-                  text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1)}°c` || 'no data'}
+                  text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1) ?? '---'}°c`}
                   style={LAST_TEMPERATURE_VALUE}
                 />
-                <Text
-                  text={getTimeFormat(selectedDevice.temperaturesView[0]?.ts)}
-                  style={{ fontSize: 12 }}
-                />
+                {selectedDevice.temperaturesView[0]?.ts && (
+                  <Text
+                    text={getTimeFormat(selectedDevice.temperaturesView[0].ts)}
+                    style={{ fontSize: 12 }}
+                  />
+                )}
 
                 <Button
                   preset="link"
@@ -292,237 +343,220 @@ export const MainScreen = observer(function MainScreen() {
                   <Text tx="mainScreen.temperatureCard.chart" style={{ paddingHorizontal: spacing[3] }} />
                   <Icon name="chevron-right-ltr" />
                 </Button>
-              </Button>
+              </Card>
 
-              <Button preset="card" style={{ flex: 0.55 }}>
+              <Card
+                title="mainScreen.statusCard.title"
+                titleIcon="information"
+                containerStyle={{ flex: 0.55 }}
+                contentStyle={{ justifyContent: 'space-evenly', alignItems: 'flex-start' }}
+              >
+                <View style={{ flex: 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Button
+                    preset="card"
+                    onPress={() => selectedDevice.getSimCredit()}
+                    loading={selectedDevice.state.getSimCreditLoading}
+                    style={{ flex: 0.5, flexDirection: 'row', margin: spacing[1] }}
+                  >
+                    <Text text={`${selectedDevice.simCharge}`}/>
+                    <Icon name="currency-rial" containerStyle={{ marginHorizontal: spacing[1] }} />
+                  </Button>
+
+                  <Button
+                    preset="card"
+                    onPress={() => selectedDevice.getSignalStrength()}
+                    loading={selectedDevice.state.getSignalStrengthLoading}
+                    style={{ flex: 0.5, margin: spacing[1] }}
+                  >
+                    <Icon name={signalIcon} size={30} />
+                  </Button>
+                </View>
+
                 <View style={{ flexDirection: 'row' }}>
-                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
-                    <Icon name="information" />
-                    <Text tx="mainScreen.statusCard.title" style={CARD_TITLE} />
-                  </View>
+                  {selectedDevice.powerStatus ? (
+                    <>
+                      <Icon name="power-plug" />
+                      <Text tx="mainScreen.statusCard.powerConnected" />
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="power-plug-off" />
+                      <Text tx="mainScreen.statusCard.powerDisconnected" />
+                    </>
+                  )}
                 </View>
-
-                <View style={{ flex: 1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'space-evenly' }}>
-                  <View style={{ flex: 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Button
-                      preset="card"
-                      text={`${selectedDevice.simCharge} Rial`}
-                      onPress={() => selectedDevice.getSimCredit()}
-                      loading={selectedDevice.state.getSimCreditLoading}
-                      style={{ flex: 0.5, margin: 3 }}
-                    />
-
-                    <Button
-                      preset="card"
-                      onPress={() => selectedDevice.getSignalStrength()}
-                      loading={selectedDevice.state.getSignalStrengthLoading}
-                      style={{ flex: 0.5, margin: 3 }}
-                    >
-                      <Icon name={signalIcon} size={30} />
-                    </Button>
-                  </View>
-
-                  <View style={{ flexDirection: 'row' }}>
-                    {selectedDevice.powerStatus ? (
-                      <>
-                        <Icon name="power-plug" />
-                        <Text tx="mainScreen.statusCard.powerConnected" />
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="power-plug-off" />
-                        <Text tx="mainScreen.statusCard.powerDisconnected" />
-                      </>
-                    )}
-                  </View>
-                </View>
-              </Button>
+              </Card>
             </View>
 
             <View style={{ flex: 0.4, flexDirection: 'column' }}>
-              <Button
-                preset="card"
+              <Card
+                title="mainScreen.thermostatCard.title"
+                titleIcon="thermostat"
                 loading={selectedDevice.state.getThermostatValuesLoading}
-                style={{ flex: 0.45 }}
+                onRefresh={() => selectedDevice.getThermostatValues()}
+                containerStyle={{ flex: 0.45 }}
               >
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
-                    <Icon name="thermostat" />
-                    <Text tx="mainScreen.thermostatCard.title" style={CARD_TITLE} />
-                  </View>
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
+                    setSelectedSliderModal('max')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateThermostatMaxValueLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="arrow-collapse-up" containerStyle={{ paddingEnd: spacing[4] }} />
+                  <Text text={`${selectedDevice.thermostat.max ?? '---'}°c`} style={{ paddingStart: spacing[4] }} />
+                </Button>
 
-                  <Button preset="link" onPress={() => selectedDevice.getThermostatValues()}>
-                    <Icon name="refresh" size={20} />
-                  </Button>
-                </View>
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
+                    setSelectedSliderModal('nor')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateThermostatNorValueLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="drag-horizontal-variant" containerStyle={{ paddingEnd: spacing[4] }} />
+                  <Text text={`${selectedDevice.thermostat.nor ?? '---'}°c`} style={{ paddingStart: spacing[4] }} />
+                </Button>
 
-                <View style={{ justifyContent: 'space-between' }}>
-                  <Button
-                    preset="card"
-                    onPress={() => {
-                      setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
-                      setSelectedSliderModal('max')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateThermostatMaxValueLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="arrow-collapse-up" containerStyle={{ paddingEnd: spacing[4] }} />
-                    <Text text={`${selectedDevice.thermostat.max}°c`} style={{ paddingStart: spacing[4] }} />
-                  </Button>
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
+                    setSelectedSliderModal('min')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateThermostatMinValueLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="arrow-collapse-down" containerStyle={{ paddingEnd: spacing[4] }} />
+                  <Text text={`${selectedDevice.thermostat.min ?? '---'}°c`} style={{ paddingStart: spacing[4] }} />
+                </Button>
+              </Card>
 
-                  <Button
-                    preset="card"
-                    onPress={() => {
-                      setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
-                      setSelectedSliderModal('nor')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateThermostatNorValueLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="drag-horizontal-variant" containerStyle={{ paddingEnd: spacing[4] }} />
-                    <Text text={`${selectedDevice.thermostat.nor}°c`} style={{ paddingStart: spacing[4] }} />
-                  </Button>
-
-                  <Button
-                    preset="card"
-                    onPress={() => {
-                      setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
-                      setSelectedSliderModal('min')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateThermostatMinValueLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="arrow-collapse-down" containerStyle={{ paddingEnd: spacing[4] }} />
-                    <Text text={`${selectedDevice.thermostat.min}°c`} style={{ paddingStart: spacing[4] }} />
-                  </Button>
-                </View>
-              </Button>
-
-              <Button
-                preset="card"
+              <Card
+                title="mainScreen.alarmCard.title"
+                titleIcon="alarm"
                 loading={selectedDevice.state.getAlarmValuesLoading}
-                style={{ flex: 0.55 }}
+                onRefresh={() => selectedDevice.getAlarmValues()}
+                containerStyle={{ flex: 0.55 }}
               >
-                <View style={{ flexDirection: 'row' }}>
-                  <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
-                    <Icon name="alarm" />
-                    <Text tx="mainScreen.alarmCard.title" style={CARD_TITLE} />
-                  </View>
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    setSliderValues(selectedDevice.alarm.high ?? [10, 20])
+                    setSelectedSliderModal('high')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateAlarmHighLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="arrow-expand-up" containerStyle={{ paddingEnd: spacing[3] }} />
+                  <Text text={`${selectedDevice.alarm.high[0] ?? '---'}°c - ${
+                    selectedDevice.alarm.high[1] ?? '---'}°c`} />
+                </Button>
+                <Button
+                  preset="card"
+                  onPress={() => {
+                    setSliderValues(selectedDevice.alarm.low ?? [10, 20])
+                    setSelectedSliderModal('low')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateAlarmLowLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="arrow-expand-down" containerStyle={{ paddingEnd: spacing[3] }} />
+                  <Text text={`${selectedDevice.alarm.low[0] ?? '---'}°c - ${
+                    selectedDevice.alarm.low[1] ?? '---'}°c`} />
+                </Button>
 
-                  <Button preset="link" onPress={() => selectedDevice.getAlarmValues()}>
-                    <Icon name="refresh" size={20} />
-                  </Button>
-                </View>
-
-                <View style={{ justifyContent: 'space-between' }}>
-                  <Button
-                    preset="card"
-                    onPress={() => {
-                      setSliderValues(selectedDevice.alarm.high ?? [10, 20])
-                      setSelectedSliderModal('high')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateAlarmHighLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="arrow-expand-up" containerStyle={{ paddingEnd: spacing[3] }} />
-                    <Text text={`${selectedDevice.alarm.high[0]}°c - ${selectedDevice.alarm.high[1]}°c`} />
-                  </Button>
-                  <Button
-                    preset="card"
-                    onPress={() => {
-                      setSliderValues(selectedDevice.alarm.low ?? [10, 20])
-                      setSelectedSliderModal('low')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateAlarmLowLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="arrow-expand-down" containerStyle={{ paddingEnd: spacing[3] }} />
-                    <Text text={`${selectedDevice.alarm.low[0]}°c - ${selectedDevice.alarm.low[1]}°c`} />
-                  </Button>
-
-                  <Button
-                    preset="card"
-                    text={`Interval: ${selectedDevice.alarm.interval} min`}
-                    onPress={() => {
-                      setSliderValues([selectedDevice.alarm.interval] ?? [5])
-                      setSelectedSliderModal('interval')
-                      setEditModalVisible(true)
-                    }}
-                    loading={selectedDevice.state.updateAlarmIntervalLoading}
-                    style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                  >
-                    <Icon name="message-text-clock" containerStyle={{ paddingEnd: spacing[4] }} />
-                    <Text text={`${selectedDevice.alarm.interval} دقیقه`} />
-                  </Button>
-                </View>
-              </Button>
+                <Button
+                  preset="card"
+                  text={`Interval: ${selectedDevice.alarm.interval} min`}
+                  onPress={() => {
+                    setSliderValues([selectedDevice.alarm.interval] ?? [5])
+                    setSelectedSliderModal('interval')
+                    setEditModalVisible(true)
+                  }}
+                  loading={selectedDevice.state.updateAlarmIntervalLoading}
+                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
+                >
+                  <Icon name="message-text-clock" containerStyle={{ paddingEnd: spacing[4] }} />
+                  <Text text={`${selectedDevice.alarm.interval || '---'} دقیقه`} />
+                </Button>
+              </Card>
             </View>
           </View>
 
           <View style={{ flex: 0.3, flexDirection: 'row' }}>
-            <Button preset="card" loading={selectedDevice.state.getStatusLoading} style={{ flex: 0.75 }}>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={[CARD_TITLE_CONTAINER, { flex: 1 }]}>
-                  <Icon name="camera-control" />
-                  <Text tx="mainScreen.controlCard.title" style={CARD_TITLE} />
-                </View>
+            <Card
+              title="mainScreen.controlCard.title"
+              titleIcon="camera-control"
+              loading={selectedDevice.state.getStatusLoading}
+              containerStyle={{ flex: 0.75 }}
+              contentStyle={{ flexDirection: 'row' }}
+            >
+              <View style={{ flex: 0.3, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ marginVertical: spacing[2] }}>
+                  <Text tx="mainScreen.controlCard.automation" style={CARD_TITLE} />
+                </Text>
+
+                <Switch
+                  value={selectedDevice.thermostat.isEnabled}
+                  loading={selectedDevice.state.updateThermostatStatusLoading}
+                  onToggle={value => selectedDevice.updateThermostatStatus(value)}
+                />
               </View>
 
-              <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ flex: 0.3, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text tx="mainScreen.controlCard.automation" style={[CARD_TITLE, { marginVertical: 3 }]} />
+              <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ marginVertical: spacing[2] }}>
+                  <Icon name="radiator" containerStyle={{ paddingHorizontal: spacing[1] }} />
+                  <Text tx="mainScreen.controlCard.heater" style={CARD_TITLE} />
+                </Text>
 
-                  <Switch
-                    value={selectedDevice.thermostat.isEnabled}
-                    loading={selectedDevice.state.updateThermostatStatusLoading}
-                    onToggle={value => selectedDevice.updateThermostatStatus(value)}
-                  />
-                </View>
-
-                <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text tx="mainScreen.controlCard.heater" style={[CARD_TITLE, { marginVertical: 3 }]} />
-
-                  <Switch
-                    value={selectedDevice.heaterStatus}
-                    loading={selectedDevice.state.updateHeaterStatusLoading}
-                    onToggle={value => {
-                      if (selectedDevice.thermostat.isEnabled) {
-                        ToastAndroid.show(
-                          translate('mainScreen.controlCard.disableAutomationToast'),
-                          ToastAndroid.SHORT
-                        )
-                      } else {
-                        selectedDevice.updateHeaterStatus(value)
-                      }
-                    }}
-                  />
-                </View>
-
-                <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
-                  <Text tx="mainScreen.controlCard.fan" style={[CARD_TITLE, { marginVertical: 3 }]} />
-
-                  <Switch
-                    value={selectedDevice.fanStatus}
-                    loading={selectedDevice.state.updateFanStatusLoading}
-                    onToggle={value => {
-                      if (selectedDevice.thermostat.isEnabled) {
-                        ToastAndroid.show(
-                          translate('mainScreen.controlCard.disableAutomationToast'),
-                          ToastAndroid.SHORT
-                        )
-                      } else {
-                        selectedDevice.updateFanStatus(value)
-                      }
-                    }}
-                  />
-                </View>
+                <Switch
+                  value={selectedDevice.heaterStatus}
+                  loading={selectedDevice.state.updateHeaterStatusLoading}
+                  onToggle={value => {
+                    if (selectedDevice.thermostat.isEnabled) {
+                      ToastAndroid.show(
+                        translate('mainScreen.controlCard.disableAutomationToast'),
+                        ToastAndroid.SHORT
+                      )
+                    } else {
+                      selectedDevice.updateHeaterStatus(value)
+                    }
+                  }}
+                />
               </View>
-            </Button>
+
+              <View style={{ flex: 0.35, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ marginVertical: spacing[2] }}>
+                  <Icon name="fan" containerStyle={{ paddingHorizontal: spacing[1] }} />
+                  <Text tx="mainScreen.controlCard.fan" style={CARD_TITLE} />
+                </Text>
+
+                <Switch
+                  value={selectedDevice.fanStatus}
+                  loading={selectedDevice.state.updateFanStatusLoading}
+                  onToggle={value => {
+                    if (selectedDevice.thermostat.isEnabled) {
+                      ToastAndroid.show(
+                        translate('mainScreen.controlCard.disableAutomationToast'),
+                        ToastAndroid.SHORT
+                      )
+                    } else {
+                      selectedDevice.updateFanStatus(value)
+                    }
+                  }}
+                />
+              </View>
+            </Card>
 
             <Button preset="card" style={{ flex: 0.25 }} onPress={() => navigation.navigate('options')}>
               <View style={{ flexDirection: 'row' }}>
@@ -536,7 +570,17 @@ export const MainScreen = observer(function MainScreen() {
       )
     }
 
-    return null
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Button
+          onPress={() => navigation.navigate('add')}
+          style={{ flexDirection: 'row' }}
+        >
+          <Icon name="plus" color={color.palette.white} containerStyle={{ margin: spacing[2] }} />
+          <Text tx="mainScreen.newDeviceButton" style={{ color: color.palette.white }} />
+        </Button>
+      </View>
+    )
   }
 
   return (

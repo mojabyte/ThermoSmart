@@ -1,7 +1,7 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
 import { FlatList, View, ViewStyle } from "react-native"
-import { Header, ListItem, Screen } from "../../components"
+import { Header, Icon, ListItem, Screen, Text } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../../models"
 import { color, spacing } from "../../theme"
@@ -15,6 +15,10 @@ const SEPARATOR: ViewStyle = {
   backgroundColor: color.palette.grey,
   marginHorizontal: spacing[4],
   height: 0.5
+}
+
+const STATUS_ICON_STYLE: ViewStyle = {
+  marginHorizontal: spacing[1]
 }
 
 export const DeviceListScreen = observer(function DeviceListScreen() {
@@ -35,23 +39,53 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
       <FlatList
         data={devices.listView}
         keyExtractor={item => item.value}
-        renderItem={({ item }) => (
-          <ListItem
-            titleText={item.label}
-            detailsText={item.details}
-            valueText={item.value}
-            onPress={() => {
-              setSelectedDeviceID(item.value)
-              navigation.goBack()
-            }}
-            onLongPress={() => devices.get(item.value)?.remove()}
-            style={{
-              backgroundColor: selectedDeviceID === item.value
-                ? color.palette.offWhite
-                : color.transparent
-            }}
-          />
-        )}
+        renderItem={({ item }) => {
+          const device = devices.get(item.value)
+          return (
+            <ListItem
+              titleText={item.label}
+              detailsText={item.details || ' '}
+              onPress={() => {
+                setSelectedDeviceID(item.value)
+                setTimeout(() => navigation.navigate('main'))
+              }}
+              onLongPress={() => device.remove()}
+              style={{
+                backgroundColor: selectedDeviceID === item.value
+                  ? color.palette.offWhite
+                  : color.transparent
+              }}
+            >
+              <View style={{ flexDirection: 'column' }}>
+                <Text text={`0${item.value}`} />
+                <View style={{ flexDirection: 'row-reverse', marginTop: spacing[1] }}>
+                  <Text
+                    text={`${device.temperaturesView[0]?.value.toFixed(1) ?? '---'}°c`}
+                    style={{ marginStart: spacing[1] }}
+                  />
+
+                  {device.fanStatus
+                    ? <Icon name="fan" containerStyle={STATUS_ICON_STYLE} />
+                    : <Icon name="fan-off" containerStyle={STATUS_ICON_STYLE} />
+                  }
+
+                  {device.heaterStatus
+                    ? <Icon name="radiator" containerStyle={STATUS_ICON_STYLE} />
+                    : <Icon name="radiator-off" containerStyle={STATUS_ICON_STYLE} />
+                  }
+
+                  {!device.powerStatus &&
+                    <Icon
+                      name="power-plug-off"
+                      color={color.palette.angry}
+                      containerStyle={STATUS_ICON_STYLE}
+                    />
+                  }
+                </View>
+              </View>
+            </ListItem>
+          )
+        }}
         ItemSeparatorComponent={() => <View style={SEPARATOR} />}
       />
     </Screen>

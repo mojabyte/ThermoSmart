@@ -16,7 +16,7 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
   const navigation = useNavigation()
   const { params } = useRoute<RouteProp<PrimaryParamList, 'add'>>()
 
-  const { devices } = useStores()
+  const { devices, state: { setSelectedDeviceID } } = useStores()
   const selectedDevice = devices.get(params?.selectedDeviceID)
   const isEdit = !!selectedDevice?.simNumber
 
@@ -64,10 +64,12 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
                   selectedDevice.setName(name)
                   selectedDevice.setSimNumber(parsedSimNumber)
                   selectedDevice.setPlace(place)
+                  navigation.goBack()
                 } else {
                   devices.add(DeviceModel.create({ name, simNumber: parsedSimNumber, place }))
+                  setSelectedDeviceID(parsedSimNumber)
+                  navigation.navigate('main')
                 }
-                navigation.goBack()
               }
             }}
           />

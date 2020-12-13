@@ -42,7 +42,8 @@
       "high": "ماکزیمم",
       "low": "مینیمم",
       "intervalTitle": "بازه‌ی زمانی تکرار هشدار"
-    }
+    },
+    "newDeviceButton": "افزودن دستگاه"
   },
   "deviceListScreen": {
     "title": "دستگاه‌ها",

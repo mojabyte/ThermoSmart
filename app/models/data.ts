@@ -1,4 +1,4 @@
-import { observable } from 'mobx'
+import { observable } from "mobx"
 import {
   getEnv,
   types,
@@ -6,12 +6,12 @@ import {
   destroy,
   SnapshotIn,
   Instance,
-} from 'mobx-state-tree'
+} from "mobx-state-tree"
 import moment from "moment-jalaali"
-import { sortBy } from 'ramda'
-import { ToastAndroid } from 'react-native'
+import { sortBy } from "ramda"
+import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
-import { Environment } from './environment'
+import { Environment } from "./environment"
 
 const parseFloats = (string: string) => {
   const regex = /[+-]?\d+(\.\d+)?/g
@@ -256,7 +256,7 @@ export const DeviceModel = types
       })
     },
 
-    parseStatusMessage(message: string) {
+    parseStatusMessage(message: string, time: number) {
       const lines = message.split('\n')
       const temperature = parseFloats(lines[1])[0]
       const powerStatus = lines[2].includes('وصل')
@@ -264,17 +264,18 @@ export const DeviceModel = types
       const fanStatus = lines[4].includes('روشن')
       const thermostatStatus = lines[5].includes('اتوماتيك')
 
-      this.setTemperature({ value: temperature, ts: `${+moment()}` })
+      this.setTemperature({ value: temperature, ts: `${time}` })
       this.setStatus(powerStatus, heaterStats, fanStatus)
       this.setThermostatStatus(thermostatStatus)
+
+      this.setSyncDate({ status: time })
     },
     getStatus() {
       this.setState({ getStatusLoading: true })
 
       this.sendSms('GET_STATUS', '#0#', (response, error) => {
         if (!error) {
-          this.parseStatusMessage(response)
-          this.setSyncDate({ status: +moment() })
+          this.parseStatusMessage(response, +moment())
         }
         this.setState({ getStatusLoading: false })
       })
@@ -665,7 +666,6 @@ export const DeviceModel = types
     },
 
     restoreFromMessages() {
-      /* List SMS messages matching the filter */
       const filter = {
         box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
 
@@ -701,8 +701,7 @@ export const DeviceModel = types
           // console.log(count)
           const arr = JSON.parse(smsList)
           if (arr.length > 0) {
-            this.parseStatusMessage(arr[0].body)
-            this.setSyncDate({ status: arr[0].date })
+            this.parseStatusMessage(arr[0].body, arr[0].date)
           }
         },
       )
