@@ -4,6 +4,7 @@ import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, ConfirmModal, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
+import moment from 'moment-jalaali'
 import { useStores } from '../../models'
 import { color, spacing } from "../../theme"
 import { TextProps } from "../../components/text/text.props"
@@ -154,10 +155,11 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         />
 
         <ListItem
-          titleText="Restore"
+          titleText="Sync"
           // loading={selectedDevice.state.updatePasswordLoading}
-          // rightIcon="chevron-right-ltr"
-          leftIcon="refresh"
+          valueText={moment(selectedDevice.syncDate).format('jYYYY/jMM/jDD HH:mm')}
+          leftIcon="sync-circle"
+          rightIcon="refresh"
           onPress={() => {
             selectedDevice.restoreFromMessages()
           }}

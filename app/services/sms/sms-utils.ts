@@ -1,6 +1,7 @@
 // TODO: match and extract from body e.g.
+
 // ^ دما \s([+-]?\d+(?:\.\d+)?)C\s.*:(\S*).*\s.*:(\S*).*\s.*:(\S*).*\s.*:(\S*).*$
-export const SMS_TYPES = {
+export const SMS_TYPES_REGEX = {
   GET_STATUS: /^ دما [\s\S]*$/,
   GET_TEMPERATURE: /^ساعت \S* مقدار {2}دما [\s\S]*$/,
   GET_THERMOSTAT_VALUES: /^مقادير ترموستات[\s\S]*$/,
@@ -32,22 +33,22 @@ export const SMS_TYPES = {
   UPDATE_POWER_STATUS_OFF: /^برق قطع شد\n(\S*)$/,
   UPDATE_POWER_STATUS_ON: /^برق وصل شد\n(\S*)$/,
 
-  DEFAULT: /.*/
+  OTHER: /.*/
 }
 
-type StringKeys<objType extends {}> = Array<Extract<keyof objType, string>>
+export type StringKeys<objType extends {}> = Array<Extract<keyof objType, string>>
+
+export const SMS_TYPES = Object.keys(SMS_TYPES_REGEX) as StringKeys<typeof SMS_TYPES_REGEX>
 
 // Get type of received SMS from it's body
 export const getSmsType = (
   body: string,
-  selectedTypes: StringKeys<typeof SMS_TYPES> = undefined
-): string => {
-  if (['*', '#'].includes(body[0])) return 'DEFAULT'
-
-  const types = selectedTypes ?? Object.keys(SMS_TYPES) as StringKeys<typeof SMS_TYPES>
+  types = SMS_TYPES
+): typeof SMS_TYPES[number] => {
+  if (['*', '#'].includes(body[0])) return 'OTHER'
 
   for (const type of types) {
-    if (RegExp(SMS_TYPES[type]).test(body)) return type
+    if (RegExp(SMS_TYPES_REGEX[type]).test(body)) return type
   }
-  return 'DEFAULT'
+  return 'OTHER'
 }

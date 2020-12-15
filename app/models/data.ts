@@ -11,6 +11,7 @@ import moment from "moment-jalaali"
 import { sortBy } from "ramda"
 import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
+import { getSmsType, SMS_TYPES_REGEX, StringKeys } from "../services/sms/sms-utils"
 import { Environment } from "./environment"
 
 const parseFloats = (string: string) => {
@@ -75,14 +76,7 @@ export const DeviceModel = types
       lastCheckTime: null
     }),
 
-    syncDate: types.model({
-      status: 0,
-      thermostat: types.model({
-        max: 0,
-        nor: 0,
-        min: 0
-      })
-    })
+    syncDate: 0
   })
   .volatile(() => ({
     state: {
@@ -120,7 +114,7 @@ export const DeviceModel = types
     setPlace(newPlace: string) {
       self.place = newPlace
     },
-    setPassword(newPassword: string) {
+    setPassword(newPassword: string, ts: number = undefined) {
       self.password = newPassword
     },
     setPhoneNumbers(newPhoneNumbers: string[]) {
@@ -149,17 +143,10 @@ export const DeviceModel = types
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
     },
-    setThermostatValues(
-      { max, nor, min }: { max?: number; nor?: number; min?: number },
-      ts: number = undefined
-    ) {
+    setThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
       self.thermostat.max = max ?? self.thermostat.max
       self.thermostat.nor = nor ?? self.thermostat.nor
       self.thermostat.min = min ?? self.thermostat.min
-
-      self.syncDate.thermostat.max = max ?? +moment(ts)
-      self.syncDate.thermostat.nor = nor ?? +moment(ts)
-      self.syncDate.thermostat.min = min ?? +moment(ts)
     },
     setThermostatStatus(status: boolean) {
       self.thermostat.isEnabled = status
@@ -190,8 +177,8 @@ export const DeviceModel = types
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
       self.state.updatePhoneNumberLoading[index] = value
     },
-    setSyncDate(newSyncDate: Partial<typeof self.syncDate>) {
-      self.syncDate = { ...self.syncDate, ...newSyncDate }
+    setSyncDate(date: number) {
+      self.syncDate = date
     },
     reset() {
       // applySnapshot(self, {})
@@ -214,6 +201,7 @@ export const DeviceModel = types
         message,
         callback: (response, error) => {
           if (error) ToastAndroid.show('Timeout', ToastAndroid.SHORT)
+          if (!error) this.setSyncDate(+moment())
           callback(response, error)
         },
         hasResponse
@@ -282,8 +270,6 @@ export const DeviceModel = types
       this.setTemperature({ value: temperature, ts: `${time}` })
       this.setStatus(powerStatus, heaterStats, fanStatus)
       this.setThermostatStatus(thermostatStatus)
-
-      this.setSyncDate({ status: time })
     },
     getStatus() {
       this.setState({ getStatusLoading: true })
@@ -682,25 +668,67 @@ export const DeviceModel = types
     },
 
     restoreFromMessages() {
-      const messages = [
-        {
-          syncDate: self.syncDate.status + 1,
-          regex: '^ دما (?s).*',
-          callback: (body: string, ts: number) => this.parseStatusMessage(body, ts)
+      const callbacks = {
+        GET_STATUS: this.parseStatusMessage,
+        UPDATE_PASSWORD: body => {
+          const password = body.match(SMS_TYPES_REGEX.UPDATE_PASSWORD)[1]
+          this.setPassword(password)
         },
-        {
-          syncDate: Math.min(...Object.values(self.syncDate.thermostat)) + 1,
-          regex: '^مقادير ترموستات(?s).*',
-          callback: (body: string, ts: number) => {
-            const values = parseFloats(body)
-            this.setThermostatValues({
-              max: values[0],
-              nor: values[1],
-              min: values[2]
-            }, ts)
-          }
+        GET_THERMOSTAT_VALUES: body => {
+          const values = parseFloats(body)
+          this.setThermostatValues({
+            max: values[0],
+            nor: values[1],
+            min: values[2]
+          })
+        },
+        UPDATE_THERMOSTAT_MAX: body => {
+          const value = parseFloats(body)[0]
+          this.setThermostatValues({ max: value })
+        },
+        UPDATE_THERMOSTAT_NOR: body => {
+          const value = parseFloats(body)[0]
+          this.setThermostatValues({ nor: value })
+        },
+        UPDATE_THERMOSTAT_MIN: body => {
+          const value = parseFloats(body)[0]
+          this.setThermostatValues({ min: value })
+        },
+        GET_ALARM_VALUES_HIGH: body => {
+          const high = parseFloats(body)
+          high.reverse()
+          this.setAlarmValues({ high })
+        },
+        UPDATE_ALARM_HIGH: body => {
+          const high = parseFloats(body)
+          high.reverse()
+          this.setAlarmValues({ high })
+        },
+        GET_ALARM_VALUES_LOW: body => {
+          const low = parseFloats(body)
+          this.setAlarmValues({ low })
+        },
+        UPDATE_ALARM_LOW: body => {
+          const low = parseFloats(body)
+          this.setAlarmValues({ low })
+        },
+        GET_ALARM_VALUES_INTERVAL: body => {
+          const interval = parseFloats(body)[0]
+          this.setAlarmValues({ interval })
+        },
+        UPDATE_ALARM_INTERVAL: body => {
+          const interval = parseFloats(body)[0]
+          this.setAlarmValues({ interval })
+        },
+        GET_SIM_CHARGE: body => {
+          this.setSimCharge(parseFloats(toEnDigit(body))[0])
+        },
+        GET_SIGNAL_STRENGTH: body => {
+          this.setSignalStrength(parseFloats(body)[0])
         }
-      ]
+      } as Record<keyof typeof SMS_TYPES_REGEX, (body: string, date?: number) => void>
+
+      const minDate = self.syncDate + 1
 
       const filter = {
         box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
@@ -713,9 +741,9 @@ export const DeviceModel = types
          *    "SELECT * from messages WHERE (other filters) AND date <= maxDate"
          *    - Same for minDate but with "date >= minDate"
          */
-        minDate: self.syncDate.status + 1, // timestamp (in milliseconds since UNIX epoch)
+        minDate, // timestamp (in milliseconds since UNIX epoch)
         // maxDate: 1556277910456, // timestamp (in milliseconds since UNIX epoch)
-        bodyRegex: '^ دما (?s).*', // content regex to match
+        // bodyRegex: '^ دما (?s).*', // content regex to match
 
         /** the next 5 filters should NOT be used together, they are OR-ed so pick one **/
         // read: 0, // 0 for unread SMS, 1 for SMS already read
@@ -725,7 +753,7 @@ export const DeviceModel = types
         // body: 'How are you', // content to match
         /** the next 2 filters can be used for pagination **/
         // indexFrom: 0, // start from index 0
-        maxCount: 1, // count of SMS to return each time
+        // maxCount: 1, // count of SMS to return each time
       }
 
       SmsAndroid.list(
@@ -735,9 +763,19 @@ export const DeviceModel = types
         },
         (count, smsList) => {
           // console.log(count)
-          const arr = JSON.parse(smsList)
+          const arr = JSON.parse(smsList) as { body: string; date: number }[]
           if (arr.length > 0) {
-            this.parseStatusMessage(arr[0].body, arr[0].date)
+            this.setSyncDate(arr[0].date)
+            for (const { body, date } of arr) {
+              console.log(body)
+              const type = getSmsType(body, Object.keys(callbacks) as StringKeys<typeof callbacks>)
+              console.log(type)
+              if (callbacks[type]) {
+                callbacks[type](body, date)
+                delete callbacks[type]
+              }
+              if (Object.keys(callbacks).length === 0) return
+            }
           }
         },
       )
