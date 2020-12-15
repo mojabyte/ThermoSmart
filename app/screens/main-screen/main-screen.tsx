@@ -450,7 +450,7 @@ export const MainScreen = observer(function MainScreen() {
                   preset="card"
                   onPress={() => {
                     setSliderValues(selectedDevice.alarm.high[0]
-                      ? [selectedDevice.alarm.high[1], selectedDevice.alarm.high[0]]
+                      ? selectedDevice.alarm.high
                       : [30, 40]
                     )
                     setSelectedSliderModal('high')

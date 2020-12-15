@@ -75,9 +75,14 @@ export const DeviceModel = types
       lastCheckTime: null
     }),
 
-    syncDate: types.optional(types.model({
-      status: types.number
-    }), { status: 0 })
+    syncDate: types.model({
+      status: 0,
+      thermostat: types.model({
+        max: 0,
+        nor: 0,
+        min: 0
+      })
+    })
   })
   .volatile(() => ({
     state: {
@@ -144,10 +149,17 @@ export const DeviceModel = types
     setTemperature({ value, ts }: { value: number; ts: string }) {
       self.temperatures.set(ts, value)
     },
-    setThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
+    setThermostatValues(
+      { max, nor, min }: { max?: number; nor?: number; min?: number },
+      ts: number = undefined
+    ) {
       self.thermostat.max = max ?? self.thermostat.max
       self.thermostat.nor = nor ?? self.thermostat.nor
       self.thermostat.min = min ?? self.thermostat.min
+
+      self.syncDate.thermostat.max = max ?? +moment(ts)
+      self.syncDate.thermostat.nor = nor ?? +moment(ts)
+      self.syncDate.thermostat.min = min ?? +moment(ts)
     },
     setThermostatStatus(status: boolean) {
       self.thermostat.isEnabled = status
@@ -178,7 +190,7 @@ export const DeviceModel = types
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
       self.state.updatePhoneNumberLoading[index] = value
     },
-    setSyncDate(newSyncDate: { status?: number }) {
+    setSyncDate(newSyncDate: Partial<typeof self.syncDate>) {
       self.syncDate = { ...self.syncDate, ...newSyncDate }
     },
     reset() {
@@ -439,6 +451,7 @@ export const DeviceModel = types
       this.sendSms('GET_ALARM_VALUES_HIGH', '#8000#', (response, error) => {
         if (!error) {
           const high = parseFloats(response)
+          high.reverse()
           this.setAlarmValues({ high })
         }
         this.sendSms('GET_ALARM_VALUES_LOW', '#7000#', (response, error) => {
@@ -460,10 +473,10 @@ export const DeviceModel = types
       this.setState({ updateAlarmValuesLoading: true })
 
       const messages = []
-      if (high) messages.push(['8000', Math.round(high[0] * 10), Math.round(high[1] * 10)])
+      if (high) messages.push(['8000', Math.round(high[1] * 10), Math.round(high[0] * 10)])
       if (low) messages.push(['7000', Math.round(low[0] * 10), Math.round(low[1] * 10)])
 
-      const sendMessage = (messages: [string, number][]) => {
+      const sendMessage = (messages: [string, number, number][]) => {
         if (messages.length === 0) {
           this.setAlarmValues({ high, low })
           this.setState({ updateAlarmValuesLoading: false })
@@ -484,7 +497,7 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_ALARM_HIGH',
-        `*${self.password}#8000#${Math.round(values[0] * 10)}*${Math.round(values[1] * 10)}*`,
+        `*${self.password}#8000#${Math.round(values[1] * 10)}*${Math.round(values[0] * 10)}*`,
         (response, error) => {
           if (!error) {
             this.setAlarmValues({ high: values })
@@ -669,6 +682,26 @@ export const DeviceModel = types
     },
 
     restoreFromMessages() {
+      const messages = [
+        {
+          syncDate: self.syncDate.status + 1,
+          regex: '^ دما (?s).*',
+          callback: (body: string, ts: number) => this.parseStatusMessage(body, ts)
+        },
+        {
+          syncDate: Math.min(...Object.values(self.syncDate.thermostat)) + 1,
+          regex: '^مقادير ترموستات(?s).*',
+          callback: (body: string, ts: number) => {
+            const values = parseFloats(body)
+            this.setThermostatValues({
+              max: values[0],
+              nor: values[1],
+              min: values[2]
+            }, ts)
+          }
+        }
+      ]
+
       const filter = {
         box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
 
@@ -718,7 +751,11 @@ export const DeviceModel = types
             callback: payload => this.parseStatusMessage(payload, +moment())
           },
           {
-            type: 'UPDATE_POWER_STATUS',
+            type: 'UPDATE_POWER_STATUS_ON',
+            callback: () => this.setPowerStatus(true)
+          },
+          {
+            type: 'UPDATE_POWER_STATUS_OFF',
             callback: () => this.setPowerStatus(false)
           },
           {

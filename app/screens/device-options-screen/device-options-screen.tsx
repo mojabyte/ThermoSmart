@@ -133,7 +133,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         onRightPress={() => navigation.navigate('add', { selectedDeviceID })}
       />
 
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingBottom: spacing[4] }}>
         <ListItem
           titleTx="deviceOptionsScreen.phoneNumbers"
           detailsTx="deviceOptionsScreen.phoneNumbersDetails"
