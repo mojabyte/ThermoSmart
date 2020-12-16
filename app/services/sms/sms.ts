@@ -69,7 +69,7 @@ export class Sms {
   /**
    * Send a SMS message to the given phone number
    */
-  send({ phoneNumber, type, message, callback, hasResponse }: Types.SendParams) {
+  send({ phoneNumber, type, message, callback, hasResponse }: Types.SendParams): void {
     console.log(phoneNumber, type, message)
     const phoneNumberWithCode = `+98${phoneNumber}`
     if (!(this.pendingList.has(phoneNumberWithCode) &&
@@ -110,7 +110,7 @@ export class Sms {
   /**
    * Subscribe for incoming messages
    */
-  subscribe({ phoneNumber, subscriptions }: Types.SubscribeParams) {
+  subscribe({ phoneNumber, subscriptions }: Types.SubscribeParams): void {
     console.log(phoneNumber, subscriptions)
     const phoneNumberWithCode = `+98${phoneNumber}`
     if (!this.subscriptionsList.has(phoneNumberWithCode)) {

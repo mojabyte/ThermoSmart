@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
+import { Alert, Linking, PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
@@ -152,49 +152,57 @@ export const MainScreen = observer(function MainScreen() {
 
   const { devices, state: { selectedDeviceID, setSelectedDeviceID } } = useStores()
 
-  React.useEffect(() => {
-    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_SMS, {
-      title: "YourProject App Sms Permission",
-      message:
-        "YourProject App needs access to your inbox " + "so it can read messages in background.",
-      buttonNeutral: "Ask Me Later",
-      buttonNegative: "Cancel",
-      buttonPositive: "OK",
-    })
-      .then(granted => {
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // TODO store permissions to display user every time it's denied
-        } else {
-          console.log("SMS permission denied")
-        }
-      })
-      .catch(err => console.warn(err))
+  const [smsPermissionGranted, setSmsPermission] = useState(false)
 
-    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.RECEIVE_SMS, {
-      title: "YourProject App Sms Permission",
-      message:
-        "YourProject App needs access to your inbox " + "so it can read messages in background.",
-      buttonNeutral: "Ask Me Later",
-      buttonNegative: "Cancel",
-      buttonPositive: "OK",
-    })
-      .then(granted => {
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          // SmsListener.addListener(message => {
-          //   console.info(message)
-          // })
-        } else {
-          console.log("SMS permission denied")
-        }
-      })
-      .catch(err => console.warn(err))
+  React.useEffect(() => {
+    const requestPermission = () => {
+      PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.SEND_SMS,
+        PermissionsAndroid.PERMISSIONS.READ_SMS,
+        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS
+      ])
+        .then(resultsObject => {
+          const results = Object.values(resultsObject)
+          if (results.every(result => result === 'granted')) {
+            setSmsPermission(true)
+          } else {
+            setSmsPermission(false)
+            Alert.alert(
+              'اجازه‌ی دسترسی به SMS',
+              'این برنامه بدون اجازه‌ی دسترسی به SMS کار نمی‌کند.',
+              [{
+                text: "OK",
+                onPress: () => {
+                  if (results.some(result => result === 'denied')) {
+                    requestPermission()
+                  } else if (results.some(result => result === 'never_ask_again')) {
+                    Alert.alert(
+                      'اجازه‌ی دسترسی به SMS',
+                      'لطفاً برای ادامه به قسمت Permissions در تنظیمات برنامه بروید و اجازه‌ی دسترسی SMS را به برنامه بدهید.',
+                      [{
+                        text: "OK",
+                        onPress: () => {
+                          Linking.openSettings()
+                          setTimeout(() => requestPermission(), 10)
+                        }
+                      }]
+                    )
+                  }
+                }
+              }],
+              { cancelable: false }
+            )
+          }
+        })
+    }
+
+    requestPermission()
   }, [])
 
   const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
   const [isEditModalVisible, setEditModalVisible] = useState(false)
   const [sliderValues, setSliderValues] = useState([0])
   const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>('max')
-  const [signalIcon, setSignalIcon] = useState('signal-cellular-3')
 
   useEffect(() => {
     setSelectedDevice(devices.get(selectedDeviceID))
@@ -212,21 +220,11 @@ export const MainScreen = observer(function MainScreen() {
 
   useEffect(() => {
     if (selectedDevice) {
-      if (selectedDevice.signalStrength < 25) {
-        setSignalIcon('signal-off')
-      } else if (selectedDevice.signalStrength < 50) {
-        setSignalIcon('signal-cellular-outline')
-      } else if (selectedDevice.signalStrength < 75) {
-        setSignalIcon('signal-cellular-1')
-      } else if (selectedDevice.signalStrength < 100) {
-        setSignalIcon('signal-cellular-2')
-      } else {
-        setSignalIcon('signal-cellular-3')
+      if (smsPermissionGranted) {
+        selectedDevice.restoreFromMessages()
       }
-
-      selectedDevice.restoreFromMessages()
     }
-  }, [selectedDevice])
+  }, [selectedDevice, smsPermissionGranted])
 
   const rangeModalTempProps = {
     min: 0,
@@ -308,6 +306,22 @@ export const MainScreen = observer(function MainScreen() {
     }
   }
 
+  const renderSignalIcon = (): React.ReactNode => {
+    if (selectedDevice) {
+      if (selectedDevice.signalStrength < 25) {
+        return <Icon name="signal-off" size={30} />
+      } else if (selectedDevice.signalStrength < 50) {
+        return <Icon name="signal-cellular-outline" size={30} />
+      } else if (selectedDevice.signalStrength < 75) {
+        return <Icon name="signal-cellular-1" size={30} />
+      } else if (selectedDevice.signalStrength < 100) {
+        return <Icon name="signal-cellular-2" size={30} />
+      }
+      return <Icon name="signal-cellular-3" size={30} />
+    }
+    return <Icon name="signal-off" size={30} />
+  }
+
   const renderScreenContent = function () {
     if (selectedDevice?.simNumber) {
       return (
@@ -368,7 +382,7 @@ export const MainScreen = observer(function MainScreen() {
                     loading={selectedDevice.state.getSignalStrengthLoading}
                     style={{ flex: 0.5, margin: spacing[1] }}
                   >
-                    <Icon name={signalIcon} size={30} />
+                    {renderSignalIcon()}
                   </Button>
                 </View>
 
