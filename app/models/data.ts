@@ -11,6 +11,7 @@ import moment from "moment-jalaali"
 import { sortBy } from "ramda"
 import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
+import Contacts from "react-native-contacts"
 import { getSmsType, SMS_TYPES_REGEX, StringKeys } from "../services/sms/sms-utils"
 import { Environment } from "./environment"
 
@@ -903,9 +904,11 @@ export const DeviceListModel = types
               simNumbers.add(address)
             }
             let index = 1
-            simNumbers.forEach(simNumber => {
+            simNumbers.forEach(async simNumber => {
+              const contacts = await Contacts.getContactsByPhoneNumber(simNumber)
+              const name = contacts[0]?.givenName ?? `دستگاه ${index}`
               this.add(DeviceModel.create({
-                name: `دستگاه ${index}`,
+                name,
                 simNumber: simNumber.slice(-10),
                 place: ''
               }))

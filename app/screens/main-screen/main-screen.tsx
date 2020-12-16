@@ -159,7 +159,8 @@ export const MainScreen = observer(function MainScreen() {
       PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.SEND_SMS,
         PermissionsAndroid.PERMISSIONS.READ_SMS,
-        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS
+        PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS
       ])
         .then(resultsObject => {
           const results = Object.values(resultsObject)
@@ -168,8 +169,8 @@ export const MainScreen = observer(function MainScreen() {
           } else {
             setSmsPermission(false)
             Alert.alert(
-              'اجازه‌ی دسترسی به SMS',
-              'این برنامه بدون اجازه‌ی دسترسی به SMS کار نمی‌کند.',
+              'اجازه‌ی دسترسی به پیام‌ها و لیست مخاطبین',
+              'این برنامه بدون اجازه‌ی دسترسی به پیام‌ها و لیست مخاطبین کار نمی‌کند.',
               [{
                 text: "OK",
                 onPress: () => {
@@ -177,8 +178,8 @@ export const MainScreen = observer(function MainScreen() {
                     requestPermission()
                   } else if (results.some(result => result === 'never_ask_again')) {
                     Alert.alert(
-                      'اجازه‌ی دسترسی به SMS',
-                      'لطفاً برای ادامه به قسمت Permissions در تنظیمات برنامه بروید و اجازه‌ی دسترسی SMS را به برنامه بدهید.',
+                      'اجازه‌ی دسترسی به پیام‌ها و لیست مخاطبین',
+                      'لطفاً برای ادامه به قسمت Permissions در تنظیمات برنامه بروید و اجازه‌ی دسترسی SMS و Contacts را به برنامه بدهید.',
                       [{
                         text: "OK",
                         onPress: () => {

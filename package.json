@@ -43,6 +43,7 @@
     "react-native": "0.63.2",
     "react-native-android-sms-listener": "^0.8.0",
     "react-native-background-timer": "^2.4.1",
+    "react-native-contacts": "^6.0.3",
     "react-native-gesture-handler": "^1.5.0",
     "react-native-get-sms-android": "^2.1.0",
     "react-native-keychain": "6.1.1",
@@ -181,7 +182,9 @@
       "@typescript-eslint/no-object-literal-type-assertion": 0,
       "@typescript-eslint/no-empty-interface": 0,
       "@typescript-eslint/no-var-requires": 0,
-      "@typescript-eslint/no-use-before-define": ["error"]
+      "@typescript-eslint/no-use-before-define": [
+        "error"
+      ]
     }
   }
 }
