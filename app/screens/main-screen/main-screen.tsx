@@ -215,8 +215,11 @@ export const MainScreen = observer(function MainScreen() {
       }
     } else {
       setSelectedDeviceID(null)
+      if (!devices.imported && smsPermissionGranted) {
+        devices.importFromMessages()
+      }
     }
-  }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID])
+  }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID, smsPermissionGranted])
 
   useEffect(() => {
     if (selectedDevice) {

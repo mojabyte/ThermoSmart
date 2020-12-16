@@ -30,8 +30,7 @@ export const SMS_TYPES_REGEX = {
   UPDATE_THERMOSTAT_STATUS: /^حالت .* به (دستي|اتوماتيك) تغيير كرد$/,
   UPDATE_HEATER_STATUS: /^هيتر (روشن|خاموش) شد$/,
   UPDATE_FAN_STATUS: /^هواكش (روشن|خاموش) شد$/,
-  UPDATE_POWER_STATUS_OFF: /^برق قطع شد\n(\S*)$/,
-  UPDATE_POWER_STATUS_ON: /^برق وصل شد\n(\S*)$/,
+  UPDATE_POWER_STATUS: /^برق (قطع|وصل) شد\n(\S*)$/,
 
   OTHER: /.*/
 }

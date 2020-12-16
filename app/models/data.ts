@@ -725,10 +725,62 @@ export const DeviceModel = types
         },
         GET_SIGNAL_STRENGTH: body => {
           this.setSignalStrength(parseFloats(body)[0])
-        }
-      } as Record<keyof typeof SMS_TYPES_REGEX, (body: string, date?: number) => void>
+        },
+        GET_PHONE_NUMBERS: body => {
+          const phoneNumbers = body.split('\n').slice(1)
+            .map(line => (line[8] !== '0') ? line.slice(7, 18) : null)
+          this.setPhoneNumbers(phoneNumbers)
+        },
+        // UPDATE_PHONE_NUMBER: body => {
+
+        // },
+        // DELETE_PHONE_NUMBER: body => {
+
+        // },
+        GET_SIM_CREDIT_SMS_INTERVAL: body => {
+          this.setSimCreditSmsInterval(parseFloats(body)[0])
+        },
+        UPDATE_SIM_CREDIT_SMS_INTERVAL: body => {
+          this.setSimCreditSmsInterval(parseFloats(body)[0])
+        },
+        GET_POWER_OUTAGE_SMS_INTERVAL: body => {
+          this.setPowerOutageSmsInterval(parseFloats(body)[0])
+        },
+        UPDATE_POWER_OUTAGE_SMS_INTERVAL: body => {
+          this.setPowerOutageSmsInterval(parseFloats(body)[0])
+        },
+        // GET_CALIBRATION: body => {
+        //   const sign = body.includes('كاهش') ? -1 : 1
+        //   this.setCalibration((parseFloats(body)[0] || 0) * sign)
+        // },
+        // UPDATE_CALIBRATION: body => {
+        //   const sign = body.includes('كاهش') ? -1 : 1
+        //   this.setCalibration((parseFloats(body)[0] || 0) * sign)
+        // },
+        RESET_CALIBRATION: () => {
+          this.setCalibration(0)
+        },
+        // UPDATE_THERMOSTAT_STATUS: body => {
+        //   const status = body.match(/^حالت .* به (دستي|اتوماتيك) تغيير كرد$/)[1] === 'اتوماتيك'
+        //   this.setThermostatStatus(status)
+        // },
+        // UPDATE_HEATER_STATUS: body => {
+        //   const status = body.match(/^هيتر (روشن|خاموش) شد$/)[1] === 'روشن'
+        //   this.setHeaterStatus(status)
+        // },
+        // UPDATE_FAN_STATUS: body => {
+        //   const status = body.match(/^هواكش (روشن|خاموش) شد$/)[1] === 'روشن'
+        //   this.setFanStatus(status)
+        // },
+        // UPDATE_POWER_STATUS: body => {
+        //   const status = body.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
+        //   this.setPowerStatus(status)
+        // }
+      } as Record<keyof typeof SMS_TYPES_REGEX, (body?: string, date?: number) => void>
 
       const minDate = self.syncDate + 1
+
+      // const minDate = 0
 
       const filter = {
         box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
@@ -758,18 +810,14 @@ export const DeviceModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        fail => {
-          console.log('Failed with this error: ' + fail)
-        },
-        (count, smsList) => {
+        () => {},
+        (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { body: string; date: number }[]
           if (arr.length > 0) {
             this.setSyncDate(arr[0].date)
             for (const { body, date } of arr) {
-              console.log(body)
               const type = getSmsType(body, Object.keys(callbacks) as StringKeys<typeof callbacks>)
-              console.log(type)
               if (callbacks[type]) {
                 callbacks[type](body, date)
                 delete callbacks[type]
@@ -777,7 +825,7 @@ export const DeviceModel = types
               if (Object.keys(callbacks).length === 0) return
             }
           }
-        },
+        }
       )
 
       const env: Environment = getEnv(self)
@@ -789,12 +837,11 @@ export const DeviceModel = types
             callback: payload => this.parseStatusMessage(payload, +moment())
           },
           {
-            type: 'UPDATE_POWER_STATUS_ON',
-            callback: () => this.setPowerStatus(true)
-          },
-          {
-            type: 'UPDATE_POWER_STATUS_OFF',
-            callback: () => this.setPowerStatus(false)
+            type: 'UPDATE_POWER_STATUS',
+            callback: payload => {
+              const status = payload.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
+              this.setPowerStatus(status)
+            }
           },
           {
             type: 'GET_SIM_CHARGE',
@@ -824,7 +871,8 @@ export interface Device extends Instance<typeof DeviceModel> {}
 
 export const DeviceListModel = types
   .model({
-    items: types.optional(types.array(DeviceModel), [])
+    items: types.optional(types.array(DeviceModel), []),
+    imported: false
   })
   .actions(self => ({
     add(item: SnapshotIn<Device> | Instance<Device>) {
@@ -835,6 +883,39 @@ export const DeviceListModel = types
     },
     get(id: string) {
       return self.items.find(({ simNumber }) => id === simNumber)
+    },
+
+    importFromMessages() {
+      const filter = {
+        box: 'inbox',
+        bodyRegex: '^ دما (?s).*برق(?s).*هيتر(?s).*$'
+      }
+
+      SmsAndroid.list(
+        JSON.stringify(filter),
+        () => {},
+        (count: number, smsList: string) => {
+          // console.log(count)
+          const arr = JSON.parse(smsList) as { address: string }[]
+          const simNumbers = new Set<string>([])
+          if (arr.length > 0) {
+            for (const { address } of arr) {
+              simNumbers.add(address)
+            }
+            let index = 1
+            simNumbers.forEach(simNumber => {
+              this.add(DeviceModel.create({
+                name: `دستگاه ${index}`,
+                simNumber: simNumber.slice(-10),
+                place: ''
+              }))
+              index += 1
+            })
+          }
+        }
+      )
+
+      self.imported = true
     }
   }))
   .views(self => ({
