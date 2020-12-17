@@ -6,7 +6,8 @@
     "apply": "تأیید",
     "edit": "ویرایش",
     "remove": "حذف",
-    "update": "به روز رسانی"
+    "update": "به روز رسانی",
+    "syncing": "در حال همگام سازی ..."
   },
   "mainScreen": {
     "temperatureCard": {

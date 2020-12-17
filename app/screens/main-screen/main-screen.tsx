@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react"
-import { Alert, Linking, PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Alert, Linking, PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
-import MultiSlider from '@ptomasroos/react-native-multi-slider'
+import MultiSlider from "@ptomasroos/react-native-multi-slider"
+import Modal from "react-native-modal"
 import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
@@ -68,6 +69,23 @@ const LAST_TEMPERATURE_VALUE: TextStyle = {
   fontSize: 28,
   paddingVertical: spacing[2],
   alignSelf: 'center'
+}
+
+const SYNCING: ViewStyle = {
+  position: 'absolute',
+  top: -spacing[1],
+  left: -spacing[1],
+  right: -spacing[1],
+  bottom: 0,
+  backgroundColor: '#0008',
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 2
+}
+
+const SYNCING_TEXT: TextStyle = {
+  fontSize: 24,
+  color: color.palette.white
 }
 
 const getTimeFormat = (ts: string) => {
@@ -226,6 +244,7 @@ export const MainScreen = observer(function MainScreen() {
     if (selectedDevice) {
       if (smsPermissionGranted) {
         selectedDevice.restoreFromMessages()
+        selectedDevice.subscribeForMessages()
       }
     }
   }, [selectedDevice, smsPermissionGranted])
@@ -593,6 +612,13 @@ export const MainScreen = observer(function MainScreen() {
               <Icon name="arrow-right-ltr" size={40} />
             </Button>
           </View>
+
+          {selectedDevice.state.syncing && (
+            <View style={SYNCING}>
+              <ActivityIndicator color={color.palette.white} size="large" />
+              <Text tx="common.syncing" style={SYNCING_TEXT} />
+            </View>
+          )}
         </View>
       )
     }
@@ -621,7 +647,7 @@ export const MainScreen = observer(function MainScreen() {
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
         />
-        {(devices.items.length > 0 && selectedDevice?.simNumber) ? (
+        {(devices.items.length > 0 && selectedDevice?.simNumber) && (
           <Button
             preset="card"
             onPress={() => navigation.navigate('list')}
@@ -646,7 +672,7 @@ export const MainScreen = observer(function MainScreen() {
 
             <Icon name="chevron-right-ltr" size={25} color={color.palette.white} />
           </Button>
-        ) : null}
+        )}
 
         {renderScreenContent()}
 

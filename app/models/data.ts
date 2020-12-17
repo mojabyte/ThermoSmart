@@ -116,8 +116,9 @@ export const DeviceModel = types
       getSignalStrengthLoading: false,
       getPowerOutageSmsIntervalLoading: false,
       getCalibrationLoading: false,
-      resetCalibrationLoading: false
-    }
+      resetCalibrationLoading: false,
+      syncing: false
+    },
   }))
   .actions(self => ({
     setName(newName: string) {
@@ -129,7 +130,7 @@ export const DeviceModel = types
     setPlace(newPlace: string) {
       self.place = newPlace
     },
-    setPassword(newPassword: string, ts: number = undefined) {
+    setPassword(newPassword: string) {
       self.password = newPassword
     },
     setPhoneNumbers(newPhoneNumbers: string[]) {
@@ -174,7 +175,7 @@ export const DeviceModel = types
     setReportSmsInterval(interval: number) {
       self.reportSmsInterval = interval
     },
-    setClock({ hours, minutes }: { hours: number, minutes: number }, ts: number = undefined) {
+    setClock({ hours, minutes }: { hours: number, minutes: number }, ts?: number) {
       self.clock = {
         hours,
         minutes,
@@ -196,14 +197,14 @@ export const DeviceModel = types
     setCalibration(calibration: number) {
       self.calibration = calibration
     },
-    setState(newState: any) {
+    setState(newState: Partial<typeof self.state>) {
       self.state = { ...self.state, ...newState }
     },
     setUpdatePhoneNumberLoading(index: number, value: boolean) {
       self.state.updatePhoneNumberLoading[index] = value
     },
-    setSyncDate(date: number) {
-      self.syncDate = date
+    setSyncDate(date?: number) {
+      self.syncDate = +moment(date)
     },
     reset() {
       // applySnapshot(self, {})
@@ -226,7 +227,7 @@ export const DeviceModel = types
         message,
         callback: (response, error) => {
           if (error) ToastAndroid.show('Timeout', ToastAndroid.SHORT)
-          if (!error) this.setSyncDate(+moment())
+          if (!error) this.setSyncDate()
           callback(response, error)
         },
         hasResponse
@@ -284,7 +285,7 @@ export const DeviceModel = types
       })
     },
 
-    parseStatusMessage(message: string, time: number) {
+    parseStatusMessage(message: string, time?: number) {
       const lines = message.split('\n')
       const temperature = parseFloats(lines[1])[0]
       const powerStatus = lines[2].includes('وصل')
@@ -292,7 +293,9 @@ export const DeviceModel = types
       const fanStatus = lines[4].includes('روشن')
       const thermostatStatus = lines[5].includes('اتوماتيك')
 
-      this.setTemperature({ value: temperature, ts: `${time}` })
+      console.log({ value: temperature, ts: `${+moment(time)}` })
+
+      this.setTemperature({ value: temperature, ts: `${+moment(time)}` })
       this.setStatus(powerStatus, heaterStats, fanStatus)
       this.setThermostatStatus(thermostatStatus)
     },
@@ -301,7 +304,7 @@ export const DeviceModel = types
 
       this.sendSms('GET_STATUS', '#0#', (response, error) => {
         if (!error) {
-          this.parseStatusMessage(response, +moment())
+          this.parseStatusMessage(response)
         }
         this.setState({ getStatusLoading: false })
       })
@@ -769,8 +772,8 @@ export const DeviceModel = types
       })
     },
 
-    restoreFromMessages(fromDate: number = undefined) {
-      const callbacks = {
+    getCallbacks() {
+      return ({
         GET_STATUS: this.parseStatusMessage,
         UPDATE_PASSWORD: body => {
           const password = body.match(SMS_TYPES_REGEX.UPDATE_PASSWORD)[1]
@@ -800,43 +803,35 @@ export const DeviceModel = types
           const high = parseFloats(body)
           high.reverse()
           this.setAlarmValues({ high })
-          delete callbacks.UPDATE_ALARM_HIGH
         },
         UPDATE_ALARM_HIGH: body => {
           const high = parseFloats(body)
           high.reverse()
           this.setAlarmValues({ high })
-          delete callbacks.GET_ALARM_VALUES_HIGH
         },
         GET_ALARM_VALUES_LOW: body => {
           const low = parseFloats(body)
           this.setAlarmValues({ low })
-          delete callbacks.UPDATE_ALARM_LOW
         },
         UPDATE_ALARM_LOW: body => {
           const low = parseFloats(body)
           this.setAlarmValues({ low })
-          delete callbacks.GET_ALARM_VALUES_LOW
         },
         GET_ALARM_VALUES_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setAlarmValues({ interval })
-          delete callbacks.UPDATE_ALARM_INTERVAL
         },
         UPDATE_ALARM_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setAlarmValues({ interval })
-          delete callbacks.GET_ALARM_VALUES_INTERVAL
         },
         GET_REPORT_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setReportSmsInterval(interval)
-          delete callbacks.UPDATE_REPORT_INTERVAL
         },
         UPDATE_REPORT_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setReportSmsInterval(interval)
-          delete callbacks.GET_REPORT_INTERVAL
         },
         GET_CLOCK: (body, date) => {
           const matches = body.match(/^ساعت سيستم (\S{2}):(\S{2})$/)
@@ -844,7 +839,6 @@ export const DeviceModel = types
             hours: parseFloat(toEnDigit(matches[1])),
             minutes: parseFloat(toEnDigit(matches[2]))
           }, date)
-          delete callbacks.UPDATE_CLOCK
         },
         UPDATE_CLOCK: (body, date) => {
           const matches = body.match(/^ساعت سيستم به (\S{2}):(\S{2}) تغيير كرد$/)
@@ -852,7 +846,6 @@ export const DeviceModel = types
             hours: parseFloat(toEnDigit(matches[1])),
             minutes: parseFloat(toEnDigit(matches[2]))
           }, date)
-          delete callbacks.GET_CLOCK
         },
         GET_SIM_CHARGE: body => {
           this.setSimCharge(parseFloats(toEnDigit(body))[0])
@@ -883,38 +876,41 @@ export const DeviceModel = types
         UPDATE_POWER_OUTAGE_SMS_INTERVAL: body => {
           this.setPowerOutageSmsInterval(parseFloats(body)[0])
         },
-        // GET_CALIBRATION: body => {
-        //   const sign = body.includes('كاهش') ? -1 : 1
-        //   this.setCalibration((parseFloats(body)[0] || 0) * sign)
-        // },
-        // UPDATE_CALIBRATION: body => {
-        //   const sign = body.includes('كاهش') ? -1 : 1
-        //   this.setCalibration((parseFloats(body)[0] || 0) * sign)
-        // },
+        GET_CALIBRATION: body => {
+          const sign = body.includes('كاهش') ? -1 : 1
+          this.setCalibration((parseFloats(body)[0] || 0) * sign)
+        },
+        UPDATE_CALIBRATION: body => {
+          const sign = body.includes('كاهش') ? -1 : 1
+          const calibration = (parseFloats(body)[0] || 0) * sign
+          this.setCalibration(self.calibration + calibration)
+        },
         RESET_CALIBRATION: () => {
           this.setCalibration(0)
         },
-        // UPDATE_THERMOSTAT_STATUS: body => {
-        //   const status = body.match(/^حالت .* به (دستي|اتوماتيك) تغيير كرد$/)[1] === 'اتوماتيك'
-        //   this.setThermostatStatus(status)
-        // },
-        // UPDATE_HEATER_STATUS: body => {
-        //   const status = body.match(/^هيتر (روشن|خاموش) شد$/)[1] === 'روشن'
-        //   this.setHeaterStatus(status)
-        // },
-        // UPDATE_FAN_STATUS: body => {
-        //   const status = body.match(/^هواكش (روشن|خاموش) شد$/)[1] === 'روشن'
-        //   this.setFanStatus(status)
-        // },
-        // UPDATE_POWER_STATUS: body => {
-        //   const status = body.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
-        //   this.setPowerStatus(status)
-        // }
-      } as Record<keyof typeof SMS_TYPES_REGEX, (body?: string, date?: number) => void>
+        UPDATE_THERMOSTAT_STATUS: body => {
+          const status = body.match(/^حالت .* به (دستي|اتوماتيك) تغيير كرد$/)[1] === 'اتوماتيك'
+          this.setThermostatStatus(status)
+        },
+        UPDATE_HEATER_STATUS: body => {
+          const status = body.match(/^هيتر (روشن|خاموش) شد$/)[1] === 'روشن'
+          this.setHeaterStatus(status)
+        },
+        UPDATE_FAN_STATUS: body => {
+          const status = body.match(/^هواكش (روشن|خاموش) شد$/)[1] === 'روشن'
+          this.setFanStatus(status)
+        },
+        UPDATE_POWER_STATUS: body => {
+          const status = body.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
+          this.setPowerStatus(status)
+        }
+      } as Record<keyof typeof SMS_TYPES_REGEX, (body?: string, date?: number) => void>)
+    },
 
+    restoreFromMessages(fromDate?: number) {
+      this.setState({ syncing: true })
+      const callbacks = this.getCallbacks()
       const minDate = (fromDate ?? self.syncDate) + 1
-
-      // const minDate = 0
 
       const filter = {
         box: 'inbox', // 'inbox' (default), 'sent', 'draft', 'outbox', 'failed', 'queued', and '' for all
@@ -944,46 +940,35 @@ export const DeviceModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        () => {},
+        () => this.setState({ syncing: false }),
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { body: string; date: number }[]
           if (arr.length > 0) {
             this.setSyncDate(arr[0].date)
+            arr.reverse()
             for (const { body, date } of arr) {
               const type = getSmsType(body, Object.keys(callbacks) as StringKeys<typeof callbacks>)
               if (callbacks[type]) {
                 callbacks[type](body, date)
-                delete callbacks[type]
               }
-              if (Object.keys(callbacks).length === 0) return
             }
           }
+          this.setState({ syncing: false })
         }
       )
+    },
 
+    subscribeForMessages() {
+      const callbacks = this.getCallbacks()
       const env: Environment = getEnv(self)
       env.sms.subscribe({
         phoneNumber: self.simNumber,
-        subscriptions: [
-          {
-            type: 'GET_STATUS',
-            callback: payload => this.parseStatusMessage(payload, +moment())
-          },
-          {
-            type: 'UPDATE_POWER_STATUS',
-            callback: payload => {
-              const status = payload.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
-              this.setPowerStatus(status)
-            }
-          },
-          {
-            type: 'GET_SIM_CHARGE',
-            callback: payload => this.setSimCharge(parseFloats(toEnDigit(payload))[0])
-          },
-        ]
+        subscriptions: Object.entries(callbacks).map(([type, callback]) => ({ type, callback })),
+        setSyncDate: this.setSyncDate
       })
     },
+
     getClockNow() {
       return +moment().subtract(self.clock.setTime)
         .add(self.clock.hours, 'hours')
@@ -1032,7 +1017,7 @@ export const DeviceListModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        () => {},
+        () => null,
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { address: string }[]

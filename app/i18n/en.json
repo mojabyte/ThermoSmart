@@ -4,7 +4,8 @@
     "cancel": "Cancel",
     "back": "Back",
     "apply": "Apply",
-    "update": "Update"
+    "update": "Update",
+    "syncing": "Syncing..."
   },
   "mainScreen": {
     "title": "THERMO SMART",

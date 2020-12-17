@@ -31,6 +31,7 @@ export interface SubscribeParams {
   phoneNumber: string
   subscriptions: {
     type: string
-    callback: (response?: string, error?: string) => void
-  }[]
+    callback: (body?: string) => void,
+  }[],
+  setSyncDate: () => void
 }

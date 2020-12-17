@@ -60,8 +60,11 @@ export class Sms {
         this.subscriptionsList.has(originatingAddress) &&
         this.subscriptionsList.get(originatingAddress).has(type)
       ) {
-        const { callback } = this.subscriptionsList.get(originatingAddress).get(type)
+        const thisSubscriptionList = this.subscriptionsList.get(originatingAddress)
+        const { callback } = thisSubscriptionList.get(type)
+        const { callback: setSyncDate } = thisSubscriptionList.get('setSyncDate')
         callback(body)
+        setSyncDate()
       }
     })
   }
@@ -91,14 +94,11 @@ export class Sms {
               callback(undefined, 'timeout')
             }, 60000)
 
-            // type = 'default' // TODO
-
             // Add new item to pending list
             if (!this.pendingList.has(phoneNumberWithCode)) {
               this.pendingList.set(phoneNumberWithCode, new Map<string, Types.SmsPendingListItem>())
             }
             this.pendingList.get(phoneNumberWithCode).set(type, { callback, timeout })
-            console.log(this.pendingList)
           } else {
             callback()
           }
@@ -110,8 +110,7 @@ export class Sms {
   /**
    * Subscribe for incoming messages
    */
-  subscribe({ phoneNumber, subscriptions }: Types.SubscribeParams): void {
-    console.log(phoneNumber, subscriptions)
+  subscribe({ phoneNumber, subscriptions, setSyncDate }: Types.SubscribeParams): void {
     const phoneNumberWithCode = `+98${phoneNumber}`
     if (!this.subscriptionsList.has(phoneNumberWithCode)) {
       this.subscriptionsList.set(
@@ -119,8 +118,10 @@ export class Sms {
         new Map<string, Types.SmsSubscriptionListItem>()
       )
     }
+    const thisSubscriptionList = this.subscriptionsList.get(phoneNumberWithCode)
     subscriptions.forEach(({ type, callback }) => {
-      this.subscriptionsList.get(phoneNumberWithCode).set(type, { callback })
+      thisSubscriptionList.set(type, { callback })
     })
+    thisSubscriptionList.set('setSyncDate', { callback: setSyncDate })
   }
 }

@@ -75,7 +75,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   const [clockTime, setClockTime] = useState(new Date())
 
   const [isIntervalModalVisible, setIntervalModalVisible] = useState(false)
-  const [intervalEdit, setIntervalEdit] = useState<number>()
+  const [intervalEdit, setIntervalEdit] = useState<number>(0)
   const [intervalType, setIntervalType] = useState('simCredit')
 
   const rangeModalProps = {
@@ -212,9 +212,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           valueText={moment(selectedDevice.syncDate).format('jYYYY/jMM/jDD HH:mm')}
           leftIcon="sync-circle"
           rightIcon="refresh"
-          onPress={() => {
-            selectedDevice.restoreFromMessages(0)
-          }}
+          onPress={() => selectedDevice.restoreFromMessages(0)}
         />
 
         <ListTitle tx="deviceOptionsScreen.report.title" />
@@ -243,9 +241,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.getSimCreditLoading}
           rightIcon="refresh"
           leftIcon="sim"
-          onPress={() => {
-            selectedDevice.getSimCredit()
-          }}
+          onPress={selectedDevice.getSimCredit}
         >
           <View style={{ flexDirection: 'row' }}>
             <Text text={`${selectedDevice.simCharge}`} />
@@ -274,9 +270,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           detailsTx="deviceOptionsScreen.simCard.chargeDetails"
           rightIcon="chevron-right-ltr"
           leftIcon="credit-card-plus"
-          onPress={() => {
-            setSimModalVisible(true)
-          }}
+          onPress={() => setSimModalVisible(true)}
         />
 
         <ListTitle tx="deviceOptionsScreen.powerOutage.title" />
@@ -317,9 +311,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           detailsTx="deviceOptionsScreen.calibration.resetDetails"
           loading={selectedDevice.state.resetCalibrationLoading}
           leftIcon="reload"
-          onPress={() => {
-            selectedDevice.resetCalibration()
-          }}
+          onPress={selectedDevice.resetCalibration}
         />
       </ScrollView>
 

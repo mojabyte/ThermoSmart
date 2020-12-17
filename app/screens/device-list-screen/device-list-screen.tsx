@@ -32,6 +32,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
   useEffect(() => {
     devices.items.forEach(device => {
       device.restoreFromMessages()
+      device.subscribeForMessages()
     })
   }, [devices.items])
 
