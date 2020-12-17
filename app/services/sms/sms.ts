@@ -89,8 +89,8 @@ export class Sms {
           if (hasResponse) {
             // Clear item from pending list on timeout
             const timeout = BackgroundTimer.setTimeout(() => {
-              this.pendingList.get(phoneNumberWithCode).delete(type)
               console.log('timeout')
+              this.pendingList.get(phoneNumberWithCode)?.delete(type)
               callback(undefined, 'timeout')
             }, 60000)
 
@@ -123,5 +123,19 @@ export class Sms {
       thisSubscriptionList.set(type, { callback })
     })
     thisSubscriptionList.set('setSyncDate', { callback: setSyncDate })
+  }
+
+  /**
+   * Unsubscribe the device for incoming messages
+   */
+  unsubscribe(phoneNumber: string): void {
+    const phoneNumberWithCode = `+98${phoneNumber}`
+    this.subscriptionsList.delete(phoneNumberWithCode)
+    if (this.pendingList.get(phoneNumberWithCode)) {
+      this.pendingList.get(phoneNumberWithCode).forEach(
+        ({ timeout }) => BackgroundTimer.clearTimeout(timeout)
+      )
+    }
+    this.pendingList.delete(phoneNumberWithCode)
   }
 }

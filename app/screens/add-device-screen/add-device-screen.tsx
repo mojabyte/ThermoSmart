@@ -25,9 +25,11 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
   const [name, setName] = useState(selectedDevice?.name)
   const [simNumber, setSimNumber] = useState(selectedDevice?.simNumber)
   const [place, setPlace] = useState(selectedDevice?.place)
+  const [password, setPassword] = useState(selectedDevice?.password || '123456')
 
   const [nameError, setNameError] = useState<string>()
   const [simNumberError, setSimNumberError] = useState<string>()
+  const [passwordError, setPasswordError] = useState<string>()
 
   const parseSimNumber = (value: string) => {
     const parsed = value.split(' ').join('')
@@ -43,38 +45,42 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
         headerTx={isEdit ? "addDeviceScreen.header.edit" : "addDeviceScreen.header.new"}
         leftIcon="back"
         onLeftPress={() => navigation.goBack()}
+        rightIcon="check"
+        rightTx={isEdit ? "addDeviceScreen.apply" : "addDeviceScreen.add"}
+        onRightPress={() => {
+          if (!name) {
+            setNameError('addDeviceScreen.nameErrors.required')
+          } else if (!phoneInput.current.isValid()) {
+            setSimNumberError('addDeviceScreen.simNumberErrors.invalid')
+          } else if (!isEdit && devices.get(simNumber)) {
+            setSimNumberError('addDeviceScreen.simNumberErrors.exists')
+          } else if (password.length < 6) {
+            setPasswordError('deviceOptionsScreen.password.lengthError')
+          } else {
+            setSimNumberError('')
+            const parsedSimNumber = phoneInput.current.getRawValue()
+            console.log(parsedSimNumber)
+            if (isEdit) {
+              selectedDevice.setName(name)
+              selectedDevice.setSimNumber(parsedSimNumber)
+              selectedDevice.setPlace(place)
+              selectedDevice.setPassword(password)
+              navigation.goBack()
+            } else {
+              devices.add(DeviceModel.create({
+                name,
+                simNumber: parsedSimNumber,
+                place,
+                password
+              }))
+              setSelectedDeviceID(parsedSimNumber)
+              navigation.navigate('main')
+            }
+          }
+        }}
       />
 
-      <Form
-        submitButton={(
-          <Button
-            tx={isEdit ? "addDeviceScreen.apply" : "addDeviceScreen.add"}
-            onPress={() => {
-              if (!name) {
-                setNameError('addDeviceScreen.nameErrors.required')
-              } else if (!phoneInput.current.isValid()) {
-                setSimNumberError('addDeviceScreen.simNumberErrors.invalid')
-              } else if (!isEdit && devices.get(simNumber)) {
-                setSimNumberError('addDeviceScreen.simNumberErrors.exists')
-              } else {
-                setSimNumberError('')
-                const parsedSimNumber = phoneInput.current.getRawValue()
-                console.log(parsedSimNumber)
-                if (isEdit) {
-                  selectedDevice.setName(name)
-                  selectedDevice.setSimNumber(parsedSimNumber)
-                  selectedDevice.setPlace(place)
-                  navigation.goBack()
-                } else {
-                  devices.add(DeviceModel.create({ name, simNumber: parsedSimNumber, place }))
-                  setSelectedDeviceID(parsedSimNumber)
-                  navigation.navigate('main')
-                }
-              }
-            }}
-          />
-        )}
-      >
+      <Form>
         <TextField
           labelTx="addDeviceScreen.name"
           errorTx={nameError}
@@ -108,6 +114,16 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
           placeholderTx="addDeviceScreen.placePlaceholder"
           value={place}
           onChange={e => setPlace(e.nativeEvent.text)}
+        />
+
+        <TextField
+          labelTx="deviceOptionsScreen.password.password"
+          errorTx={passwordError}
+          placeholderTx="deviceOptionsScreen.password.placeholder"
+          value={password}
+          onChange={e => setPassword(e.nativeEvent.text)}
+          maxLength={6}
+          keyboardType="numeric"
         />
       </Form>
     </Screen>

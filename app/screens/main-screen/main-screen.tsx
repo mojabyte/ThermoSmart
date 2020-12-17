@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
 import MultiSlider from "@ptomasroos/react-native-multi-slider"
-import Modal from "react-native-modal"
 import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
@@ -172,7 +171,7 @@ export const MainScreen = observer(function MainScreen() {
 
   const [smsPermissionGranted, setSmsPermission] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const requestPermission = () => {
       PermissionsAndroid.requestMultiple([
         PermissionsAndroid.PERMISSIONS.SEND_SMS,
@@ -612,13 +611,6 @@ export const MainScreen = observer(function MainScreen() {
               <Icon name="arrow-right-ltr" size={40} />
             </Button>
           </View>
-
-          {selectedDevice.state.syncing && (
-            <View style={SYNCING}>
-              <ActivityIndicator color={color.palette.white} size="large" />
-              <Text tx="common.syncing" style={SYNCING_TEXT} />
-            </View>
-          )}
         </View>
       )
     }
@@ -674,7 +666,15 @@ export const MainScreen = observer(function MainScreen() {
           </Button>
         )}
 
-        {renderScreenContent()}
+        <View style={{ flex: 1 }}>
+          {renderScreenContent()}
+          {(selectedDevice?.state.syncing || !devices.imported) && (
+            <View style={SYNCING}>
+              <ActivityIndicator color={color.palette.white} size="large" />
+              <Text tx="common.syncing" style={SYNCING_TEXT} />
+            </View>
+          )}
+        </View>
 
         <ConfirmModal
           titleText={rangeModalProps[selectedSliderModal].title}

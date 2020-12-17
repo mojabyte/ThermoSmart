@@ -9,14 +9,16 @@ import {
   VictoryScatter,
   VictoryTheme,
   VictoryTooltip,
-  VictoryVoronoiContainer
+  VictoryVoronoiContainer,
+  VictoryZoomContainer
 } from "victory-native"
 import moment from "moment-jalaali"
-import { Button, Header, Screen } from "../../components"
+import { Header, ListItem, Screen } from "../../components"
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native"
 import { useStores } from "../../models"
 import { color } from "../../theme"
 import { PrimaryParamList } from "../../navigation"
+import { FlatList } from "react-native-gesture-handler"
 
 const ROOT: ViewStyle = {
   backgroundColor: color.background,
@@ -51,6 +53,8 @@ export const TemperatureChartScreen = observer(function TemperatureChartScreen()
         headerTx="temperatureChartScreen.title"
         leftIcon="back"
         onLeftPress={() => navigation.goBack()}
+        rightIcon="refresh"
+        onRightPress={() => selectedDevice.reset()}
       />
 
       <View>
@@ -59,11 +63,12 @@ export const TemperatureChartScreen = observer(function TemperatureChartScreen()
           theme={VictoryTheme.material}
           domainPadding={{ y: 50 }}
           containerComponent={
-            <VictoryVoronoiContainer
-              labels={({ datum }) => `${datum.x} ${datum.y}°c`}
-              labelComponent={<VictoryTooltip centerOffset={{ y: -30 }} />}
-              voronoiBlacklist={['line']}
-            />
+            // <VictoryVoronoiContainer
+            //   labels={({ datum }) => `${datum.x} ${datum.y}°c`}
+            //   labelComponent={<VictoryTooltip centerOffset={{ y: -30 }} />}
+            //   voronoiBlacklist={['line']}
+            // />
+            <VictoryZoomContainer zoomDimension="x" />
           }
         >
           <VictoryAxis fixLabelOverlap tickLabelComponent={<VictoryLabel angle={-45} />} />
@@ -93,7 +98,16 @@ export const TemperatureChartScreen = observer(function TemperatureChartScreen()
         </VictoryChart>
       </View>
 
-      <Button text="reset" onPress={() => selectedDevice.reset()} />
+      <FlatList
+        data={selectedDevice.temperaturesView}
+        keyExtractor={({ ts }) => `${ts}`}
+        renderItem={({ item }) => (
+          <ListItem
+            titleText={moment(item.ts).format('jYYYY/jMM/jDD  HH:mm')}
+            valueText={`${item.value}°c`}
+          />
+        )}
+      />
     </Screen>
   )
 })

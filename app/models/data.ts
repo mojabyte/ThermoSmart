@@ -293,8 +293,6 @@ export const DeviceModel = types
       const fanStatus = lines[4].includes('روشن')
       const thermostatStatus = lines[5].includes('اتوماتيك')
 
-      console.log({ value: temperature, ts: `${+moment(time)}` })
-
       this.setTemperature({ value: temperature, ts: `${+moment(time)}` })
       this.setStatus(powerStatus, heaterStats, fanStatus)
       this.setThermostatStatus(thermostatStatus)
@@ -779,6 +777,16 @@ export const DeviceModel = types
           const password = body.match(SMS_TYPES_REGEX.UPDATE_PASSWORD)[1]
           this.setPassword(password)
         },
+        GET_TEMPERATURE: (body, date) => {
+          const matches = body.match(/^ساعت (\S{2}):\S{2} مقدار {2}دما *(\S*)C$/)
+          const hour = parseFloats(toEnDigit(matches[1]))[0]
+          const value = parseFloats(matches[2])[0]
+          let ts = +moment(date).set('hour', hour).startOf('hour')
+          if (hour > moment().get('hours')) {
+            ts = +moment(ts).subtract(1, 'day')
+          }
+          this.setTemperature({ value, ts: `${ts}` })
+        },
         GET_THERMOSTAT_VALUES: body => {
           const values = parseFloats(body)
           this.setThermostatValues({
@@ -984,7 +992,7 @@ export const DeviceModel = types
       return index === -1 ? self.phoneNumbers.length : index
     },
     get temperaturesView() {
-      let temperatures = []
+      let temperatures: { ts: number, value: number }[] = []
       self.temperatures.forEach((value, key) => temperatures.push({ ts: parseInt(key), value }))
       temperatures = sortBy(({ ts }) => -ts, temperatures)
       return temperatures
@@ -1003,10 +1011,16 @@ export const DeviceListModel = types
       self.items.push(item)
     },
     remove(item: SnapshotIn<Device>) {
+      const env: Environment = getEnv(self)
+      env.sms.unsubscribe(item.simNumber)
       destroy(item)
     },
     get(id: string) {
       return self.items.find(({ simNumber }) => id === simNumber)
+    },
+
+    setImported(value: boolean) {
+      self.imported = value
     },
 
     importFromMessages() {
@@ -1017,7 +1031,7 @@ export const DeviceListModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        () => null,
+        () => this.setImported(true),
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { address: string }[]
@@ -1035,13 +1049,16 @@ export const DeviceListModel = types
                 simNumber: simNumber.slice(-10),
                 place: ''
               }))
+              if (simNumbers.size === index) {
+                this.setImported(true)
+              }
               index += 1
             })
+          } else {
+            this.setImported(true)
           }
         }
       )
-
-      self.imported = true
     }
   }))
   .views(self => ({

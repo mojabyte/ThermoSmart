@@ -18,5 +18,5 @@ export interface FormProps {
   /**
    * Button Component for Submit
    */
-  submitButton: Element
+  submitButton?: Element
 }
