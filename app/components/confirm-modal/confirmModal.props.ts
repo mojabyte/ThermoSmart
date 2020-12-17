@@ -19,9 +19,39 @@ export interface ConfirmModalProps extends ModalProps {
   titleIcon?: string
 
   /**
+   * Text which is looked up via i18n.
+   */
+  leftTitleTx?: string
+
+  /**
+   * The title to display if not using `tx` or nested components.
+   */
+  leftTitleText?: string
+
+  /**
+   * The icon to display before title.
+   */
+  leftIcon?: string
+
+  /**
+   * The icon to display before title.
+   */
+  loading?: boolean
+
+  /**
+   * The icon to display before title.
+   */
+  onLeftPress?: () => void
+
+  /**
    * The state of modal visibility
    */
   isVisible: boolean
+
+  /**
+   * The function called when modal initialized and after loading is finished
+   */
+  onInit?: () => void
 
   /**
    * The function called when modal be closed

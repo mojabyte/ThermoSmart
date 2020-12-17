@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ActivityIndicator, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { ActivityIndicator, TextStyle, TouchableOpacity, TouchableNativeFeedback, View, ViewStyle } from "react-native"
 import { Icon } from "../icon/icon"
 import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./listItem.presets"
@@ -35,10 +35,6 @@ export function ListItem(props: ListItemProps) {
     flatten([textPresets[preset] || textPresets.primary, textStyleOverride]),
   )
 
-  const CONTAINER: ViewStyle = {
-    flexDirection: 'row'
-  }
-
   const MAIN: ViewStyle = {
     flex: 1,
     flexDirection: 'row',
@@ -69,12 +65,11 @@ export function ListItem(props: ListItemProps) {
   const content = children || <Text text={valueText} style={VALUE} />
 
   return (
-    <TouchableOpacity
+    <TouchableNativeFeedback
       disabled={loading}
-      style={[viewStyle, getLoadingStyle(loading)]}
       {...rest}
     >
-      <View style={CONTAINER}>
+      <View style={[viewStyle, getLoadingStyle(loading)]}>
         {leftIcon ? <Icon name={leftIcon} size={20} containerStyle={ICON} /> : null}
         <View style={MAIN}>
           <View>
@@ -93,6 +88,6 @@ export function ListItem(props: ListItemProps) {
           : rightIcon && <Icon name={rightIcon} size={20} containerStyle={ICON} />
         }
       </View>
-    </TouchableOpacity>
+    </TouchableNativeFeedback>
   )
 }

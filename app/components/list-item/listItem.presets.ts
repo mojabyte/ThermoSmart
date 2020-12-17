@@ -7,7 +7,8 @@ import { color, spacing } from "../../theme"
 const BASE_VIEW: ViewStyle = {
   paddingVertical: spacing[3],
   paddingHorizontal: spacing[2],
-  justifyContent: "center"
+  justifyContent: "center",
+  flexDirection: 'row'
 }
 
 const BASE_TEXT: TextStyle = {

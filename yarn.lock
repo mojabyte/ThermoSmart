@@ -10965,6 +10965,11 @@ react-native-contacts@^6.0.3:
   resolved "https://registry.yarnpkg.com/react-native-contacts/-/react-native-contacts-6.0.3.tgz#74066c53db88d865d4630d1539a6e8ca50607a93"
   integrity sha512-JoiYBrJ2/sAgzhytwaa7ephmqXkxO0o2vk4eNyOb74WjZNIEiBdZdjxjB62Lt4zMDT/28NwRk82d5m5x92m3Kg==
 
+react-native-date-picker@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-3.2.5.tgz#351836282fc909e5c4de3d490846fcae16794c20"
+  integrity sha512-OKIqx3ZSUsp7XWcfuiWouIfIyW+CK48kG8HC2ZzLm8bSrsruSo/+McIybZ7NYuIAgDB9z5omK18EA1oOZgITxA==
+
 react-native-flipper@^0.34.0:
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.34.0.tgz#7df1f38ba5d97a9321125fe0fccbe47d99e6fa1d"

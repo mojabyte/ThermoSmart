@@ -14,8 +14,7 @@ const ACTIVITY_INDICATOR: ViewStyle = {
   bottom: 0,
   backgroundColor: '#fffa',
   justifyContent: 'center',
-  alignItems: 'center',
-  elevation: 2
+  alignItems: 'center'
 }
 
 /**
@@ -23,12 +22,13 @@ const ACTIVITY_INDICATOR: ViewStyle = {
  *
  * This component is a HOC over the built-in React Native one.
  */
-export function Button(props: ButtonProps) {
+export function Button(props: ButtonProps): JSX.Element {
   // grab the props
   const {
     preset = "primary",
     tx,
     text,
+    disabled,
     loading,
     style: styleOverride,
     textStyle: textStyleOverride,
@@ -43,6 +43,8 @@ export function Button(props: ButtonProps) {
 
   const content = children || <Text tx={tx} text={text} style={textStyle} />
 
+  const wrapperStyle = [ACTIVITY_INDICATOR, { elevation: preset === 'card' ? 2 : 0 }]
+
   const getActiveOpacity = () => {
     if (rest.onPress) {
       if (preset === 'link') return 0.2
@@ -54,17 +56,17 @@ export function Button(props: ButtonProps) {
   return (
     <TouchableOpacity
       activeOpacity={getActiveOpacity()}
-      disabled={loading}
+      disabled={disabled || loading}
       style={viewStyle}
       {...rest}
     >
       {content}
 
-      {loading ? (
-        <View style={ACTIVITY_INDICATOR}>
-          <ActivityIndicator color={color.palette.greyDarker} />
+      {(loading || disabled) && (
+        <View style={wrapperStyle}>
+          { loading && <ActivityIndicator color={color.palette.greyDarker} /> }
         </View>
-      ) : null}
+      )}
     </TouchableOpacity>
   )
 }

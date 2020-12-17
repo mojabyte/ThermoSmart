@@ -8,7 +8,8 @@ const BASE_VIEW: ViewStyle = {
   paddingVertical: spacing[3],
   paddingHorizontal: spacing[2],
   borderTopLeftRadius: 10,
-  borderTopRightRadius: 10
+  borderTopRightRadius: 10,
+  overflow: 'hidden'
 }
 
 const BASE_TEXT: TextStyle = {

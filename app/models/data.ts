@@ -983,6 +983,11 @@ export const DeviceModel = types
           },
         ]
       })
+    },
+    getClockNow() {
+      return +moment().subtract(self.clock.setTime)
+        .add(self.clock.hours, 'hours')
+        .add(self.clock.minutes, 'minutes')
     }
   }))
   .views(self => ({
@@ -998,13 +1003,6 @@ export const DeviceModel = types
       self.temperatures.forEach((value, key) => temperatures.push({ ts: parseInt(key), value }))
       temperatures = sortBy(({ ts }) => -ts, temperatures)
       return temperatures
-    },
-    get clockView() {
-      return moment().subtract(self.clock.setTime)
-        .add(self.clock.hours, 'hours')
-        .add(self.clock.minutes, 'minutes')
-        .utc()
-        .format('HH:mm')
     }
   }))
 

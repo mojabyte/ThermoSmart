@@ -5,7 +5,8 @@
     "back": "بازگشت",
     "apply": "تأیید",
     "edit": "ویرایش",
-    "remove": "حذف"
+    "remove": "حذف",
+    "update": "به روز رسانی"
   },
   "mainScreen": {
     "temperatureCard": {
