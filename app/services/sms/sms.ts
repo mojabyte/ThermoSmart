@@ -78,7 +78,7 @@ export class Sms {
         phoneNumberWithCode,
         message,
         (error: string) => {
-          console.log(error)
+          callback(undefined, error)
         },
         () => {
           console.log(`message: ${message} sent successfully`)

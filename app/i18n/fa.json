@@ -76,6 +76,13 @@
     "rightHeader": "ویرایش",
     "phoneNumbers": "شماره تلفن‌ها",
     "phoneNumbersDetails": "نمایش و ویرایش شماره تلفن‌های ذخیره شده",
+    "report": {
+      "title": "گزارش کلی",
+      "smsInterval": "بازه‌ی ارسال پیامک",
+      "smsIntervalDetails": "فاصله‌‌‌ی زمانی ارسال گزارش کلی سیستم",
+      "smsIntervalValue": "هر %{interval} ساعت",
+      "smsIntervalModalTitle": "فاصله‌‌‌ی زمانی ارسال پیامک گزارش کلی سیستم"
+    },
     "simCard": {
       "title": "سیم کارت",
       "credit": "اعتبار",
@@ -110,6 +117,11 @@
       "password": "رمز عبور جدید",
       "placeholder": "رمز عبور ۶ رقمی، مثال: 123456",
       "lengthError": "رمز عبور باید ۶ رقمی و فقط عدد باشد."
+    },
+    "clock": {
+      "title": "ساعت",
+      "details": "تنظیم کردن ساعت دستگاه",
+      "clockModalTitle": "تنظیم کردن ساعت دستگاه"
     }
   },
   "devicePhonesScreen": {

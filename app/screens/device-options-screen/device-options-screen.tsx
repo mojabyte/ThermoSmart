@@ -4,7 +4,8 @@ import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, ConfirmModal, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
-import moment from 'moment-jalaali'
+import moment from "moment-jalaali"
+import BackgroundTimer from "react-native-background-timer"
 import { useStores } from '../../models'
 import { color, spacing } from "../../theme"
 import { TextProps } from "../../components/text/text.props"
@@ -35,6 +36,34 @@ const ListTitle = function(props: TextProps) {
   )
 }
 
+export const Clock = (props: { initialTime?: number }): JSX.Element => {
+  const {
+    initialTime = +moment(),
+    ...rest
+  } = props
+
+  const [time, setTime] = useState(initialTime)
+
+  useEffect(() => {
+    setTime(initialTime)
+    let timer = null
+    const diff = (60 - moment(initialTime).seconds()) * 1000
+    const timeout = BackgroundTimer.setTimeout(() => {
+      setTime(time => time + diff)
+      timer = BackgroundTimer.setInterval(() => {
+        setTime(time => time + 60000)
+      }, 60000)
+    }, diff)
+
+    return () => {
+      BackgroundTimer.clearTimeout(timeout)
+      BackgroundTimer.clearInterval(timer)
+    }
+  }, [initialTime])
+
+  return <Text text={moment(time).utc().format('HH:mm')} {...rest}/>
+}
+
 export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   const navigation = useNavigation()
 
@@ -46,6 +75,23 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
   const [intervalType, setIntervalType] = useState('simCredit')
 
   const rangeModalProps = {
+    report: {
+      title: 'deviceOptionsScreen.report.smsIntervalModalTitle',
+      titleIcon: 'message-text-clock',
+      min: 60,
+      max: 7200,
+      step: 60,
+      onConfirm: () => {
+        selectedDevice.updateReportSmsInterval(intervalEdit)
+      },
+      onRefresh: () => {
+        selectedDevice.getReportSmsInterval()
+      },
+      parseValue: (value: number) => translate(
+        'deviceOptionsScreen.report.smsIntervalValue',
+        { interval: value / 60 }
+      )
+    },
     simCredit: {
       title: 'deviceOptionsScreen.simCard.smsIntervalModalTitle',
       titleIcon: 'message-text-clock',
@@ -155,13 +201,57 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         />
 
         <ListItem
+          titleTx="deviceOptionsScreen.clock.title"
+          detailsTx="deviceOptionsScreen.clock.details"
+          loading={selectedDevice.state.clockLoading}
+          rightIcon="chevron-right-ltr"
+          leftIcon="clock"
+          onPress={() => {
+            // selectedDevice.getClock()
+            selectedDevice.updateClock(selectedDevice.clock)
+            // setIntervalType('report')
+            // setIntervalEdit(selectedDevice.reportSmsInterval)
+            // setIntervalModalVisible(true)
+          }}
+        >
+          {selectedDevice.clock.setTime
+            ? <Clock
+                initialTime={+moment().subtract(selectedDevice.clock.setTime)
+                  .add(selectedDevice.clock.hours, 'hours')
+                  .add(selectedDevice.clock.minutes, 'minutes')
+                  .utc()}
+              />
+            : <Text text="---" />
+          }
+        </ListItem>
+
+        <ListItem
           titleText="Sync"
           // loading={selectedDevice.state.updatePasswordLoading}
           valueText={moment(selectedDevice.syncDate).format('jYYYY/jMM/jDD HH:mm')}
           leftIcon="sync-circle"
           rightIcon="refresh"
           onPress={() => {
-            selectedDevice.restoreFromMessages()
+            selectedDevice.restoreFromMessages(0)
+          }}
+        />
+
+        <ListTitle tx="deviceOptionsScreen.report.title" />
+
+        <ListItem
+          titleTx="deviceOptionsScreen.report.smsInterval"
+          detailsTx="deviceOptionsScreen.report.smsIntervalDetails"
+          loading={selectedDevice.state.reportSmsIntervalLoading}
+          rightIcon="chevron-right-ltr"
+          leftIcon="message-text-clock"
+          valueText={translate(
+            'deviceOptionsScreen.report.smsIntervalValue',
+            { interval: selectedDevice.reportSmsInterval / 60 }
+          )}
+          onPress={() => {
+            setIntervalType('report')
+            setIntervalEdit(selectedDevice.reportSmsInterval)
+            setIntervalModalVisible(true)
           }}
         />
 

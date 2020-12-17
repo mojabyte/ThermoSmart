@@ -60,6 +60,18 @@ export const DeviceModel = types
       interval: 0
     }),
 
+    reportSmsInterval: 360,
+
+    clock: types.optional(types.model({
+      hours: types.number,
+      minutes: types.number,
+      setTime: types.number
+    }), {
+      hours: 0,
+      minutes: 0,
+      setTime: 0
+    }),
+
     simCharge: 0,
     simCreditSmsInterval: 1,
     signalStrength: 100,
@@ -95,6 +107,8 @@ export const DeviceModel = types
       updateAlarmHighLoading: false,
       updateAlarmLowLoading: false,
       updateAlarmIntervalLoading: false,
+      reportSmsIntervalLoading: false,
+      clockLoading: false,
       updateHeaterStatusLoading: false,
       updateFanStatusLoading: false,
       getSimCreditLoading: false,
@@ -156,6 +170,16 @@ export const DeviceModel = types
       self.alarm.high.replace(high ?? self.alarm.high)
       self.alarm.low.replace(low ?? self.alarm.low)
       self.alarm.interval = interval ?? self.alarm.interval
+    },
+    setReportSmsInterval(interval: number) {
+      self.reportSmsInterval = interval
+    },
+    setClock({ hours, minutes }: { hours: number, minutes: number }, ts: number = undefined) {
+      self.clock = {
+        hours,
+        minutes,
+        setTime: +moment(ts)
+      }
     },
     setSimCharge(charge: number) {
       self.simCharge = charge
@@ -525,6 +549,71 @@ export const DeviceModel = types
       )
     },
 
+    getReportSmsInterval() {
+      this.setState({ reportSmsIntervalLoading: true })
+
+      this.sendSms(
+        'GET_REPORT_INTERVAL',
+        '#500#',
+        (response, error) => {
+          if (!error) {
+            const interval = parseFloats(response)[0]
+            this.setReportSmsInterval(interval)
+          }
+          this.setState({ reportSmsIntervalLoading: false })
+        }
+      )
+    },
+    updateReportSmsInterval(interval: number) {
+      this.setState({ reportSmsIntervalLoading: true })
+
+      this.sendSms(
+        'UPDATE_REPORT_INTERVAL',
+        `*${self.password}#500#${interval}*`,
+        (response, error) => {
+          if (!error) {
+            this.setReportSmsInterval(interval)
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ reportSmsIntervalLoading: false })
+        }
+      )
+    },
+
+    getClock() {
+      this.setState({ clockLoading: true })
+
+      this.sendSms(
+        'GET_CLOCK',
+        '#24#',
+        (response, error) => {
+          if (!error) {
+            const matches = response.match(/^ساعت سيستم (\S{2}):(\S{2})$/)
+            this.setClock({
+              hours: parseFloat(toEnDigit(matches[1])),
+              minutes: parseFloat(toEnDigit(matches[2]))
+            })
+          }
+          this.setState({ clockLoading: false })
+        }
+      )
+    },
+    updateClock({ hours, minutes }: { hours: number, minutes: number }) {
+      this.setState({ clockLoading: true })
+
+      this.sendSms(
+        'UPDATE_CLOCK',
+        `*${self.password}#24#${hours}*${minutes}*`,
+        (response, error) => {
+          if (!error) {
+            this.setClock({ hours, minutes })
+            ToastAndroid.show(response, ToastAndroid.SHORT)
+          }
+          this.setState({ clockLoading: false })
+        }
+      )
+    },
+
     updateHeaterStatus(status: boolean) {
       this.setState({ updateHeaterStatusLoading: true })
 
@@ -668,7 +757,19 @@ export const DeviceModel = types
       })
     },
 
-    restoreFromMessages() {
+    resetDevice() {
+      // this.setState({ resetCalibrationLoading: true })
+
+      this.sendSms('RESET_DEVICE', `*${self.password}#700#`, (response, error) => {
+        if (!error) {
+          // this.setCalibration(0)
+          ToastAndroid.show(response, ToastAndroid.SHORT)
+        }
+        // this.setState({ resetCalibrationLoading: false })
+      })
+    },
+
+    restoreFromMessages(fromDate: number = undefined) {
       const callbacks = {
         GET_STATUS: this.parseStatusMessage,
         UPDATE_PASSWORD: body => {
@@ -699,27 +800,59 @@ export const DeviceModel = types
           const high = parseFloats(body)
           high.reverse()
           this.setAlarmValues({ high })
+          delete callbacks.UPDATE_ALARM_HIGH
         },
         UPDATE_ALARM_HIGH: body => {
           const high = parseFloats(body)
           high.reverse()
           this.setAlarmValues({ high })
+          delete callbacks.GET_ALARM_VALUES_HIGH
         },
         GET_ALARM_VALUES_LOW: body => {
           const low = parseFloats(body)
           this.setAlarmValues({ low })
+          delete callbacks.UPDATE_ALARM_LOW
         },
         UPDATE_ALARM_LOW: body => {
           const low = parseFloats(body)
           this.setAlarmValues({ low })
+          delete callbacks.GET_ALARM_VALUES_LOW
         },
         GET_ALARM_VALUES_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setAlarmValues({ interval })
+          delete callbacks.UPDATE_ALARM_INTERVAL
         },
         UPDATE_ALARM_INTERVAL: body => {
           const interval = parseFloats(body)[0]
           this.setAlarmValues({ interval })
+          delete callbacks.GET_ALARM_VALUES_INTERVAL
+        },
+        GET_REPORT_INTERVAL: body => {
+          const interval = parseFloats(body)[0]
+          this.setReportSmsInterval(interval)
+          delete callbacks.UPDATE_REPORT_INTERVAL
+        },
+        UPDATE_REPORT_INTERVAL: body => {
+          const interval = parseFloats(body)[0]
+          this.setReportSmsInterval(interval)
+          delete callbacks.GET_REPORT_INTERVAL
+        },
+        GET_CLOCK: (body, date) => {
+          const matches = body.match(/^ساعت سيستم (\S{2}):(\S{2})$/)
+          this.setClock({
+            hours: parseFloat(toEnDigit(matches[1])),
+            minutes: parseFloat(toEnDigit(matches[2]))
+          }, date)
+          delete callbacks.UPDATE_CLOCK
+        },
+        UPDATE_CLOCK: (body, date) => {
+          const matches = body.match(/^ساعت سيستم به (\S{2}):(\S{2}) تغيير كرد$/)
+          this.setClock({
+            hours: parseFloat(toEnDigit(matches[1])),
+            minutes: parseFloat(toEnDigit(matches[2]))
+          }, date)
+          delete callbacks.GET_CLOCK
         },
         GET_SIM_CHARGE: body => {
           this.setSimCharge(parseFloats(toEnDigit(body))[0])
@@ -779,7 +912,7 @@ export const DeviceModel = types
         // }
       } as Record<keyof typeof SMS_TYPES_REGEX, (body?: string, date?: number) => void>
 
-      const minDate = self.syncDate + 1
+      const minDate = (fromDate ?? self.syncDate) + 1
 
       // const minDate = 0
 
@@ -865,6 +998,13 @@ export const DeviceModel = types
       self.temperatures.forEach((value, key) => temperatures.push({ ts: parseInt(key), value }))
       temperatures = sortBy(({ ts }) => -ts, temperatures)
       return temperatures
+    },
+    get clockView() {
+      return moment().subtract(self.clock.setTime)
+        .add(self.clock.hours, 'hours')
+        .add(self.clock.minutes, 'minutes')
+        .utc()
+        .format('HH:mm')
     }
   }))
 

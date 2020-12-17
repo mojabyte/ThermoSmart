@@ -75,6 +75,13 @@
     "rightHeader": "Edit",
     "phoneNumbers": "Phone Numbers",
     "phoneNumbersDetails": "View and edit saved phone numbers",
+    "report": {
+      "title": "Overall Report",
+      "smsInterval": "SMS Interval",
+      "smsIntervalDetails": "Interval of the device overall report",
+      "smsIntervalValue": "every %{interval} hour(s)",
+      "smsIntervalModalTitle": "Power outage SMS interval"
+    },
     "simCard": {
       "title": "SIM Card",
       "credit": "Credit",
@@ -109,6 +116,11 @@
       "password": "Password",
       "placeholder": "6 digit password, e.g. 123456",
       "lengthError": "Password should be 6 digits."
+    },
+    "clock": {
+      "title": "Clock Time",
+      "details": "Time of the device clock",
+      "clockModalTitle": "Set time of the device clock"
     }
   },
   "devicePhonesScreen": {
