@@ -122,7 +122,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
             icon: 'trash-can',
             onPress: () => {
               setOptionsModalVisible(false)
-              selectedDevice.remove()
+              setTimeout(() => selectedDevice.remove(), 500)
             }
           }
         ]}

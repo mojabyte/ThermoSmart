@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ViewStyle } from "react-native"
-import { Button, Form, Header, Screen, TextField } from "../../components"
+import { Form, Header, Screen, TextField } from "../../components"
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native"
 import { DeviceModel, useStores } from "../../models"
 import { color } from "../../theme"
@@ -59,7 +59,6 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
           } else {
             setSimNumberError('')
             const parsedSimNumber = phoneInput.current.getRawValue()
-            console.log(parsedSimNumber)
             if (isEdit) {
               selectedDevice.setName(name)
               selectedDevice.setSimNumber(parsedSimNumber)
@@ -67,14 +66,18 @@ export const AddDeviceScreen = observer(function AddDeviceScreen() {
               selectedDevice.setPassword(password)
               navigation.goBack()
             } else {
-              devices.add(DeviceModel.create({
+              const error = devices.add(DeviceModel.create({
                 name,
                 simNumber: parsedSimNumber,
                 place,
                 password
               }))
-              setSelectedDeviceID(parsedSimNumber)
-              navigation.navigate('main')
+              if (error) {
+                setSimNumberError('addDeviceScreen.simNumberErrors.exists')
+              } else {
+                setSelectedDeviceID(parsedSimNumber)
+                setTimeout(() => navigation.navigate('main'), 500)
+              }
             }
           }
         }}

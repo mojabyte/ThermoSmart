@@ -60,7 +60,9 @@ export const DeviceModel = types
       interval: 0
     }),
 
-    reportSmsInterval: 360,
+    reportSmsInterval: types.maybeNull(types.number),
+    powerOutageSmsInterval: types.maybeNull(types.number),
+    simCreditSmsInterval: types.maybeNull(types.number),
 
     clock: types.optional(types.model({
       hours: types.number,
@@ -72,12 +74,10 @@ export const DeviceModel = types
       setTime: 0
     }),
 
-    simCharge: 0,
-    simCreditSmsInterval: 1,
-    signalStrength: 100,
-    powerOutageSmsInterval: 5,
+    simCharge: types.maybeNull(types.number),
+    signalStrength: types.maybeNull(types.number),
 
-    calibration: 0,
+    calibration: types.maybeNull(types.number),
 
     laborCheck: types.optional(types.model({
       mode: types.maybeNull(types.enumeration(['1', '2', '3'])),
@@ -1013,7 +1013,11 @@ export const DeviceListModel = types
   })
   .actions(self => ({
     add(item: SnapshotIn<Device> | Instance<Device>) {
-      self.items.push(item)
+      if (self.items.filter(({ simNumber }) => simNumber === item.simNumber).length === 0) {
+        self.items.push(item)
+        return null
+      }
+      return 'exists'
     },
     remove(item: SnapshotIn<Device>) {
       const env: Environment = getEnv(self)

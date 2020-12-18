@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
-import { ConfirmModal, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
+import { ConfirmModal, Clock, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
 import { useNavigation } from "@react-navigation/native"
 import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import moment from "moment-jalaali"
-import BackgroundTimer from "react-native-background-timer"
 import DatePicker from "react-native-date-picker"
 import { WheelPicker } from "react-native-wheel-picker-android"
 import { useStores } from '../../models'
@@ -36,34 +35,6 @@ const ListTitle = function(props: TextProps) {
       <Text style={LIST_TITLE} {...props} />
     </View>
   )
-}
-
-export const Clock = (props: { initialTime?: number }): JSX.Element => {
-  const {
-    initialTime = +moment(),
-    ...rest
-  } = props
-
-  const [time, setTime] = useState(initialTime)
-
-  useEffect(() => {
-    setTime(initialTime)
-    let timer = null
-    const diff = (60 - moment(initialTime).seconds()) * 1000
-    const timeout = BackgroundTimer.setTimeout(() => {
-      setTime(time => time + diff)
-      timer = BackgroundTimer.setInterval(() => {
-        setTime(time => time + 60000)
-      }, 60000)
-    }, diff)
-
-    return () => {
-      BackgroundTimer.clearTimeout(timeout)
-      BackgroundTimer.clearInterval(timer)
-    }
-  }, [initialTime])
-
-  return <Text text={moment(time).utc().format('HH:mm')} {...rest}/>
 }
 
 export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
@@ -196,9 +167,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.clockLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="clock"
-          onPress={() => {
-            setClockModalVisible(true)
-          }}
+          onPress={() => setClockModalVisible(true)}
         >
           {selectedDevice.clock.setTime
             ? <Clock initialTime={selectedDevice.getClockNow()}/>
@@ -223,10 +192,13 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.reportSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="clipboard-text"
-          valueText={translate(
-            'deviceOptionsScreen.sms.report.value',
-            { interval: selectedDevice.reportSmsInterval / 60 }
-          )}
+          valueText={selectedDevice.reportSmsInterval
+            ? translate(
+                'deviceOptionsScreen.sms.report.value',
+                { interval: selectedDevice.reportSmsInterval / 60 }
+              )
+            : '---'
+          }
           onPress={() => {
             setIntervalType('report')
             setIntervalModalVisible(true)
@@ -239,10 +211,13 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.getPowerOutageSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="power-plug-off"
-          valueText={translate(
-            'deviceOptionsScreen.sms.powerOutage.value',
-            { interval: selectedDevice.powerOutageSmsInterval }
-          )}
+          valueText={selectedDevice.powerOutageSmsInterval
+            ? translate(
+                'deviceOptionsScreen.sms.powerOutage.value',
+                { interval: selectedDevice.powerOutageSmsInterval }
+              )
+            : '---'
+          }
           onPress={() => {
             setIntervalType('powerOutage')
             setIntervalModalVisible(true)
@@ -255,10 +230,13 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.getSimCreditSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="sim"
-          valueText={translate(
-            'deviceOptionsScreen.sms.sim.value',
-            { interval: selectedDevice.simCreditSmsInterval }
-          )}
+          valueText={selectedDevice.simCreditSmsInterval
+            ? translate(
+                'deviceOptionsScreen.sms.sim.value',
+                { interval: selectedDevice.simCreditSmsInterval }
+              )
+            : '---'
+          }
           onPress={() => {
             setIntervalType('simCredit')
             setIntervalModalVisible(true)
@@ -271,10 +249,13 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.updateAlarmIntervalLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="alarm"
-          valueText={translate(
-            'deviceOptionsScreen.sms.alarm.value',
-            { interval: selectedDevice.alarm.interval }
-          )}
+          valueText={selectedDevice.alarm.interval
+            ? translate(
+                'deviceOptionsScreen.sms.alarm.value',
+                { interval: selectedDevice.alarm.interval }
+              )
+            : '---'
+          }
           onPress={() => {
             setIntervalType('alarm')
             setIntervalModalVisible(true)
@@ -292,7 +273,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           onPress={selectedDevice.getSimCredit}
         >
           <View style={{ flexDirection: 'row' }}>
-            <Text text={`${selectedDevice.simCharge}`} />
+            <Text text={`${selectedDevice.simCharge ?? '---'}`} />
             <Icon name="currency-rial" containerStyle={{ marginHorizontal: spacing[1] }} />
           </View>
         </ListItem>
@@ -313,7 +294,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           loading={selectedDevice.state.getCalibrationLoading}
           rightIcon="chevron-right-ltr"
           leftIcon="crosshairs"
-          valueText={`${selectedDevice.calibration.toFixed(1)}°c`}
+          valueText={`${selectedDevice.calibration?.toFixed(1) ?? '---'}°c`}
           onPress={() => {
             setIntervalType('calibration')
             setIntervalModalVisible(true)
@@ -401,9 +382,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         loading={rangeModalProps[intervalType].loading}
         isVisible={isIntervalModalVisible}
         onInit={() => setIntervalEdit(rangeModalProps[intervalType].value)}
-        onClose={() => {
-          setIntervalModalVisible(false)
-        }}
+        onClose={() => setIntervalModalVisible(false)}
         onConfirm={() => {
           rangeModalProps[intervalType].onConfirm()
           setIntervalModalVisible(false)

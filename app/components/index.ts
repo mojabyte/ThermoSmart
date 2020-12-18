@@ -1,6 +1,7 @@
 export * from "./bullet-item/bullet-item"
 export * from "./button/button"
 export * from "./checkbox/checkbox"
+export * from "./clock/clock"
 export * from "./confirm-modal/confirmModal"
 export * from "./form/form"
 export * from "./form-row/form-row"

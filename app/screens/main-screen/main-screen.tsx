@@ -4,7 +4,8 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
 import MultiSlider from "@ptomasroos/react-native-multi-slider"
-import { Button, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
+import Modal from 'react-native-modal'
+import { Button, Clock, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
 import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
 import { translate } from "../../i18n"
@@ -70,24 +71,13 @@ const LAST_TEMPERATURE_VALUE: TextStyle = {
   alignSelf: 'center'
 }
 
-const SYNCING: ViewStyle = {
-  position: 'absolute',
-  top: -spacing[1],
-  left: -spacing[1],
-  right: -spacing[1],
-  bottom: 0,
-  backgroundColor: '#0008',
-  justifyContent: 'center',
-  alignItems: 'center',
-  elevation: 2
-}
-
 const SYNCING_TEXT: TextStyle = {
   fontSize: 24,
-  color: color.palette.white
+  color: color.palette.white,
+  margin: spacing[2]
 }
 
-const getTimeFormat = (ts: string) => {
+const getTimeFormat = (ts: number) => {
   const date = moment(ts).isAfter(moment().startOf('day'))
     ? 'امروز'
     : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
@@ -380,7 +370,7 @@ export const MainScreen = observer(function MainScreen() {
                     loading={selectedDevice.state.getSimCreditLoading}
                     style={{ flex: 0.5, flexDirection: 'row', margin: spacing[1] }}
                   >
-                    <Text text={`${selectedDevice.simCharge}`}/>
+                    <Text text={`${selectedDevice.simCharge ?? '---'}`}/>
                     <Icon name="currency-rial" containerStyle={{ marginHorizontal: spacing[1] }} />
                   </Button>
 
@@ -395,17 +385,19 @@ export const MainScreen = observer(function MainScreen() {
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
-                  {selectedDevice.powerStatus ? (
+                  <Icon name="clock" containerStyle={{ marginStart: spacing[2], marginEnd: spacing[1] }} />
+                  <Clock initialTime={selectedDevice.getClockNow()}/>
+
+                  {!selectedDevice.powerStatus &&
                     <>
-                      <Icon name="power-plug" />
-                      <Text tx="mainScreen.statusCard.powerConnected" />
+                      <Icon
+                        name="power-plug-off"
+                        color={color.palette.angry}
+                        containerStyle={{ marginStart: spacing[2], marginEnd: spacing[1] }}
+                      />
+                      <Text tx="mainScreen.statusCard.powerDisconnected" style={{ fontSize: 12 }} />
                     </>
-                  ) : (
-                    <>
-                      <Icon name="power-plug-off" />
-                      <Text tx="mainScreen.statusCard.powerDisconnected" />
-                    </>
-                  )}
+                  }
                 </View>
               </Card>
             </View>
@@ -634,15 +626,19 @@ export const MainScreen = observer(function MainScreen() {
           </Button>
         )}
 
-        <View style={{ flex: 1 }}>
-          {renderScreenContent()}
-          {(selectedDevice?.state.syncing || !devices.imported) && (
-            <View style={SYNCING}>
-              <ActivityIndicator color={color.palette.white} size="large" />
-              <Text tx="common.syncing" style={SYNCING_TEXT} />
-            </View>
-          )}
-        </View>
+        {renderScreenContent()}
+
+        <Modal
+          isVisible={selectedDevice?.state.syncing || !devices.imported}
+          animationInTiming={1000}
+          animationOutTiming={1000}
+          animationIn="fadeIn"
+          animationOut="fadeOut"
+          style={{ alignItems: 'center' }}
+        >
+          <ActivityIndicator color={color.palette.white} size="large" />
+          <Text tx="common.syncing" style={SYNCING_TEXT} />
+        </Modal>
 
         <ConfirmModal
           titleText={rangeModalProps[selectedSliderModal].title}
