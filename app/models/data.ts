@@ -24,6 +24,9 @@ const toEnDigit = (string: string) => string
   .replace(/[\u0660-\u0669]/g, c => (c.charCodeAt(0) - 0x0660).toString())
   .replace(/[\u06f0-\u06f9]/g, c => (c.charCodeAt(0) - 0x06f0).toString())
 
+const getTempNumber = (number: number) => `${
+  Math.floor(number / 10 % 10)}${Math.floor(number % 10)}${Math.floor(number * 10 % 10)}`
+
 export const DeviceModel = types
   .model({
     name: types.string,
@@ -376,7 +379,7 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_THERMOSTAT_MAX',
-        `*${self.password}#3000#${Math.round(value * 10)}*`,
+        `*${self.password}#3000#${getTempNumber(value)}*`,
         (response, error) => {
           if (!error) {
             this.setThermostatValues({ max: value })
@@ -391,7 +394,7 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_THERMOSTAT_NOR',
-        `*${self.password}#2000#${Math.round(value * 10)}*`,
+        `*${self.password}#2000#${getTempNumber(value)}*`,
         (response, error) => {
           if (!error) {
             this.setThermostatValues({ nor: value })
@@ -406,7 +409,7 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_THERMOSTAT_MIN',
-        `*${self.password}#1000#${Math.round(value * 10)}*`,
+        `*${self.password}#1000#${getTempNumber(value)}*`,
         (response, error) => {
           if (!error) {
             this.setThermostatValues({ min: value })
@@ -415,31 +418,6 @@ export const DeviceModel = types
           this.setState({ updateThermostatMinValueLoading: false })
         }
       )
-    },
-    updateThermostatValues({ max, nor, min }: { max?: number; nor?: number; min?: number }) {
-      this.setState({ updateThermostatValuesLoading: { max: !!max, nor: !!nor, min: !!min } })
-
-      const messages = []
-      if (max) messages.push(['3000', Math.round(max * 10)])
-      if (nor) messages.push(['2000', Math.round(nor * 10)])
-      if (min) messages.push(['1000', Math.round(min * 10)])
-
-      const sendMessage = (messages: [string, number][]) => {
-        if (messages.length === 0) {
-          this.setThermostatValues({ max, nor, min })
-          this.setState({ updateThermostatValuesLoading: false })
-          return
-        }
-        const message = messages.pop()
-
-        this.sendSms(
-          'UPDATE_THERMOSTAT_VALUES',
-          `*${self.password}#${message[0]}#${message[1]}*`,
-          () => { sendMessage(messages) }
-        )
-      }
-
-      sendMessage(messages)
     },
     updateThermostatStatus(status: boolean) {
       this.setState({ updateThermostatStatusLoading: true })
@@ -475,35 +453,12 @@ export const DeviceModel = types
         })
       })
     },
-    updateAlarmValues({ high, low }: { high?: number[]; low?: number[] }) {
-      this.setState({ updateAlarmValuesLoading: true })
-
-      const messages = []
-      if (high) messages.push(['8000', Math.round(high[1] * 10), Math.round(high[0] * 10)])
-      if (low) messages.push(['7000', Math.round(low[0] * 10), Math.round(low[1] * 10)])
-
-      const sendMessage = (messages: [string, number, number][]) => {
-        if (messages.length === 0) {
-          this.setAlarmValues({ high, low })
-          this.setState({ updateAlarmValuesLoading: false })
-          return
-        }
-        const message = messages.pop()
-        this.sendSms(
-          'UPDATE_ALARM_VALUES',
-          `*${self.password}#${message[0]}#${message[1]}*${message[2]}*`,
-          () => { sendMessage(messages) }
-        )
-      }
-
-      sendMessage(messages)
-    },
     updateAlarmHigh(values: number[]) {
       this.setState({ updateAlarmHighLoading: true })
 
       this.sendSms(
         'UPDATE_ALARM_HIGH',
-        `*${self.password}#8000#${Math.round(values[1] * 10)}*${Math.round(values[0] * 10)}*`,
+        `*${self.password}#8000#${getTempNumber(values[1])}*${getTempNumber(values[0])}*`,
         (response, error) => {
           if (!error) {
             this.setAlarmValues({ high: values })
@@ -518,7 +473,7 @@ export const DeviceModel = types
 
       this.sendSms(
         'UPDATE_ALARM_LOW',
-        `*${self.password}#7000#${Math.round(values[0] * 10)}*${Math.round(values[1] * 10)}*`,
+        `*${self.password}#7000#${getTempNumber(values[0])}*${getTempNumber(values[1])}*`,
         (response, error) => {
           if (!error) {
             this.setAlarmValues({ low: values })

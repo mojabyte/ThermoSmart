@@ -1,9 +1,17 @@
 import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
-import { ConfirmModal, Clock, Header, Icon, ListItem, Screen, Text, TextField } from "../../components"
+import {
+  ConfirmModal,
+  Clock,
+  Header,
+  Icon,
+  ListItem,
+  Screen,
+  Text,
+  TextField
+} from "../../components"
 import { useNavigation } from "@react-navigation/native"
-import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import moment from "moment-jalaali"
 import DatePicker from "react-native-date-picker"
 import { WheelPicker } from "react-native-wheel-picker-android"
@@ -57,12 +65,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       data: [...Array(120)].map((_, i) => `${i + 1}`),
       value: selectedDevice.reportSmsInterval / 60 - 1,
       loading: selectedDevice.state.reportSmsIntervalLoading,
-      onConfirm: () => {
-        selectedDevice.updateReportSmsInterval((intervalEdit + 1) * 60)
-      },
-      onRefresh: () => {
-        selectedDevice.getReportSmsInterval()
-      },
+      onConfirm: () => selectedDevice.updateReportSmsInterval((intervalEdit + 1) * 60),
+      onRefresh: selectedDevice.getReportSmsInterval,
       parseValue: () => translate('common.hour_s')
     },
     simCredit: {
@@ -71,12 +75,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       data: [...Array(30)].map((_, i) => `${i + 1}`),
       value: selectedDevice.simCreditSmsInterval - 1,
       loading: selectedDevice.state.getSimCreditSmsIntervalLoading,
-      onConfirm: () => {
-        selectedDevice.updateSimCreditSmsInterval(intervalEdit + 1)
-      },
-      onRefresh: () => {
-        selectedDevice.getSimCreditSmsInterval()
-      },
+      onConfirm: () => selectedDevice.updateSimCreditSmsInterval(intervalEdit + 1),
+      onRefresh: selectedDevice.getSimCreditSmsInterval,
       parseValue: () => translate('common.day_s')
     },
     powerOutage: {
@@ -85,12 +85,8 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       data: [...Array(116)].map((_, i) => `${i + 5}`),
       value: selectedDevice.powerOutageSmsInterval - 5,
       loading: selectedDevice.state.getPowerOutageSmsIntervalLoading,
-      onConfirm: () => {
-        selectedDevice.updatePowerOutageSmsInterval(intervalEdit + 5)
-      },
-      onRefresh: () => {
-        selectedDevice.getPowerOutageSmsInterval()
-      },
+      onConfirm: () => selectedDevice.updatePowerOutageSmsInterval(intervalEdit + 5),
+      onRefresh: selectedDevice.getPowerOutageSmsInterval,
       parseValue: () => translate('common.minute_s')
     },
     alarm: {
@@ -99,28 +95,18 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
       data: [...Array(116)].map((_, i) => `${i + 5}`),
       value: selectedDevice.alarm.interval - 5,
       loading: selectedDevice.state.updateAlarmIntervalLoading,
-      onConfirm: () => {
-        selectedDevice.updateAlarmInterval(intervalEdit + 5)
-      },
-      onRefresh: () => {
-        selectedDevice.getAlarmInterval()
-      },
+      onConfirm: () => selectedDevice.updateAlarmInterval(intervalEdit + 5),
+      onRefresh: selectedDevice.getAlarmInterval,
       parseValue: () => translate('common.minute_s')
     },
     calibration: {
       title: 'deviceOptionsScreen.calibration.title',
       titleIcon: 'crosshairs',
-      min: -10,
-      max: 10,
-      step: 0.1,
-      value: selectedDevice.calibration,
+      data: [...Array(401)].map((_, i) => `${(i / 10 - 20).toFixed(1)}`),
+      value: (selectedDevice.calibration + 20) * 10,
       loading: selectedDevice.state.getCalibrationLoading,
-      onConfirm: () => {
-        selectedDevice.updateCalibration(intervalEdit)
-      },
-      onRefresh: () => {
-        selectedDevice.getCalibration()
-      },
+      onConfirm: () => selectedDevice.updateCalibration(intervalEdit / 10 - 20),
+      onRefresh: selectedDevice.getCalibration,
       parseValue: (value: number) => `${value.toFixed(1)}°c`
     }
   }
@@ -389,30 +375,13 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         }}
       >
         {intervalType === 'calibration'
-          ? <View style={{ alignItems: 'center' }}>
-              <Text text={rangeModalProps[intervalType].parseValue(intervalEdit)} />
-              <MultiSlider
-                values={[intervalEdit]}
-                min={rangeModalProps[intervalType].min}
-                max={rangeModalProps[intervalType].max}
-                step={rangeModalProps[intervalType].step}
-                snapped
-                onValuesChange={values => setIntervalEdit(values[0])}
-                trackStyle={{
-                  height: 10,
-                  backgroundColor: color.palette.grey,
-                  borderRadius: 5
-                }}
-                markerStyle={{
-                  height: 20,
-                  width: 20,
-                  elevation: 4,
-                  backgroundColor: color.primary
-                }}
-                selectedStyle={{
-                  backgroundColor: color.primary
-                }}
-                markerOffsetY={5}
+          ? <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+              <Text text="°c" />
+              <WheelPicker
+                selectedItem={intervalEdit}
+                data={rangeModalProps[intervalType].data}
+                onItemSelected={item => setIntervalEdit(item)}
+                style={{ width: 50, height: 120 }}
               />
             </View>
           : <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>

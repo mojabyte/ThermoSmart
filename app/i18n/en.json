@@ -11,7 +11,9 @@
     "day_s": "day(s)",
     "hour_s": "hour(s)",
     "minute_s": "minute(s)",
-    "second_s": "second(s)"
+    "second_s": "second(s)",
+    "normal": "Normal",
+    "critical": "Critical"
   },
   "mainScreen": {
     "title": "THERMO SMART",

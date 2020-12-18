@@ -13,7 +13,9 @@
     "day_s": "روز",
     "hour_s": "ساعت",
     "minute_s": "دقیقه",
-    "second_s": "ثانیه"
+    "second_s": "ثانیه",
+    "normal": "نرمال",
+    "critical": "بحرانی"
   },
   "mainScreen": {
     "temperatureCard": {
@@ -48,7 +50,7 @@
       "min": "مینیمم"
     },
     "alarmModal": {
-      "title": "مقادیر %{type} هشدار",
+      "title": "مقادیر هشدار %{type}",
       "high": "ماکزیمم",
       "low": "مینیمم",
       "intervalTitle": "بازه‌ی زمانی تکرار هشدار"

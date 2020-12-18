@@ -1,11 +1,29 @@
 import React, { useEffect, useState } from "react"
-import { ActivityIndicator, Alert, Linking, PermissionsAndroid, TextStyle, ToastAndroid, View, ViewStyle } from "react-native"
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  PermissionsAndroid,
+  TextStyle,
+  ToastAndroid,
+  View,
+  ViewStyle
+} from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
-import MultiSlider from "@ptomasroos/react-native-multi-slider"
 import Modal from 'react-native-modal'
-import { Button, Clock, ConfirmModal, Header, Icon, Screen, Switch, Text } from "../../components"
+import {
+  Button,
+  Clock,
+  ConfirmModal,
+  Header,
+  Icon,
+  NumberPicker,
+  Screen,
+  Switch,
+  Text
+} from "../../components"
 import { color, spacing } from "../../theme"
 import { Device, useStores } from '../../models'
 import { translate } from "../../i18n"
@@ -240,8 +258,7 @@ export const MainScreen = observer(function MainScreen() {
 
   const rangeModalTempProps = {
     min: 0,
-    max: 40,
-    step: 0.1
+    max: 50
   }
 
   const rangeModalThermoProps = {
@@ -249,8 +266,7 @@ export const MainScreen = observer(function MainScreen() {
       'mainScreen.thermostatModal.title',
       ({ type: translate(`mainScreen.thermostatModal.${selectedSliderModal}`) })
     ),
-    titleIcon: 'thermostat',
-    parseValues: (values: number[]) => `${values[0].toFixed(1)}°c`
+    titleIcon: 'thermostat'
   }
 
   const rangeModalAlarmProps = {
@@ -258,49 +274,38 @@ export const MainScreen = observer(function MainScreen() {
       'mainScreen.alarmModal.title',
       ({ type: translate(`mainScreen.alarmModal.${selectedSliderModal}`) })
     ),
-    titleIcon: 'alarm',
-    parseValues: (values: number[]) => `${values[1].toFixed(1)}°c - ${values[0].toFixed(1)}°c`
+    titleIcon: 'alarm'
   }
 
   const rangeModalProps = {
     max: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => {
-        selectedDevice.updateThermostatMaxValue(sliderValues[0])
-      }
+      onConfirm: () => selectedDevice.updateThermostatMaxValue(sliderValues[0])
     },
     nor: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => {
-        selectedDevice.updateThermostatNorValue(sliderValues[0])
-      }
+      onConfirm: () => selectedDevice.updateThermostatNorValue(sliderValues[0])
     },
     min: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => {
-        selectedDevice.updateThermostatMinValue(sliderValues[0])
-      }
+      onConfirm: () => selectedDevice.updateThermostatMinValue(sliderValues[0])
     },
     high: {
       ...rangeModalTempProps,
       ...rangeModalAlarmProps,
-      min: 30,
-      max: 45,
-      onConfirm: () => {
-        selectedDevice.updateAlarmHigh(sliderValues)
-      }
+      onConfirm: () => selectedDevice.updateAlarmHigh(sliderValues),
+      valueTitle1: 'common.normal',
+      valueTitle2: 'common.critical'
     },
     low: {
       ...rangeModalTempProps,
       ...rangeModalAlarmProps,
-      min: 0,
-      max: 20,
-      onConfirm: () => {
-        selectedDevice.updateAlarmLow(sliderValues)
-      }
+      onConfirm: () => selectedDevice.updateAlarmLow(sliderValues),
+      valueTitle1: 'common.critical',
+      valueTitle2: 'common.normal'
     }
   }
 
@@ -650,33 +655,40 @@ export const MainScreen = observer(function MainScreen() {
           }}
         >
           <View>
-            <View style={{ alignSelf: 'center' }}>
-              <Text text={rangeModalProps[selectedSliderModal].parseValues(sliderValues)}/>
-              <MultiSlider
-                values={sliderValues}
-                min={rangeModalProps[selectedSliderModal].min}
-                max={rangeModalProps[selectedSliderModal].max}
-                step={rangeModalProps[selectedSliderModal].step}
-                snapped
-                onValuesChange={values => setSliderValues(
-                  values.map(value => Math.round(value * 10) / 10)
+            <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+              <View style={{ alignItems: 'center', marginHorizontal: spacing[4] }}>
+                <NumberPicker
+                  value={sliderValues[0]}
+                  min={rangeModalProps[selectedSliderModal].min}
+                  max={rangeModalProps[selectedSliderModal].max}
+                  postfix="°c"
+                  onSelect={value => {
+                    const values = [...sliderValues]
+                    values[0] = Math.round(value * 10) / 10
+                    setSliderValues(values)
+                  }}
+                />
+                {['high', 'low'].includes(selectedSliderModal) && (
+                  <Text tx={rangeModalProps[selectedSliderModal].valueTitle1} />
                 )}
-                trackStyle={{
-                  height: 10,
-                  backgroundColor: color.palette.grey,
-                  borderRadius: 5
-                }}
-                markerStyle={{
-                  height: 20,
-                  width: 20,
-                  elevation: 4,
-                  backgroundColor: color.primary
-                }}
-                selectedStyle={{
-                  backgroundColor: color.primary
-                }}
-                markerOffsetY={5}
-              />
+              </View>
+
+              {['high', 'low'].includes(selectedSliderModal) && (
+                <View style={{ alignItems: 'center', marginHorizontal: spacing[4] }}>
+                  <NumberPicker
+                    value={sliderValues[1]}
+                    min={rangeModalProps[selectedSliderModal].min}
+                    max={rangeModalProps[selectedSliderModal].max}
+                    postfix="°c"
+                    onSelect={value => {
+                      const values = [...sliderValues]
+                      values[1] = Math.round(value * 10) / 10
+                      setSliderValues(values)
+                    }}
+                  />
+                  <Text tx={rangeModalProps[selectedSliderModal].valueTitle2} />
+                </View>
+              )}
             </View>
           </View>
         </ConfirmModal>
