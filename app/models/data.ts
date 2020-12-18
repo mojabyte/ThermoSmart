@@ -471,13 +471,7 @@ export const DeviceModel = types
             const low = parseFloats(response)
             this.setAlarmValues({ low })
           }
-          this.sendSms('GET_ALARM_VALUES_INTERVAL', '#9000#', (response, error) => {
-            if (!error) {
-              const interval = parseFloats(response)[0]
-              this.setAlarmValues({ interval })
-            }
-            this.setState({ getAlarmValuesLoading: false })
-          })
+          this.setState({ getAlarmValuesLoading: false })
         })
       })
     },
@@ -533,6 +527,17 @@ export const DeviceModel = types
           this.setState({ updateAlarmLowLoading: false })
         }
       )
+    },
+    getAlarmInterval() {
+      this.setState({ updateAlarmIntervalLoading: true })
+
+      this.sendSms('GET_ALARM_VALUES_INTERVAL', '#9000#', (response, error) => {
+        if (!error) {
+          const interval = parseFloats(response)[0]
+          this.setAlarmValues({ interval })
+        }
+        this.setState({ updateAlarmIntervalLoading: false })
+      })
     },
     updateAlarmInterval(interval: number) {
       this.setState({ updateAlarmIntervalLoading: true })

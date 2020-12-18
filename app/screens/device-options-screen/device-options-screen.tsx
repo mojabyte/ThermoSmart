@@ -7,6 +7,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider'
 import moment from "moment-jalaali"
 import BackgroundTimer from "react-native-background-timer"
 import DatePicker from "react-native-date-picker"
+import { WheelPicker } from "react-native-wheel-picker-android"
 import { useStores } from '../../models'
 import { color, spacing } from "../../theme"
 import { TextProps } from "../../components/text/text.props"
@@ -80,61 +81,60 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
 
   const rangeModalProps = {
     report: {
-      title: 'deviceOptionsScreen.report.smsIntervalModalTitle',
-      titleIcon: 'message-text-clock',
-      min: 60,
-      max: 7200,
-      step: 60,
-      value: selectedDevice.reportSmsInterval,
+      title: 'deviceOptionsScreen.sms.report.modalTitle',
+      titleIcon: 'clipboard-text',
+      data: [...Array(120)].map((_, i) => `${i + 1}`),
+      value: selectedDevice.reportSmsInterval / 60 - 1,
       loading: selectedDevice.state.reportSmsIntervalLoading,
       onConfirm: () => {
-        selectedDevice.updateReportSmsInterval(intervalEdit)
+        selectedDevice.updateReportSmsInterval((intervalEdit + 1) * 60)
       },
       onRefresh: () => {
         selectedDevice.getReportSmsInterval()
       },
-      parseValue: (value: number) => translate(
-        'deviceOptionsScreen.report.smsIntervalValue',
-        { interval: value / 60 }
-      )
+      parseValue: () => translate('common.hour_s')
     },
     simCredit: {
-      title: 'deviceOptionsScreen.simCard.smsIntervalModalTitle',
-      titleIcon: 'message-text-clock',
-      min: 1,
-      max: 31,
-      step: 1,
-      value: selectedDevice.simCreditSmsInterval,
+      title: 'deviceOptionsScreen.sms.sim.modalTitle',
+      titleIcon: 'sim',
+      data: [...Array(30)].map((_, i) => `${i + 1}`),
+      value: selectedDevice.simCreditSmsInterval - 1,
       loading: selectedDevice.state.getSimCreditSmsIntervalLoading,
       onConfirm: () => {
-        selectedDevice.updateSimCreditSmsInterval(intervalEdit)
+        selectedDevice.updateSimCreditSmsInterval(intervalEdit + 1)
       },
       onRefresh: () => {
         selectedDevice.getSimCreditSmsInterval()
       },
-      parseValue: (value: number) => translate(
-        'deviceOptionsScreen.simCard.smsIntervalValue',
-        { interval: value }
-      )
+      parseValue: () => translate('common.day_s')
     },
     powerOutage: {
-      title: 'deviceOptionsScreen.powerOutage.smsIntervalModalTitle',
-      titleIcon: 'message-text-clock',
-      min: 5,
-      max: 121,
-      step: 1,
-      value: selectedDevice.powerOutageSmsInterval,
+      title: 'deviceOptionsScreen.sms.powerOutage.modalTitle',
+      titleIcon: 'power-plug-off',
+      data: [...Array(116)].map((_, i) => `${i + 5}`),
+      value: selectedDevice.powerOutageSmsInterval - 5,
       loading: selectedDevice.state.getPowerOutageSmsIntervalLoading,
       onConfirm: () => {
-        selectedDevice.updatePowerOutageSmsInterval(intervalEdit)
+        selectedDevice.updatePowerOutageSmsInterval(intervalEdit + 5)
       },
       onRefresh: () => {
         selectedDevice.getPowerOutageSmsInterval()
       },
-      parseValue: (value: number) => translate(
-        'deviceOptionsScreen.powerOutage.smsIntervalValue',
-        { interval: value }
-      )
+      parseValue: () => translate('common.minute_s')
+    },
+    alarm: {
+      title: 'deviceOptionsScreen.sms.alarm.modalTitle',
+      titleIcon: 'alarm',
+      data: [...Array(116)].map((_, i) => `${i + 5}`),
+      value: selectedDevice.alarm.interval - 5,
+      loading: selectedDevice.state.updateAlarmIntervalLoading,
+      onConfirm: () => {
+        selectedDevice.updateAlarmInterval(intervalEdit + 5)
+      },
+      onRefresh: () => {
+        selectedDevice.getAlarmInterval()
+      },
+      parseValue: () => translate('common.minute_s')
     },
     calibration: {
       title: 'deviceOptionsScreen.calibration.title',
@@ -207,28 +207,76 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         </ListItem>
 
         <ListItem
-          titleText="Sync"
-          // loading={selectedDevice.state.updatePasswordLoading}
+          titleTx="common.sync"
+          loading={selectedDevice.state.syncing}
           valueText={moment(selectedDevice.syncDate).format('jYYYY/jMM/jDD HH:mm')}
           leftIcon="sync-circle"
-          rightIcon="refresh"
+          rightIcon="sync"
           onPress={() => selectedDevice.restoreFromMessages(0)}
         />
 
-        <ListTitle tx="deviceOptionsScreen.report.title" />
+        <ListTitle tx="deviceOptionsScreen.sms.title" />
 
         <ListItem
-          titleTx="deviceOptionsScreen.report.smsInterval"
-          detailsTx="deviceOptionsScreen.report.smsIntervalDetails"
+          titleTx="deviceOptionsScreen.sms.report.title"
+          detailsTx="deviceOptionsScreen.sms.report.details"
           loading={selectedDevice.state.reportSmsIntervalLoading}
           rightIcon="chevron-right-ltr"
-          leftIcon="message-text-clock"
+          leftIcon="clipboard-text"
           valueText={translate(
-            'deviceOptionsScreen.report.smsIntervalValue',
+            'deviceOptionsScreen.sms.report.value',
             { interval: selectedDevice.reportSmsInterval / 60 }
           )}
           onPress={() => {
             setIntervalType('report')
+            setIntervalModalVisible(true)
+          }}
+        />
+
+        <ListItem
+          titleTx="deviceOptionsScreen.sms.powerOutage.title"
+          detailsTx="deviceOptionsScreen.sms.powerOutage.details"
+          loading={selectedDevice.state.getPowerOutageSmsIntervalLoading}
+          rightIcon="chevron-right-ltr"
+          leftIcon="power-plug-off"
+          valueText={translate(
+            'deviceOptionsScreen.sms.powerOutage.value',
+            { interval: selectedDevice.powerOutageSmsInterval }
+          )}
+          onPress={() => {
+            setIntervalType('powerOutage')
+            setIntervalModalVisible(true)
+          }}
+        />
+
+        <ListItem
+          titleTx="deviceOptionsScreen.sms.sim.title"
+          detailsTx="deviceOptionsScreen.sms.sim.details"
+          loading={selectedDevice.state.getSimCreditSmsIntervalLoading}
+          rightIcon="chevron-right-ltr"
+          leftIcon="sim"
+          valueText={translate(
+            'deviceOptionsScreen.sms.sim.value',
+            { interval: selectedDevice.simCreditSmsInterval }
+          )}
+          onPress={() => {
+            setIntervalType('simCredit')
+            setIntervalModalVisible(true)
+          }}
+        />
+
+        <ListItem
+          titleTx="deviceOptionsScreen.sms.alarm.title"
+          detailsTx="deviceOptionsScreen.sms.alarm.details"
+          loading={selectedDevice.state.updateAlarmIntervalLoading}
+          rightIcon="chevron-right-ltr"
+          leftIcon="alarm"
+          valueText={translate(
+            'deviceOptionsScreen.sms.alarm.value',
+            { interval: selectedDevice.alarm.interval }
+          )}
+          onPress={() => {
+            setIntervalType('alarm')
             setIntervalModalVisible(true)
           }}
         />
@@ -250,45 +298,11 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         </ListItem>
 
         <ListItem
-          titleTx="deviceOptionsScreen.simCard.smsInterval"
-          detailsTx="deviceOptionsScreen.simCard.smsIntervalDetails"
-          loading={selectedDevice.state.getSimCreditSmsIntervalLoading}
-          rightIcon="chevron-right-ltr"
-          leftIcon="message-text-clock"
-          valueText={translate(
-            'deviceOptionsScreen.simCard.smsIntervalValue',
-            { interval: selectedDevice.simCreditSmsInterval }
-          )}
-          onPress={() => {
-            setIntervalType('simCredit')
-            setIntervalModalVisible(true)
-          }}
-        />
-
-        <ListItem
           titleTx="deviceOptionsScreen.simCard.charge"
           detailsTx="deviceOptionsScreen.simCard.chargeDetails"
           rightIcon="chevron-right-ltr"
           leftIcon="credit-card-plus"
           onPress={() => setSimModalVisible(true)}
-        />
-
-        <ListTitle tx="deviceOptionsScreen.powerOutage.title" />
-
-        <ListItem
-          titleTx="deviceOptionsScreen.powerOutage.smsInterval"
-          detailsTx="deviceOptionsScreen.powerOutage.smsIntervalDetails"
-          loading={selectedDevice.state.getPowerOutageSmsIntervalLoading}
-          rightIcon="chevron-right-ltr"
-          leftIcon="message-text-clock"
-          valueText={translate(
-            'deviceOptionsScreen.powerOutage.smsIntervalValue',
-            { interval: selectedDevice.powerOutageSmsInterval }
-          )}
-          onPress={() => {
-            setIntervalType('powerOutage')
-            setIntervalModalVisible(true)
-          }}
         />
 
         <ListTitle tx="deviceOptionsScreen.calibration.title" />
@@ -395,34 +409,44 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
           setIntervalModalVisible(false)
         }}
       >
-        <View style={{ alignItems: 'center' }}>
-          <Text
-            text={rangeModalProps[intervalType].parseValue(intervalEdit)}
-          />
-          <MultiSlider
-            values={[intervalEdit]}
-            min={rangeModalProps[intervalType].min}
-            max={rangeModalProps[intervalType].max}
-            step={rangeModalProps[intervalType].step}
-            snapped
-            onValuesChange={values => setIntervalEdit(values[0])}
-            trackStyle={{
-              height: 10,
-              backgroundColor: color.palette.grey,
-              borderRadius: 5
-            }}
-            markerStyle={{
-              height: 20,
-              width: 20,
-              elevation: 4,
-              backgroundColor: color.primary
-            }}
-            selectedStyle={{
-              backgroundColor: color.primary
-            }}
-            markerOffsetY={5}
-          />
-        </View>
+        {intervalType === 'calibration'
+          ? <View style={{ alignItems: 'center' }}>
+              <Text text={rangeModalProps[intervalType].parseValue(intervalEdit)} />
+              <MultiSlider
+                values={[intervalEdit]}
+                min={rangeModalProps[intervalType].min}
+                max={rangeModalProps[intervalType].max}
+                step={rangeModalProps[intervalType].step}
+                snapped
+                onValuesChange={values => setIntervalEdit(values[0])}
+                trackStyle={{
+                  height: 10,
+                  backgroundColor: color.palette.grey,
+                  borderRadius: 5
+                }}
+                markerStyle={{
+                  height: 20,
+                  width: 20,
+                  elevation: 4,
+                  backgroundColor: color.primary
+                }}
+                selectedStyle={{
+                  backgroundColor: color.primary
+                }}
+                markerOffsetY={5}
+              />
+            </View>
+          : <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+              <Text tx="common.every" />
+              <WheelPicker
+                selectedItem={intervalEdit}
+                data={rangeModalProps[intervalType].data}
+                onItemSelected={item => setIntervalEdit(item)}
+                style={{ width: 50, height: 120 }}
+              />
+              <Text text={rangeModalProps[intervalType].parseValue(intervalEdit)} />
+            </View>
+          }
       </ConfirmModal>
 
       <ConfirmModal

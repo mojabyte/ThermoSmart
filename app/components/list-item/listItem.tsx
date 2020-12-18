@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ActivityIndicator, TextStyle, TouchableOpacity, TouchableNativeFeedback, View, ViewStyle } from "react-native"
+import { ActivityIndicator, TextStyle, TouchableNativeFeedback, View, ViewStyle } from "react-native"
 import { Icon } from "../icon/icon"
 import { Text } from "../text/text"
 import { viewPresets, textPresets } from "./listItem.presets"
@@ -52,7 +52,8 @@ export function ListItem(props: ListItemProps) {
   }
 
   const VALUE_CONTAINER: ViewStyle = {
-    paddingEnd: spacing[3]
+    paddingEnd: spacing[3],
+    justifyContent: 'center'
   }
 
   const ICON: TextStyle = {

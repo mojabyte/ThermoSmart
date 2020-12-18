@@ -7,7 +7,13 @@
     "edit": "ویرایش",
     "remove": "حذف",
     "update": "به روز رسانی",
-    "syncing": "در حال همگام سازی ..."
+    "sync": "همگام سازی",
+    "syncing": "در حال همگام سازی ...",
+    "every": "هر",
+    "day_s": "روز",
+    "hour_s": "ساعت",
+    "minute_s": "دقیقه",
+    "second_s": "ثانیه"
   },
   "mainScreen": {
     "temperatureCard": {
@@ -78,34 +84,43 @@
     "rightHeader": "ویرایش",
     "phoneNumbers": "شماره تلفن‌ها",
     "phoneNumbersDetails": "نمایش و ویرایش شماره تلفن‌های ذخیره شده",
-    "report": {
-      "title": "گزارش کلی",
-      "smsInterval": "بازه‌ی ارسال پیامک",
-      "smsIntervalDetails": "فاصله‌‌‌ی زمانی ارسال گزارش کلی سیستم",
-      "smsIntervalValue": "هر %{interval} ساعت",
-      "smsIntervalModalTitle": "فاصله‌‌‌ی زمانی ارسال پیامک گزارش کلی سیستم"
+    "sms": {
+      "title": "پیام‌ها",
+      "report": {
+        "title": "گزارش کلی",
+        "details": "فاصله‌‌ زمانی ارسال گزارش کلی سیستم",
+        "value": "هر %{interval} ساعت",
+        "modalTitle": "ارسال پیامک گزارش کلی سیستم"
+      },
+      "powerOutage": {
+        "title": "هشدار قطع برق",
+        "details": "فاصله‌‌ زمانی ارسال هشدار قطع برق",
+        "value": "هر %{interval} دقیقه",
+        "modalTitle": "ارسال پیامک هشدار قطع برق"
+      },
+      "sim": {
+        "title": "اعتبار سیمکارت",
+        "details": "فاصله زمانی ارسال اعتبار سیمکارت",
+        "value": "هر %{interval} روز",
+        "modalTitle": "ارسال پیامک اعتبار سیمکارت"
+      },
+      "alarm": {
+        "title": "هشدار دمای بحرانی",
+        "details": "فاصله زمانی ارسال هشدار دمای بحرانی",
+        "value": "هر %{interval} دقیقه",
+        "modalTitle": "ارسال هشدار دمای بحرانی"
+      }
     },
     "simCard": {
-      "title": "سیم کارت",
+      "title": "سیمکارت",
       "credit": "اعتبار",
-      "creditDetails": "موجودی اعتبار سیم کارت",
-      "smsInterval": "بازه‌ی ارسال پیامک",
-      "smsIntervalDetails": "پیامک حاوی موجودی اعتبار سیم کارت",
-      "smsIntervalModalTitle": "بازه‌ی ارسال پیامک موجودی سیم کارت",
-      "smsIntervalValue": "هر %{interval} روز",
+      "creditDetails": "موجودی اعتبار سیمکارت",
       "charge": "شارژ",
       "chargeDetails": "شارژ سیم کارت با ارسال کد شارژ به دستگاه",
       "chargeCode": "کد شارژ",
       "chargePlaceholder": "کد شارژ را وارد کنید",
       "chargeRequired": "کد شارژ معتبر نیست",
       "chargeModalTitle": "شارژ سیم کارت دستگاه"
-    },
-    "powerOutage": {
-      "title": "قطع برق",
-      "smsInterval": "بازه‌ی ارسال پیامک",
-      "smsIntervalDetails": "فاصله‌‌‌ی زمانی ارسال هشدار قطع برق",
-      "smsIntervalValue": "هر %{interval} دقیقه",
-      "smsIntervalModalTitle": "فاصله‌‌‌ی زمانی ارسال پیامک هشدار قطع برق"
     },
     "calibration": {
       "title": "کالیبره کردن سنسور",

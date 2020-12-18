@@ -5,7 +5,13 @@
     "back": "Back",
     "apply": "Apply",
     "update": "Update",
-    "syncing": "Syncing..."
+    "sync": "Sync",
+    "syncing": "Syncing...",
+    "every": "Every",
+    "day_s": "day(s)",
+    "hour_s": "hour(s)",
+    "minute_s": "minute(s)",
+    "second_s": "second(s)"
   },
   "mainScreen": {
     "title": "THERMO SMART",
@@ -77,6 +83,11 @@
     "rightHeader": "Edit",
     "phoneNumbers": "Phone Numbers",
     "phoneNumbersDetails": "View and edit saved phone numbers",
+    "sms": {
+      "title": "Messages",
+      "reportTitle": "Overall Report",
+      "reportDetails": "Interval of the device overall report"
+    },
     "report": {
       "title": "Overall Report",
       "smsInterval": "SMS Interval",

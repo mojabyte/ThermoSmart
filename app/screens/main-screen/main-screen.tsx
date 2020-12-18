@@ -220,7 +220,7 @@ export const MainScreen = observer(function MainScreen() {
   const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
   const [isEditModalVisible, setEditModalVisible] = useState(false)
   const [sliderValues, setSliderValues] = useState([0])
-  const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low' | 'interval'>('max')
+  const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low'>('max')
 
   useEffect(() => {
     setSelectedDevice(devices.get(selectedDeviceID))
@@ -311,20 +311,6 @@ export const MainScreen = observer(function MainScreen() {
       onConfirm: () => {
         selectedDevice.updateAlarmLow(sliderValues)
       }
-    },
-    interval: {
-      title: translate('mainScreen.alarmModal.intervalTitle'),
-      titleIcon: 'message-text-clock',
-      min: 5,
-      max: 120,
-      step: 1,
-      onConfirm: () => {
-        selectedDevice.updateAlarmInterval(sliderValues[0])
-      },
-      parseValues: (values: number[]) => translate(
-        'deviceOptionsScreen.powerOutage.smsIntervalValue',
-        { interval: values[0] }
-      )
     }
   }
 
@@ -355,7 +341,7 @@ export const MainScreen = observer(function MainScreen() {
                 titleIcon="thermometer-lines"
                 loading={selectedDevice.state.getStatusLoading}
                 onRefresh={() => selectedDevice.getStatus()}
-                containerStyle={{ flex: 0.45 }}
+                containerStyle={{ flex: 0.5 }}
               >
                 <Text
                   text={`${selectedDevice.temperaturesView[0]?.value.toFixed(1) ?? '---'}°c`}
@@ -384,7 +370,7 @@ export const MainScreen = observer(function MainScreen() {
               <Card
                 title="mainScreen.statusCard.title"
                 titleIcon="information"
-                containerStyle={{ flex: 0.55 }}
+                containerStyle={{ flex: 0.5 }}
                 contentStyle={{ justifyContent: 'space-evenly', alignItems: 'flex-start' }}
               >
                 <View style={{ flex: 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -430,7 +416,7 @@ export const MainScreen = observer(function MainScreen() {
                 titleIcon="thermostat"
                 loading={selectedDevice.state.getThermostatValuesLoading}
                 onRefresh={() => selectedDevice.getThermostatValues()}
-                containerStyle={{ flex: 0.45 }}
+                containerStyle={{ flex: 0.5 }}
               >
                 <Button
                   preset="card"
@@ -480,7 +466,7 @@ export const MainScreen = observer(function MainScreen() {
                 titleIcon="alarm"
                 loading={selectedDevice.state.getAlarmValuesLoading}
                 onRefresh={() => selectedDevice.getAlarmValues()}
-                containerStyle={{ flex: 0.55 }}
+                containerStyle={{ flex: 0.5 }}
               >
                 <Button
                   preset="card"
@@ -515,24 +501,6 @@ export const MainScreen = observer(function MainScreen() {
                   <Icon name="arrow-expand-down" containerStyle={{ paddingEnd: spacing[3] }} />
                   <Text text={`${selectedDevice.alarm.low[0] ?? '---'}°c - ${
                     selectedDevice.alarm.low[1] ?? '---'}°c`} />
-                </Button>
-
-                <Button
-                  preset="card"
-                  text={`Interval: ${selectedDevice.alarm.interval} min`}
-                  onPress={() => {
-                    setSliderValues(selectedDevice.alarm.interval
-                      ? [selectedDevice.alarm.interval]
-                      : [5]
-                    )
-                    setSelectedSliderModal('interval')
-                    setEditModalVisible(true)
-                  }}
-                  loading={selectedDevice.state.updateAlarmIntervalLoading}
-                  style={{ flex: 1, margin: spacing[1], flexDirection: 'row' }}
-                >
-                  <Icon name="message-text-clock" containerStyle={{ paddingEnd: spacing[4] }} />
-                  <Text text={`${selectedDevice.alarm.interval || '---'} دقیقه`} />
                 </Button>
               </Card>
             </View>
