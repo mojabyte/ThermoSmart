@@ -7,19 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00E356F31AD99517003FC87E /* smartGreenhouseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* smartGreenhouseTests.m */; };
-		10EF091C6AA0067B18302CCC /* libPods-smartGreenhouse-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDA94B33292EF9DAF5D6BE6C /* libPods-smartGreenhouse-tvOS.a */; };
+		00E356F31AD99517003FC87E /* ThermoSmartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ThermoSmartTests.m */; };
+		10EF091C6AA0067B18302CCC /* libPods-ThermoSmart-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DDA94B33292EF9DAF5D6BE6C /* libPods-ThermoSmart-tvOS.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		2DCD954D1E0B4F2C00145EB5 /* smartGreenhouseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* smartGreenhouseTests.m */; };
-		7E88495E7033A02E8C46619B /* libPods-smartGreenhouse-smartGreenhouseTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A23DF45758C29367B76A08F9 /* libPods-smartGreenhouse-smartGreenhouseTests.a */; };
+		2DCD954D1E0B4F2C00145EB5 /* ThermoSmartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ThermoSmartTests.m */; };
+		7E88495E7033A02E8C46619B /* libPods-ThermoSmart-ThermoSmartTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A23DF45758C29367B76A08F9 /* libPods-ThermoSmart-ThermoSmartTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		A66EF6DC1933B1DA818F07D3 /* libPods-smartGreenhouse-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC8D1EED0055862A08BAA67 /* libPods-smartGreenhouse-tvOSTests.a */; };
-		C58B2E20F880BC19C7B496F0 /* libPods-smartGreenhouse.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F852AB25EA5E0EBAEC90482D /* libPods-smartGreenhouse.a */; };
+		A66EF6DC1933B1DA818F07D3 /* libPods-ThermoSmart-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC8D1EED0055862A08BAA67 /* libPods-ThermoSmart-tvOSTests.a */; };
+		C58B2E20F880BC19C7B496F0 /* libPods-ThermoSmart.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F852AB25EA5E0EBAEC90482D /* libPods-ThermoSmart.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,45 +28,45 @@
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
-			remoteInfo = smartGreenhouse;
+			remoteInfo = ThermoSmart;
 		};
 		2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 2D02E47A1E0B4A5D006451C7;
-			remoteInfo = "smartGreenhouse-tvOS";
+			remoteInfo = "ThermoSmart-tvOS";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		00E356EE1AD99517003FC87E /* smartGreenhouseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = smartGreenhouseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356EE1AD99517003FC87E /* ThermoSmartTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ThermoSmartTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		00E356F21AD99517003FC87E /* smartGreenhouseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = smartGreenhouseTests.m; sourceTree = "<group>"; };
-		12226D06E662C5C9D554407E /* Pods-smartGreenhouse.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse.release.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse/Pods-smartGreenhouse.release.xcconfig"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* smartGreenhouse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = smartGreenhouse.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = smartGreenhouse/AppDelegate.h; sourceTree = "<group>"; };
-		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = smartGreenhouse/AppDelegate.m; sourceTree = "<group>"; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = smartGreenhouse/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = smartGreenhouse/Info.plist; sourceTree = "<group>"; };
-		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = smartGreenhouse/main.m; sourceTree = "<group>"; };
-		25C9A2010B884AA92760337E /* Pods-smartGreenhouse-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-tvOS.release.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-tvOS/Pods-smartGreenhouse-tvOS.release.xcconfig"; sourceTree = "<group>"; };
-		2D02E47B1E0B4A5D006451C7 /* smartGreenhouse-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "smartGreenhouse-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D02E4901E0B4A5D006451C7 /* smartGreenhouse-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "smartGreenhouse-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D3FECF877D2C7903A58D7F3 /* Pods-smartGreenhouse-smartGreenhouseTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-smartGreenhouseTests.debug.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-smartGreenhouseTests/Pods-smartGreenhouse-smartGreenhouseTests.debug.xcconfig"; sourceTree = "<group>"; };
-		3573E7D631A2CFAA296E0099 /* Pods-smartGreenhouse-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-tvOS/Pods-smartGreenhouse-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
-		5AC8D1EED0055862A08BAA67 /* libPods-smartGreenhouse-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smartGreenhouse-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		7BDEED1D1255C6585D342558 /* Pods-smartGreenhouse-smartGreenhouseTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-smartGreenhouseTests.release.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-smartGreenhouseTests/Pods-smartGreenhouse-smartGreenhouseTests.release.xcconfig"; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = smartGreenhouse/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		9980663EDC38485F632606A0 /* Pods-smartGreenhouse-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-tvOSTests/Pods-smartGreenhouse-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
-		A23DF45758C29367B76A08F9 /* libPods-smartGreenhouse-smartGreenhouseTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smartGreenhouse-smartGreenhouseTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		A690C4DD4381C960C5E4A653 /* Pods-smartGreenhouse-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse-tvOSTests/Pods-smartGreenhouse-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		D789E7FC2D06D1E4E8CB1D3F /* Pods-smartGreenhouse.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-smartGreenhouse.debug.xcconfig"; path = "Target Support Files/Pods-smartGreenhouse/Pods-smartGreenhouse.debug.xcconfig"; sourceTree = "<group>"; };
-		DDA94B33292EF9DAF5D6BE6C /* libPods-smartGreenhouse-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smartGreenhouse-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		00E356F21AD99517003FC87E /* ThermoSmartTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ThermoSmartTests.m; sourceTree = "<group>"; };
+		12226D06E662C5C9D554407E /* Pods-ThermoSmart.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart.release.xcconfig"; path = "Target Support Files/Pods-ThermoSmart/Pods-ThermoSmart.release.xcconfig"; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* ThermoSmart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ThermoSmart.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ThermoSmart/AppDelegate.h; sourceTree = "<group>"; };
+		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ThermoSmart/AppDelegate.m; sourceTree = "<group>"; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ThermoSmart/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ThermoSmart/Info.plist; sourceTree = "<group>"; };
+		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ThermoSmart/main.m; sourceTree = "<group>"; };
+		25C9A2010B884AA92760337E /* Pods-ThermoSmart-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-tvOS.release.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-tvOS/Pods-ThermoSmart-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		2D02E47B1E0B4A5D006451C7 /* ThermoSmart-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ThermoSmart-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D02E4901E0B4A5D006451C7 /* ThermoSmart-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ThermoSmart-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D3FECF877D2C7903A58D7F3 /* Pods-ThermoSmart-ThermoSmartTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-ThermoSmartTests.debug.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-ThermoSmartTests/Pods-ThermoSmart-ThermoSmartTests.debug.xcconfig"; sourceTree = "<group>"; };
+		3573E7D631A2CFAA296E0099 /* Pods-ThermoSmart-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-tvOS/Pods-ThermoSmart-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		5AC8D1EED0055862A08BAA67 /* libPods-ThermoSmart-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThermoSmart-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7BDEED1D1255C6585D342558 /* Pods-ThermoSmart-ThermoSmartTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-ThermoSmartTests.release.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-ThermoSmartTests/Pods-ThermoSmart-ThermoSmartTests.release.xcconfig"; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ThermoSmart/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9980663EDC38485F632606A0 /* Pods-ThermoSmart-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-tvOSTests/Pods-ThermoSmart-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A23DF45758C29367B76A08F9 /* libPods-ThermoSmart-ThermoSmartTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThermoSmart-ThermoSmartTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A690C4DD4381C960C5E4A653 /* Pods-ThermoSmart-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-ThermoSmart-tvOSTests/Pods-ThermoSmart-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		D789E7FC2D06D1E4E8CB1D3F /* Pods-ThermoSmart.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ThermoSmart.debug.xcconfig"; path = "Target Support Files/Pods-ThermoSmart/Pods-ThermoSmart.debug.xcconfig"; sourceTree = "<group>"; };
+		DDA94B33292EF9DAF5D6BE6C /* libPods-ThermoSmart-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThermoSmart-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		F852AB25EA5E0EBAEC90482D /* libPods-smartGreenhouse.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-smartGreenhouse.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F852AB25EA5E0EBAEC90482D /* libPods-ThermoSmart.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ThermoSmart.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7E88495E7033A02E8C46619B /* libPods-smartGreenhouse-smartGreenhouseTests.a in Frameworks */,
+				7E88495E7033A02E8C46619B /* libPods-ThermoSmart-ThermoSmartTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C58B2E20F880BC19C7B496F0 /* libPods-smartGreenhouse.a in Frameworks */,
+				C58B2E20F880BC19C7B496F0 /* libPods-ThermoSmart.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,7 +90,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10EF091C6AA0067B18302CCC /* libPods-smartGreenhouse-tvOS.a in Frameworks */,
+				10EF091C6AA0067B18302CCC /* libPods-ThermoSmart-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -98,20 +98,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A66EF6DC1933B1DA818F07D3 /* libPods-smartGreenhouse-tvOSTests.a in Frameworks */,
+				A66EF6DC1933B1DA818F07D3 /* libPods-ThermoSmart-tvOSTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00E356EF1AD99517003FC87E /* smartGreenhouseTests */ = {
+		00E356EF1AD99517003FC87E /* ThermoSmartTests */ = {
 			isa = PBXGroup;
 			children = (
-				00E356F21AD99517003FC87E /* smartGreenhouseTests.m */,
+				00E356F21AD99517003FC87E /* ThermoSmartTests.m */,
 				00E356F01AD99517003FC87E /* Supporting Files */,
 			);
-			path = smartGreenhouseTests;
+			path = ThermoSmartTests;
 			sourceTree = "<group>";
 		};
 		00E356F01AD99517003FC87E /* Supporting Files */ = {
@@ -122,7 +122,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* smartGreenhouse */ = {
+		13B07FAE1A68108700A75B9A /* ThermoSmart */ = {
 			isa = PBXGroup;
 			children = (
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -133,7 +133,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
-			name = smartGreenhouse;
+			name = ThermoSmart;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -141,10 +141,10 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				F852AB25EA5E0EBAEC90482D /* libPods-smartGreenhouse.a */,
-				A23DF45758C29367B76A08F9 /* libPods-smartGreenhouse-smartGreenhouseTests.a */,
-				DDA94B33292EF9DAF5D6BE6C /* libPods-smartGreenhouse-tvOS.a */,
-				5AC8D1EED0055862A08BAA67 /* libPods-smartGreenhouse-tvOSTests.a */,
+				F852AB25EA5E0EBAEC90482D /* libPods-ThermoSmart.a */,
+				A23DF45758C29367B76A08F9 /* libPods-ThermoSmart-ThermoSmartTests.a */,
+				DDA94B33292EF9DAF5D6BE6C /* libPods-ThermoSmart-tvOS.a */,
+				5AC8D1EED0055862A08BAA67 /* libPods-ThermoSmart-tvOSTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -159,9 +159,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* smartGreenhouse */,
+				13B07FAE1A68108700A75B9A /* ThermoSmart */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				00E356EF1AD99517003FC87E /* smartGreenhouseTests */,
+				00E356EF1AD99517003FC87E /* ThermoSmartTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				E16AA3D0732D9CDB590F5E8D /* Pods */,
@@ -175,10 +175,10 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* smartGreenhouse.app */,
-				00E356EE1AD99517003FC87E /* smartGreenhouseTests.xctest */,
-				2D02E47B1E0B4A5D006451C7 /* smartGreenhouse-tvOS.app */,
-				2D02E4901E0B4A5D006451C7 /* smartGreenhouse-tvOSTests.xctest */,
+				13B07F961A680F5B00A75B9A /* ThermoSmart.app */,
+				00E356EE1AD99517003FC87E /* ThermoSmartTests.xctest */,
+				2D02E47B1E0B4A5D006451C7 /* ThermoSmart-tvOS.app */,
+				2D02E4901E0B4A5D006451C7 /* ThermoSmart-tvOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -186,14 +186,14 @@
 		E16AA3D0732D9CDB590F5E8D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D789E7FC2D06D1E4E8CB1D3F /* Pods-smartGreenhouse.debug.xcconfig */,
-				12226D06E662C5C9D554407E /* Pods-smartGreenhouse.release.xcconfig */,
-				2D3FECF877D2C7903A58D7F3 /* Pods-smartGreenhouse-smartGreenhouseTests.debug.xcconfig */,
-				7BDEED1D1255C6585D342558 /* Pods-smartGreenhouse-smartGreenhouseTests.release.xcconfig */,
-				3573E7D631A2CFAA296E0099 /* Pods-smartGreenhouse-tvOS.debug.xcconfig */,
-				25C9A2010B884AA92760337E /* Pods-smartGreenhouse-tvOS.release.xcconfig */,
-				9980663EDC38485F632606A0 /* Pods-smartGreenhouse-tvOSTests.debug.xcconfig */,
-				A690C4DD4381C960C5E4A653 /* Pods-smartGreenhouse-tvOSTests.release.xcconfig */,
+				D789E7FC2D06D1E4E8CB1D3F /* Pods-ThermoSmart.debug.xcconfig */,
+				12226D06E662C5C9D554407E /* Pods-ThermoSmart.release.xcconfig */,
+				2D3FECF877D2C7903A58D7F3 /* Pods-ThermoSmart-ThermoSmartTests.debug.xcconfig */,
+				7BDEED1D1255C6585D342558 /* Pods-ThermoSmart-ThermoSmartTests.release.xcconfig */,
+				3573E7D631A2CFAA296E0099 /* Pods-ThermoSmart-tvOS.debug.xcconfig */,
+				25C9A2010B884AA92760337E /* Pods-ThermoSmart-tvOS.release.xcconfig */,
+				9980663EDC38485F632606A0 /* Pods-ThermoSmart-tvOSTests.debug.xcconfig */,
+				A690C4DD4381C960C5E4A653 /* Pods-ThermoSmart-tvOSTests.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -210,9 +210,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		00E356ED1AD99517003FC87E /* smartGreenhouseTests */ = {
+		00E356ED1AD99517003FC87E /* ThermoSmartTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "smartGreenhouseTests" */;
+			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "ThermoSmartTests" */;
 			buildPhases = (
 				40A9DD52F45737EA47D1B057 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
@@ -225,14 +225,14 @@
 			dependencies = (
 				00E356F51AD99517003FC87E /* PBXTargetDependency */,
 			);
-			name = smartGreenhouseTests;
-			productName = smartGreenhouseTests;
-			productReference = 00E356EE1AD99517003FC87E /* smartGreenhouseTests.xctest */;
+			name = ThermoSmartTests;
+			productName = ThermoSmartTests;
+			productReference = 00E356EE1AD99517003FC87E /* ThermoSmartTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		13B07F861A680F5B00A75B9A /* smartGreenhouse */ = {
+		13B07F861A680F5B00A75B9A /* ThermoSmart */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "smartGreenhouse" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ThermoSmart" */;
 			buildPhases = (
 				107AD59B04AD7CA4C14DA9F9 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
@@ -246,14 +246,14 @@
 			);
 			dependencies = (
 			);
-			name = smartGreenhouse;
-			productName = smartGreenhouse;
-			productReference = 13B07F961A680F5B00A75B9A /* smartGreenhouse.app */;
+			name = ThermoSmart;
+			productName = ThermoSmart;
+			productReference = 13B07F961A680F5B00A75B9A /* ThermoSmart.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2D02E47A1E0B4A5D006451C7 /* smartGreenhouse-tvOS */ = {
+		2D02E47A1E0B4A5D006451C7 /* ThermoSmart-tvOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "smartGreenhouse-tvOS" */;
+			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "ThermoSmart-tvOS" */;
 			buildPhases = (
 				BA1147A89E791B3468432F36 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F122414F3F0027D42C /* Start Packager */,
@@ -266,14 +266,14 @@
 			);
 			dependencies = (
 			);
-			name = "smartGreenhouse-tvOS";
-			productName = "smartGreenhouse-tvOS";
-			productReference = 2D02E47B1E0B4A5D006451C7 /* smartGreenhouse-tvOS.app */;
+			name = "ThermoSmart-tvOS";
+			productName = "ThermoSmart-tvOS";
+			productReference = 2D02E47B1E0B4A5D006451C7 /* ThermoSmart-tvOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2D02E48F1E0B4A5D006451C7 /* smartGreenhouse-tvOSTests */ = {
+		2D02E48F1E0B4A5D006451C7 /* ThermoSmart-tvOSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "smartGreenhouse-tvOSTests" */;
+			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "ThermoSmart-tvOSTests" */;
 			buildPhases = (
 				59AC65F08DF62F7C066A73A1 /* [CP] Check Pods Manifest.lock */,
 				2D02E48C1E0B4A5D006451C7 /* Sources */,
@@ -285,9 +285,9 @@
 			dependencies = (
 				2D02E4921E0B4A5D006451C7 /* PBXTargetDependency */,
 			);
-			name = "smartGreenhouse-tvOSTests";
-			productName = "smartGreenhouse-tvOSTests";
-			productReference = 2D02E4901E0B4A5D006451C7 /* smartGreenhouse-tvOSTests.xctest */;
+			name = "ThermoSmart-tvOSTests";
+			productName = "ThermoSmart-tvOSTests";
+			productReference = 2D02E4901E0B4A5D006451C7 /* ThermoSmart-tvOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -316,7 +316,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "smartGreenhouse" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ThermoSmart" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -329,10 +329,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* smartGreenhouse */,
-				00E356ED1AD99517003FC87E /* smartGreenhouseTests */,
-				2D02E47A1E0B4A5D006451C7 /* smartGreenhouse-tvOS */,
-				2D02E48F1E0B4A5D006451C7 /* smartGreenhouse-tvOSTests */,
+				13B07F861A680F5B00A75B9A /* ThermoSmart */,
+				00E356ED1AD99517003FC87E /* ThermoSmartTests */,
+				2D02E47A1E0B4A5D006451C7 /* ThermoSmart-tvOS */,
+				2D02E48F1E0B4A5D006451C7 /* ThermoSmart-tvOSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -401,7 +401,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-smartGreenhouse-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ThermoSmart-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -437,7 +437,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-smartGreenhouse-smartGreenhouseTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ThermoSmart-ThermoSmartTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -459,7 +459,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-smartGreenhouse-tvOSTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ThermoSmart-tvOSTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -472,7 +472,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-smartGreenhouse/Pods-smartGreenhouse-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-ThermoSmart/Pods-ThermoSmart-resources.sh",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf",
@@ -513,7 +513,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-smartGreenhouse/Pods-smartGreenhouse-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThermoSmart/Pods-ThermoSmart-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		BA1147A89E791B3468432F36 /* [CP] Check Pods Manifest.lock */ = {
@@ -531,7 +531,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-smartGreenhouse-tvOS-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ThermoSmart-tvOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -544,7 +544,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-smartGreenhouse-smartGreenhouseTests/Pods-smartGreenhouse-smartGreenhouseTests-resources.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-ThermoSmart-ThermoSmartTests/Pods-ThermoSmart-ThermoSmartTests-resources.sh",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Entypo.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf",
@@ -585,7 +585,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-smartGreenhouse-smartGreenhouseTests/Pods-smartGreenhouse-smartGreenhouseTests-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ThermoSmart-ThermoSmartTests/Pods-ThermoSmart-ThermoSmartTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
@@ -633,7 +633,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00E356F31AD99517003FC87E /* smartGreenhouseTests.m in Sources */,
+				00E356F31AD99517003FC87E /* ThermoSmartTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,7 +659,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2DCD954D1E0B4F2C00145EB5 /* smartGreenhouseTests.m in Sources */,
+				2DCD954D1E0B4F2C00145EB5 /* ThermoSmartTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -668,12 +668,12 @@
 /* Begin PBXTargetDependency section */
 		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* smartGreenhouse */;
+			target = 13B07F861A680F5B00A75B9A /* ThermoSmart */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 		2D02E4921E0B4A5D006451C7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2D02E47A1E0B4A5D006451C7 /* smartGreenhouse-tvOS */;
+			target = 2D02E47A1E0B4A5D006451C7 /* ThermoSmart-tvOS */;
 			targetProxy = 2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -681,14 +681,14 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2D3FECF877D2C7903A58D7F3 /* Pods-smartGreenhouse-smartGreenhouseTests.debug.xcconfig */;
+			baseConfigurationReference = 2D3FECF877D2C7903A58D7F3 /* Pods-ThermoSmart-ThermoSmartTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = smartGreenhouseTests/Info.plist;
+				INFOPLIST_FILE = ThermoSmartTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -698,17 +698,17 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/smartGreenhouse.app/smartGreenhouse";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermoSmart.app/ThermoSmart";
 			};
 			name = Debug;
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7BDEED1D1255C6585D342558 /* Pods-smartGreenhouse-smartGreenhouseTests.release.xcconfig */;
+			baseConfigurationReference = 7BDEED1D1255C6585D342558 /* Pods-ThermoSmart-ThermoSmartTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = smartGreenhouseTests/Info.plist;
+				INFOPLIST_FILE = ThermoSmartTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -718,19 +718,19 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/smartGreenhouse.app/smartGreenhouse";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermoSmart.app/ThermoSmart";
 			};
 			name = Release;
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D789E7FC2D06D1E4E8CB1D3F /* Pods-smartGreenhouse.debug.xcconfig */;
+			baseConfigurationReference = D789E7FC2D06D1E4E8CB1D3F /* Pods-ThermoSmart.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = smartGreenhouse/Info.plist;
+				INFOPLIST_FILE = ThermoSmart/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -738,7 +738,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = smartGreenhouse;
+				PRODUCT_NAME = ThermoSmart;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -747,12 +747,12 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 12226D06E662C5C9D554407E /* Pods-smartGreenhouse.release.xcconfig */;
+			baseConfigurationReference = 12226D06E662C5C9D554407E /* Pods-ThermoSmart.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				INFOPLIST_FILE = smartGreenhouse/Info.plist;
+				INFOPLIST_FILE = ThermoSmart/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -760,7 +760,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = smartGreenhouse;
+				PRODUCT_NAME = ThermoSmart;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -768,7 +768,7 @@
 		};
 		2D02E4971E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3573E7D631A2CFAA296E0099 /* Pods-smartGreenhouse-tvOS.debug.xcconfig */;
+			baseConfigurationReference = 3573E7D631A2CFAA296E0099 /* Pods-ThermoSmart-tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -779,14 +779,14 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "smartGreenhouse-tvOS/Info.plist";
+				INFOPLIST_FILE = "ThermoSmart-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.smartGreenhouse-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.ThermoSmart-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -796,7 +796,7 @@
 		};
 		2D02E4981E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 25C9A2010B884AA92760337E /* Pods-smartGreenhouse-tvOS.release.xcconfig */;
+			baseConfigurationReference = 25C9A2010B884AA92760337E /* Pods-ThermoSmart-tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -807,14 +807,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "smartGreenhouse-tvOS/Info.plist";
+				INFOPLIST_FILE = "ThermoSmart-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.smartGreenhouse-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.ThermoSmart-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -824,7 +824,7 @@
 		};
 		2D02E4991E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9980663EDC38485F632606A0 /* Pods-smartGreenhouse-tvOSTests.debug.xcconfig */;
+			baseConfigurationReference = 9980663EDC38485F632606A0 /* Pods-ThermoSmart-tvOSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -834,24 +834,24 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "smartGreenhouse-tvOSTests/Info.plist";
+				INFOPLIST_FILE = "ThermoSmart-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.smartGreenhouse-tvOSTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.ThermoSmart-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/smartGreenhouse-tvOS.app/smartGreenhouse-tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermoSmart-tvOS.app/ThermoSmart-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
 			name = Debug;
 		};
 		2D02E49A1E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A690C4DD4381C960C5E4A653 /* Pods-smartGreenhouse-tvOSTests.release.xcconfig */;
+			baseConfigurationReference = A690C4DD4381C960C5E4A653 /* Pods-ThermoSmart-tvOSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -861,17 +861,17 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "smartGreenhouse-tvOSTests/Info.plist";
+				INFOPLIST_FILE = "ThermoSmart-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.smartGreenhouse-tvOSTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.ThermoSmart-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/smartGreenhouse-tvOS.app/smartGreenhouse-tvOS";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ThermoSmart-tvOS.app/ThermoSmart-tvOS";
 				TVOS_DEPLOYMENT_TARGET = 10.1;
 			};
 			name = Release;
@@ -992,7 +992,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "smartGreenhouseTests" */ = {
+		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "ThermoSmartTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
@@ -1001,7 +1001,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "smartGreenhouse" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "ThermoSmart" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -1010,7 +1010,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "smartGreenhouse-tvOS" */ = {
+		2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "ThermoSmart-tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2D02E4971E0B4A5E006451C7 /* Debug */,
@@ -1019,7 +1019,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "smartGreenhouse-tvOSTests" */ = {
+		2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "ThermoSmart-tvOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2D02E4991E0B4A5E006451C7 /* Debug */,
@@ -1028,7 +1028,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "smartGreenhouse" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "ThermoSmart" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
