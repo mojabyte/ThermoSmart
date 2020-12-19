@@ -1,4 +1,4 @@
-# smartGreenhouse
+# ThermoSmart
 
 [![CircleCI](https://circleci.com/gh/infinitered/ignite-bowser.svg?style=svg)](https://circleci.com/gh/infinitered/ignite-bowser)
 
