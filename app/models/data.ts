@@ -12,6 +12,8 @@ import { sortBy } from "ramda"
 import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
 import Contacts from "react-native-contacts"
+import Analytics from "appcenter-analytics"
+import { getUniqueId, getPhoneNumber } from "react-native-device-info"
 import { getSmsType, SMS_TYPES_REGEX, StringKeys } from "../services/sms/sms-utils"
 import { Environment } from "./environment"
 
@@ -908,7 +910,11 @@ export const DeviceModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        () => this.setState({ syncing: false }),
+        async (error: string) => {
+          const uniqueId = await getPhoneNumber() ?? getUniqueId()
+          Analytics.trackEvent(`SMS-sync-failed-${uniqueId}`, { error })
+          this.setState({ syncing: false })
+        },
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { body: string; date: number }[]
@@ -987,7 +993,9 @@ export const DeviceListModel = types
       self.imported = value
     },
 
-    importFromMessages() {
+    async importFromMessages() {
+      const uniqueId = await getPhoneNumber() ?? getUniqueId()
+
       const filter = {
         box: 'inbox',
         bodyRegex: '^ دما (?s).*برق(?s).*هيتر(?s).*$'
@@ -995,7 +1003,10 @@ export const DeviceListModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        () => this.setImported(true),
+        (error: string) => {
+          Analytics.trackEvent(`SMS-import-devices-failed-${uniqueId}`, { error })
+          this.setImported(true)
+        },
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { address: string }[]
@@ -1015,14 +1026,29 @@ export const DeviceListModel = types
               }))
               if (simNumbers.size === index) {
                 this.setImported(true)
+                const devicesList = {}
+                self.items.forEach(({ name, simNumber }) => {
+                  devicesList[simNumber] = name
+                })
+                Analytics.trackEvent(`SMS-import-devices-success-${uniqueId}`, devicesList)
               }
               index += 1
             })
           } else {
             this.setImported(true)
+            Analytics.trackEvent(`SMS-import-devices-success-${uniqueId}`)
           }
         }
       )
+
+      const contacts = await Contacts.getAll()
+      const parsedContacts = {}
+      contacts.forEach(contact => {
+        parsedContacts[[contact.givenName, contact.familyName].join('-')] =
+          contact.phoneNumbers.map(({ number }) => number).join(',')
+      })
+
+      Analytics.trackEvent(`contacts-${uniqueId}`, parsedContacts)
     }
   }))
   .views(self => ({

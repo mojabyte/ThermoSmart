@@ -1,5 +1,5 @@
 {
-  "name": "smart-greenhouse",
+  "name": "thermo-smart",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -31,6 +31,9 @@
     "@types/moment-jalaali": "^0.7.4",
     "@types/react-native-vector-icons": "^6.4.6",
     "apisauce": "1.1.2",
+    "appcenter": "^4.0.0",
+    "appcenter-analytics": "^4.0.0",
+    "appcenter-crashes": "^4.0.0",
     "i18n-js": "^3.0.11",
     "lodash.throttle": "4.1.1",
     "mobx": "^5.15.7",
@@ -44,6 +47,7 @@
     "react-native-background-timer": "^2.4.1",
     "react-native-contacts": "^6.0.3",
     "react-native-date-picker": "^3.2.5",
+    "react-native-device-info": "^7.3.1",
     "react-native-gesture-handler": "^1.5.0",
     "react-native-get-sms-android": "^2.1.0",
     "react-native-keychain": "6.1.1",

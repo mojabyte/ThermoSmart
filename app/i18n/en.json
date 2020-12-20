@@ -70,7 +70,7 @@
     },
     "namePlaceholder": "My Device",
     "simNumber": "SIM Number",
-    "simNumberPlaceholder": "09xx xxxxxxx",
+    "simNumberPlaceholder": "09XX XXXXXXX",
     "simNumberErrors": {
       "invalid": "Please enter a valid sim number",
       "exists": "The device with this sim number already exists"
