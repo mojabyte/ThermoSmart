@@ -1024,7 +1024,7 @@ export const DeviceListModel = types
                 place: ''
               }))
               if (simNumbers.size === index) {
-                this.setImported(true)
+                setTimeout(() => this.setImported(true), 1000)
                 const devicesList = {}
                 self.items.forEach(({ name, simNumber }) => {
                   devicesList[simNumber] = name

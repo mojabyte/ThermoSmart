@@ -235,7 +235,6 @@ export const MainScreen = observer(function MainScreen() {
   }, [devices, selectedDeviceID])
 
   useEffect(() => {
-    devices.importFromMessages() // TODO: remove this
     if (devices.items.length > 0) {
       if (!devices.get(selectedDeviceID)) {
         setSelectedDeviceID(devices.items[0].simNumber)

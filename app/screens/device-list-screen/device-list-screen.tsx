@@ -29,13 +29,6 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
   const [isOptionsModalVisible, setOptionsModalVisible] = useState(false)
   const [selectedDevice, setSelectedDevice] = useState<Device>(null)
 
-  useEffect(() => {
-    devices.items.forEach(device => {
-      device.restoreFromMessages()
-      device.subscribeForMessages()
-    })
-  }, [devices.items])
-
   return (
     <Screen style={ROOT}>
       <Header
@@ -102,6 +95,11 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
           )
         }}
         ItemSeparatorComponent={() => <View style={SEPARATOR} />}
+        onRefresh={() => devices.items.forEach(device => {
+          device.restoreFromMessages()
+          device.subscribeForMessages()
+        })}
+        refreshing={selectedDevice?.state.syncing ?? false}
       />
 
       <OptionsModal
