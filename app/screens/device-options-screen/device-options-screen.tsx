@@ -157,7 +157,7 @@ export const DeviceOptionsScreen = observer(function DeviceOptionsScreen() {
         >
           {selectedDevice.clock.setTime
             ? <Clock initialTime={selectedDevice.getClockNow()}/>
-            : <Text text="---" />
+            : <Text text="--:--" />
           }
         </ListItem>
 

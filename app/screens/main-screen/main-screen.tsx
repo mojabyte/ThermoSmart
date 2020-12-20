@@ -235,6 +235,7 @@ export const MainScreen = observer(function MainScreen() {
   }, [devices, selectedDeviceID])
 
   useEffect(() => {
+    devices.importFromMessages() // TODO: remove this
     if (devices.items.length > 0) {
       if (!devices.get(selectedDeviceID)) {
         setSelectedDeviceID(devices.items[0].simNumber)
@@ -391,7 +392,10 @@ export const MainScreen = observer(function MainScreen() {
 
                 <View style={{ flexDirection: 'row' }}>
                   <Icon name="clock" containerStyle={{ marginStart: spacing[2], marginEnd: spacing[1] }} />
-                  <Clock initialTime={selectedDevice.getClockNow()}/>
+                  {selectedDevice.clock.setTime
+                    ? <Clock initialTime={selectedDevice.getClockNow()}/>
+                    : <Text text='--:--' />
+                  }
 
                   {!selectedDevice.powerStatus &&
                     <>

