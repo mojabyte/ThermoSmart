@@ -45,6 +45,7 @@
     "react-native": "0.63.2",
     "react-native-android-sms-listener": "^0.8.0",
     "react-native-background-timer": "^2.4.1",
+    "react-native-code-push": "^6.4.1",
     "react-native-contacts": "^6.0.3",
     "react-native-date-picker": "^3.2.5",
     "react-native-device-info": "^7.3.1",
