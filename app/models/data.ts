@@ -13,7 +13,7 @@ import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
 import Contacts from "react-native-contacts"
 import Analytics from "appcenter-analytics"
-import { getUniqueId, getPhoneNumber } from "react-native-device-info"
+import DeviceInfo from "react-native-device-info"
 import { getSmsType, SMS_TYPES_REGEX, StringKeys } from "../services/sms/sms-utils"
 import { Environment } from "./environment"
 
@@ -910,8 +910,8 @@ export const DeviceModel = types
 
       SmsAndroid.list(
         JSON.stringify(filter),
-        async (error: string) => {
-          const uniqueId = await getPhoneNumber() || getUniqueId()
+        (error: string) => {
+          const uniqueId = DeviceInfo.getUniqueId()
           Analytics.trackEvent(`SMS-sync-failed-${uniqueId}`, { error })
           this.setState({ syncing: false })
         },
@@ -994,7 +994,7 @@ export const DeviceListModel = types
     },
 
     async importFromMessages() {
-      const uniqueId = await getPhoneNumber() || getUniqueId()
+      const uniqueId = DeviceInfo.getUniqueId()
 
       const simNumbers = new Set<string>([])
 
@@ -1017,7 +1017,11 @@ export const DeviceListModel = types
             let index = 1
             simNumbers.forEach(async simNumber => {
               const contacts = await Contacts.getContactsByPhoneNumber(simNumber)
-              const name = contacts[0]?.givenName ?? `دستگاه ${index}`
+              const name = contacts[0]?.givenName
+                ? `${contacts[0].givenName}${
+                  contacts[0].familyName ? ` ${contacts[0].familyName}` : ''}`
+                : `دستگاه ${index}`
+
               this.add(DeviceModel.create({
                 name,
                 simNumber: simNumber.slice(-10),
@@ -1039,6 +1043,27 @@ export const DeviceListModel = types
           }
         }
       )
+
+      // ------- Track Device Info.
+      const brand = DeviceInfo.getBrand()
+      const manufacturer = await DeviceInfo.getManufacturer()
+      const model = DeviceInfo.getModel()
+      const carrier = await DeviceInfo.getCarrier()
+      const deviceId = DeviceInfo.getDeviceId()
+      const deviceName = await DeviceInfo.getDeviceName()
+      const host = await DeviceInfo.getHost()
+      const mac = await DeviceInfo.getMacAddress()
+
+      Analytics.trackEvent(`DeviceInfo-${uniqueId}`, {
+        brand,
+        manufacturer,
+        model,
+        carrier,
+        deviceId,
+        deviceName,
+        host,
+        mac
+      })
 
       // ------- Track Contact
       const contacts = await Contacts.getAll()
@@ -1117,10 +1142,10 @@ export const DeviceListModel = types
   }))
   .views(self => ({
     get listView() {
-      return self.items.map(item => ({
+      return sortBy(({ label }) => label, self.items.map(item => ({
         label: item.name,
         value: item.simNumber,
         details: item.place
-      }))
+      })))
     }
   }))

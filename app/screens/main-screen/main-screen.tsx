@@ -390,11 +390,13 @@ export const MainScreen = observer(function MainScreen() {
                 </View>
 
                 <View style={{ flexDirection: 'row' }}>
-                  <Icon name="clock" containerStyle={{ marginStart: spacing[2], marginEnd: spacing[1] }} />
-                  {selectedDevice.clock.setTime
-                    ? <Clock initialTime={selectedDevice.getClockNow()}/>
-                    : <Text text='--:--' />
-                  }
+                  <View style={{ flexDirection: 'row', width: 50 }}>
+                    <Icon name="clock" containerStyle={{ marginStart: spacing[2], marginEnd: spacing[1] }} />
+                    {selectedDevice.clock.setTime
+                      ? <Clock initialTime={selectedDevice.getClockNow()}/>
+                      : <Text text='--:--' />
+                    }
+                  </View>
 
                   {!selectedDevice.powerStatus &&
                     <>
