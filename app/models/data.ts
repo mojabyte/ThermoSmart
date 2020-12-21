@@ -324,11 +324,7 @@ export const DeviceModel = types
 
       this.sendSms('GET_TEMPERATURE', `#85#${hour}*`, (response, error) => {
         if (!error) {
-          const value = parseFloats(response)[0]
-          if (value) {
-            const ts = `${+moment().set('hour', hour).startOf('hour')}`
-            this.setTemperature({ value, ts })
-          }
+          this.getCallbacks().GET_TEMPERATURE(response)
         }
         this.setState({ getTemperatureLoading: false })
       })
@@ -336,7 +332,7 @@ export const DeviceModel = types
     async getLast24Temperatures() {
       this.setState({ getTemperatureLoading: true })
 
-      const getTemp = (hour: number) => new Promise<number>((resolve, reject) => this.sendSms(
+      const getTemp = (hour: number) => new Promise<string>((resolve, reject) => this.sendSms(
         'GET_TEMPERATURE',
         `#85#${hour}*`,
         (response, error) => {
@@ -344,17 +340,19 @@ export const DeviceModel = types
             reject(error)
             return
           }
-          const value = parseFloats(response)[0]
-          resolve(value)
+          resolve(response)
         }
       ))
 
       const hours = [...Array(24)].map((_, i) => +moment().add(-i, 'hours').startOf('hour'))
 
-      for (const ts of hours) {
+      while (hours.length > 0) {
+        const ts = hours[0]
         if (!self.temperatures.get(`${ts}`)) {
-          const value = await getTemp((new Date(ts)).getHours())
-          this.setTemperature({ value, ts: `${ts}` })
+          const response = await getTemp((new Date(ts)).getHours())
+          this.getCallbacks().GET_TEMPERATURE(response)
+        } else {
+          hours.shift()
         }
       }
 

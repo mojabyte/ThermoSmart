@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { Dimensions, View, ViewStyle } from "react-native"
+import { ActivityIndicator, Dimensions, View, ViewStyle } from "react-native"
 import {
   VictoryAxis,
   VictoryChart,
@@ -9,8 +9,7 @@ import {
   VictoryScatter,
   VictoryTheme,
   VictoryTooltip,
-  VictoryVoronoiContainer,
-  VictoryZoomContainer
+  VictoryVoronoiContainer
 } from "victory-native"
 import moment from "moment-jalaali"
 import { Header, ListItem, Screen } from "../../components"
@@ -52,24 +51,36 @@ export const TemperatureChartScreen = observer(function TemperatureChartScreen()
       <Header
         headerTx="temperatureChartScreen.title"
         leftIcon="back"
-        onLeftPress={() => navigation.goBack()}
+        onLeftPress={navigation.goBack}
         rightIcon="refresh"
-        onRightPress={() => selectedDevice.reset()}
+        // onRightPress={selectedDevice.reset}
+        onRightPress={selectedDevice.getLast24Temperatures}
       />
 
       <View>
+        <ActivityIndicator
+          animating={selectedDevice.state.getTemperatureLoading}
+          color={color.palette.black}
+          style={{ position: 'absolute', right: 0, left: 0 }}
+        />
         <VictoryChart
           width={Dimensions.get('window').width}
+          height={Dimensions.get('window').height / 2}
           theme={VictoryTheme.material}
           domainPadding={{ y: 50 }}
           containerComponent={
-            // <VictoryVoronoiContainer
-            //   labels={({ datum }) => `${datum.x} ${datum.y}°c`}
-            //   labelComponent={<VictoryTooltip centerOffset={{ y: -30 }} />}
-            //   voronoiBlacklist={['line']}
-            // />
-            <VictoryZoomContainer zoomDimension="x" />
+            <VictoryVoronoiContainer
+              labels={({ datum }) => `${datum.x} ${datum.y}°c`}
+              labelComponent={<VictoryTooltip centerOffset={{ y: -30 }} />}
+              voronoiBlacklist={['line']}
+            />
           }
+          padding={{
+            top: 25,
+            left: 45,
+            right: 20,
+            bottom: 40
+          }}
         >
           <VictoryAxis fixLabelOverlap tickLabelComponent={<VictoryLabel angle={-45} />} />
           <VictoryAxis

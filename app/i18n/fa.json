@@ -149,6 +149,6 @@
     "updateModalTitle": "ویرایش شماره تلفن %{index}#"
   },
   "temperatureChartScreen": {
-    "title": "Temperature History"
+    "title": "نمودار دما"
   }
 }
