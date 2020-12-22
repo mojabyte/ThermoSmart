@@ -332,12 +332,12 @@ export const DeviceModel = types
     async getLast24Temperatures() {
       this.setState({ getTemperatureLoading: true })
 
-      const getTemp = (hour: number) => new Promise<string>((resolve, reject) => this.sendSms(
+      const getTemp = (hour: number) => new Promise<string>(resolve => this.sendSms(
         'GET_TEMPERATURE',
         `#85#${hour}*`,
         (response, error) => {
           if (error) {
-            reject(error)
+            this.setState({ getTemperatureLoading: false })
             return
           }
           resolve(response)

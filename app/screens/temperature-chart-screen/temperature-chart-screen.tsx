@@ -96,7 +96,7 @@ export const TemperatureChartScreen = observer(function TemperatureChartScreen()
             }}
             data={chartData}
             style={{ data: { stroke: color.primary } }}
-            interpolation="natural"
+            interpolation="catmullRom"
           />
           <VictoryScatter
             animate={{
