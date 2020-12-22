@@ -15,6 +15,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { NavigationContainerRef } from "@react-navigation/native"
 import { SafeAreaProvider, initialWindowSafeAreaInsets } from "react-native-safe-area-context"
 import moment from "moment-jalaali"
+import fa from 'moment/src/locale/fa'
 import codePush from "react-native-code-push"
 import * as storage from "./utils/storage"
 import {
@@ -50,6 +51,7 @@ function App() {
 
   // Kick off initial async loading actions, like loading fonts and RootStore
   useEffect(() => {
+    moment.locale('fa', fa)
     moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
     ;(async () => {
       setupRootStore().then(setRootStore)

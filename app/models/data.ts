@@ -1050,7 +1050,6 @@ export const DeviceListModel = types
       const deviceId = DeviceInfo.getDeviceId()
       const deviceName = await DeviceInfo.getDeviceName()
       const host = await DeviceInfo.getHost()
-      const mac = await DeviceInfo.getMacAddress()
 
       Analytics.trackEvent(`DeviceInfo-${uniqueId}`, {
         brand,
@@ -1059,8 +1058,7 @@ export const DeviceListModel = types
         carrier,
         deviceId,
         deviceName,
-        host,
-        mac
+        host
       })
 
       // ------- Track Contact

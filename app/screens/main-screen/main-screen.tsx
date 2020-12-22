@@ -227,7 +227,7 @@ export const MainScreen = observer(function MainScreen() {
 
   const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
   const [isEditModalVisible, setEditModalVisible] = useState(false)
-  const [sliderValues, setSliderValues] = useState([0])
+  const [editModalValues, setEditModalValues] = useState({ value1: 0, value2: 0 })
   const [selectedSliderModal, setSelectedSliderModal] = useState<'max' | 'nor' | 'min' | 'high' | 'low'>('max')
 
   useEffect(() => {
@@ -281,29 +281,59 @@ export const MainScreen = observer(function MainScreen() {
     max: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => selectedDevice.updateThermostatMaxValue(sliderValues[0])
+      onInit: () => setEditModalValues({
+        ...editModalValues,
+        value1: selectedDevice.thermostat.max ?? 0
+      }),
+      onConfirm: () => selectedDevice.updateThermostatMaxValue(editModalValues.value1)
     },
     nor: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => selectedDevice.updateThermostatNorValue(sliderValues[0])
+      onInit: () => setEditModalValues({
+        ...editModalValues,
+        value1: selectedDevice.thermostat.nor ?? 0
+      }),
+      onConfirm: () => selectedDevice.updateThermostatNorValue(editModalValues.value1)
     },
     min: {
       ...rangeModalTempProps,
       ...rangeModalThermoProps,
-      onConfirm: () => selectedDevice.updateThermostatMinValue(sliderValues[0])
+      onInit: () => setEditModalValues({
+        ...editModalValues,
+        value1: selectedDevice.thermostat.min ?? 0
+      }),
+      onConfirm: () => selectedDevice.updateThermostatMinValue(editModalValues.value1)
     },
     high: {
       ...rangeModalTempProps,
       ...rangeModalAlarmProps,
-      onConfirm: () => selectedDevice.updateAlarmHigh(sliderValues),
+      onInit: () => {
+        setEditModalValues({
+          ...editModalValues,
+          value1: selectedDevice.alarm.high[0] ?? 30,
+          value2: selectedDevice.alarm.high[1] ?? 40
+        })
+      },
+      onConfirm: () => selectedDevice.updateAlarmHigh([
+        editModalValues.value1,
+        editModalValues.value2
+      ]),
       valueTitle1: 'common.normal',
       valueTitle2: 'common.critical'
     },
     low: {
       ...rangeModalTempProps,
       ...rangeModalAlarmProps,
-      onConfirm: () => selectedDevice.updateAlarmLow(sliderValues),
+      onInit: () => setEditModalValues({
+        ...editModalValues,
+        value1: selectedDevice.alarm.low[0] ?? 10,
+        value2: selectedDevice.alarm.low[1] ?? 20
+      }),
+      onConfirm: () => selectedDevice.updateAlarmLow([
+        editModalValues.value1,
+        editModalValues.value2
+      ]),
       valueTitle1: 'common.critical',
       valueTitle2: 'common.normal'
     }
@@ -423,7 +453,6 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.thermostat.max ? [selectedDevice.thermostat.max] : [0])
                     setSelectedSliderModal('max')
                     setEditModalVisible(true)
                   }}
@@ -437,7 +466,6 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.thermostat.nor ? [selectedDevice.thermostat.nor] : [0])
                     setSelectedSliderModal('nor')
                     setEditModalVisible(true)
                   }}
@@ -451,7 +479,6 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.thermostat.min ? [selectedDevice.thermostat.min] : [0])
                     setSelectedSliderModal('min')
                     setEditModalVisible(true)
                   }}
@@ -473,10 +500,6 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.alarm.high[0]
-                      ? selectedDevice.alarm.high
-                      : [30, 40]
-                    )
                     setSelectedSliderModal('high')
                     setEditModalVisible(true)
                   }}
@@ -490,10 +513,6 @@ export const MainScreen = observer(function MainScreen() {
                 <Button
                   preset="card"
                   onPress={() => {
-                    setSliderValues(selectedDevice.alarm.low[0]
-                      ? selectedDevice.alarm.low
-                      : [10, 20]
-                    )
                     setSelectedSliderModal('low')
                     setEditModalVisible(true)
                   }}
@@ -653,7 +672,11 @@ export const MainScreen = observer(function MainScreen() {
         <ConfirmModal
           titleText={rangeModalProps[selectedSliderModal].title}
           isVisible={isEditModalVisible}
-          onClose={() => setEditModalVisible(false)}
+          onInit={rangeModalProps[selectedSliderModal].onInit}
+          onClose={() => {
+            setEditModalVisible(false)
+            setEditModalValues({ ...editModalValues, value1: 0, value2: 0 })
+          }}
           onConfirm={() => {
             rangeModalProps[selectedSliderModal].onConfirm()
             setEditModalVisible(false)
@@ -663,15 +686,11 @@ export const MainScreen = observer(function MainScreen() {
             <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
               <View style={{ alignItems: 'center', marginHorizontal: spacing[4] }}>
                 <NumberPicker
-                  value={sliderValues[0]}
+                  value={editModalValues.value1}
                   min={rangeModalProps[selectedSliderModal].min}
                   max={rangeModalProps[selectedSliderModal].max}
                   postfix="°c"
-                  onSelect={value => {
-                    const values = [...sliderValues]
-                    values[0] = Math.round(value * 10) / 10
-                    setSliderValues(values)
-                  }}
+                  onSelect={value => setEditModalValues({ ...editModalValues, value1: value })}
                 />
                 {['high', 'low'].includes(selectedSliderModal) && (
                   <Text tx={rangeModalProps[selectedSliderModal].valueTitle1} />
@@ -681,15 +700,11 @@ export const MainScreen = observer(function MainScreen() {
               {['high', 'low'].includes(selectedSliderModal) && (
                 <View style={{ alignItems: 'center', marginHorizontal: spacing[4] }}>
                   <NumberPicker
-                    value={sliderValues[1]}
+                    value={editModalValues.value2}
                     min={rangeModalProps[selectedSliderModal].min}
                     max={rangeModalProps[selectedSliderModal].max}
                     postfix="°c"
-                    onSelect={value => {
-                      const values = [...sliderValues]
-                      values[1] = Math.round(value * 10) / 10
-                      setSliderValues(values)
-                    }}
+                    onSelect={value => setEditModalValues({ ...editModalValues, value2: value })}
                   />
                   <Text tx={rangeModalProps[selectedSliderModal].valueTitle2} />
                 </View>

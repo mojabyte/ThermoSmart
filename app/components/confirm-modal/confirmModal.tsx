@@ -9,6 +9,7 @@ import { ConfirmModalProps } from "./confirmModal.props"
 import { mergeAll, flatten } from "ramda"
 import { translate } from "../../i18n"
 import { color, spacing } from "../../theme"
+import { load } from "../../utils/storage"
 
 /**
  * For your text displaying needs.
@@ -97,14 +98,18 @@ export function ConfirmModal(props: ConfirmModalProps): React.ReactElement {
   const title = titleText || (titleTx && translate(titleTx)) || ""
   const leftTitle = leftTitleText || (leftTitleTx && translate(leftTitleTx))
 
+  const [shown, setShown] = React.useState(false)
+
   const init = React.useRef(onInit)
   React.useEffect(() => {
     init.current = onInit
   }, [onInit])
 
   React.useEffect(() => {
-    if (isVisible && !loading) init.current()
-  }, [isVisible, loading])
+    if (shown && isVisible && !loading) {
+      init.current()
+    }
+  }, [shown, isVisible, loading])
 
   return (
     <Modal
@@ -112,7 +117,11 @@ export function ConfirmModal(props: ConfirmModalProps): React.ReactElement {
       onBackdropPress={onClose}
       onSwipeComplete={onClose}
       onBackButtonPress={onClose}
+      onModalWillShow={() => setShown(true)}
+      onModalWillHide={() => setShown(false)}
       // swipeDirection={['down']}
+      useNativeDriver
+      useNativeDriverForBackdrop
       hideModalContentWhileAnimating
       backdropTransitionOutTiming={0}
       style={modalStyle}

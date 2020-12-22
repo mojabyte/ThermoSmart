@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useMemo, useState } from "react"
 import { I18nManager, View, ViewStyle } from "react-native"
 import { NumberPickerProps } from "./numberPicker.props"
 import { WheelPicker } from "react-native-wheel-picker-android"
@@ -20,13 +20,14 @@ export function NumberPicker(props: NumberPickerProps): JSX.Element {
     alignItems: 'center'
   }
 
-  const [main, setMain] = useState(0)
-  const [decimal, setDecimal] = useState(0)
+  const main = useMemo(() => Math.floor(value - min), [value, min])
+  const decimal = useMemo(() => Math.round((value - min) % 1 * 10), [value, min])
 
-  useEffect(() => {
-    setMain(Math.floor(value - min))
-    setDecimal(Math.round((value - min) % 1 * 10))
-  }, [value, min])
+  const select = useCallback(onSelect, [onSelect])
+
+  // Fixes WheelPicker bug that auto triggers onItemSelected on init
+  const [mainInit, setMainInit] = useState(false)
+  const [decimalInit, setDecimalInit] = useState(false)
 
   return (
     <View style={ROOT}>
@@ -34,8 +35,14 @@ export function NumberPicker(props: NumberPickerProps): JSX.Element {
         selectedItem={main}
         data={[...Array(max - min + 1)].map((_, i) => `${min + i}`)}
         onItemSelected={item => {
-          setMain(item)
-          onSelect(item + decimal / 10 + min)
+          if (mainInit) {
+            // Fixes WheelPicker bug that triggers onItemSelected on selectedItem change
+            if (item !== main) {
+              select(item + decimal / 10 + min)
+            }
+          } else {
+            setMainInit(true)
+          }
         }}
         style={{ width: 50, height: 120 }}
       />
@@ -44,8 +51,14 @@ export function NumberPicker(props: NumberPickerProps): JSX.Element {
         selectedItem={decimal}
         data={[...Array(10)].map((_, i) => `${i}`)}
         onItemSelected={item => {
-          setDecimal(item)
-          onSelect(main + item / 10 + min)
+          if (decimalInit) {
+            // Fixes WheelPicker bug that triggers onItemSelected on selectedItem change
+            if (item !== decimal) {
+              select(main + item / 10 + min)
+            }
+          } else {
+            setDecimalInit(true)
+          }
         }}
         style={{ width: 30, height: 120 }}
       />
