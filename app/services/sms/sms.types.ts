@@ -20,6 +20,7 @@ export type SmsPendingList = Map<string, Map<string, SmsPendingListItem>>
 export type SmsSubscriptionList = Map<string, Map<string, SmsSubscriptionListItem>>
 
 export interface SendParams {
+  simSlot?: 0 | 1
   phoneNumber: string
   type: string
   message: string

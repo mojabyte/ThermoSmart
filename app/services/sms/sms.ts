@@ -22,6 +22,11 @@ export class Sms {
   pendingList: Types.SmsPendingList
 
   /**
+   * Selected SIM slot to send from
+   */
+  simSlot: number
+
+  /**
    * List of subscriptions
    */
   subscriptionsList: Types.SmsSubscriptionList
@@ -77,10 +82,12 @@ export class Sms {
     const phoneNumberWithCode = `+98${phoneNumber}`
     if (!(this.pendingList.has(phoneNumberWithCode) &&
       this.pendingList.get(phoneNumberWithCode).has(type))) {
-      SmsAndroid.autoSend(
+      SmsAndroid.autoSendMultiSim(
+        this.simSlot ?? 2,
         phoneNumberWithCode,
         message,
         (error: string) => {
+          console.log(error)
           callback(undefined, error)
         },
         () => {
@@ -137,5 +144,12 @@ export class Sms {
       )
     }
     this.pendingList.delete(phoneNumberWithCode)
+  }
+
+  /**
+   * Select SIM slot
+   */
+  selectSimSlot(simSlot: number): void {
+    this.simSlot = simSlot
   }
 }

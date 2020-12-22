@@ -99,8 +99,8 @@ const getTimeFormat = (ts: number) => {
   const date = moment(ts).isAfter(moment().startOf('day'))
     ? 'امروز'
     : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
-      ? 'دیروز'
-      : moment(ts).format('jDD jMMM'))
+        ? 'دیروز'
+        : moment(ts).format('jDD jMMM'))
   return `${date}   ${moment(ts).format('HH:mm')}`
 }
 
@@ -175,7 +175,15 @@ const Card = observer(function Card({
 export const MainScreen = observer(function MainScreen() {
   const navigation = useNavigation()
 
-  const { devices, state: { selectedDeviceID, setSelectedDeviceID } } = useStores()
+  const {
+    devices,
+    state: {
+      selectedDeviceID,
+      setSelectedDeviceID,
+      selectedSimSlot,
+      setSelectedSimSlot
+    }
+  } = useStores()
 
   const [smsPermissionGranted, setSmsPermission] = useState(false)
 
@@ -185,7 +193,8 @@ export const MainScreen = observer(function MainScreen() {
         PermissionsAndroid.PERMISSIONS.SEND_SMS,
         PermissionsAndroid.PERMISSIONS.READ_SMS,
         PermissionsAndroid.PERMISSIONS.RECEIVE_SMS,
-        PermissionsAndroid.PERMISSIONS.READ_CONTACTS
+        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+        PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE
       ])
         .then(resultsObject => {
           const results = Object.values(resultsObject)
@@ -224,6 +233,9 @@ export const MainScreen = observer(function MainScreen() {
 
     requestPermission()
   }, [])
+
+  // TODO: better implementation for selecting sim slot in sms service
+  useEffect(() => setSelectedSimSlot(selectedSimSlot), [selectedSimSlot, setSelectedSimSlot])
 
   const [selectedDevice, setSelectedDevice] = useState<Device>(devices.get(selectedDeviceID))
   const [isEditModalVisible, setEditModalVisible] = useState(false)
@@ -623,8 +635,21 @@ export const MainScreen = observer(function MainScreen() {
         <Header
           preset="primary"
           headerTx="mainScreen.title"
-          // leftIcon="cog"
-          // onLeftPress={() => {}}
+          leftIcon={selectedSimSlot === 0
+            ? 'numeric-1-box-outline'
+            : selectedSimSlot === 1
+              ? 'numeric-2-box-outline'
+              : 'alpha-d-box-outline'
+          }
+          onLeftPress={() => {
+            if (selectedSimSlot === 0) {
+              setSelectedSimSlot(1)
+            } else if (selectedSimSlot === 1) {
+              setSelectedSimSlot(null)
+            } else {
+              setSelectedSimSlot(0)
+            }
+          }}
           rightIcon="plus"
           onRightPress={() => navigation.navigate('add')}
         />
