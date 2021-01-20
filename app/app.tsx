@@ -17,6 +17,7 @@ import { SafeAreaProvider, initialWindowSafeAreaInsets } from "react-native-safe
 import moment from "moment-jalaali"
 import fa from 'moment/src/locale/fa'
 import codePush from "react-native-code-push"
+import SharedPreferences from 'react-native-shared-preferences'
 import * as storage from "./utils/storage"
 import {
   useBackButtonHandler,
@@ -53,6 +54,9 @@ function App() {
   useEffect(() => {
     moment.locale('fa', fa)
     moment.loadPersian({ dialect: 'persian-modern', usePersianDigits: true })
+
+    SharedPreferences.setName('preferences')
+
     ;(async () => {
       setupRootStore().then(setRootStore)
     })()

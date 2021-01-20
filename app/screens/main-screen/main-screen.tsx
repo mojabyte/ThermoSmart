@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import moment from "moment-jalaali"
 import Modal from 'react-native-modal'
-import SharedPreferences from 'react-native-shared-preferences';
+import SharedPreferences from 'react-native-shared-preferences'
 import {
   Button,
   Clock,
@@ -245,10 +245,14 @@ export const MainScreen = observer(function MainScreen() {
 
   useEffect(() => {
     setSelectedDevice(devices.get(selectedDeviceID))
-    const alarms = [{ name: selectedDeviceID || 'empty' }]
-    SharedPreferences.setName('preferences')
-    SharedPreferences.setItem('alarms', JSON.stringify(alarms))
   }, [devices, selectedDeviceID])
+
+  useEffect(() => {
+    SharedPreferences.setItem(
+      'devices',
+      JSON.stringify(devices.listView.map(item => ({ ...item, value: `+98${item.value}` })))
+    )
+  }, [devices.listView])
 
   useEffect(() => {
     if (devices.items.length > 0) {

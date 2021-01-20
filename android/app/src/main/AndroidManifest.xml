@@ -40,7 +40,7 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-      <receiver android:process=":remote" android:name=".SMSReceiver">
+      <receiver android:name=".SMSReceiver">
           <intent-filter>
               <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
           </intent-filter>
