@@ -1,14 +1,14 @@
 PODS:
-  - appcenter-analytics (4.0.0):
-    - AppCenter/Analytics
-    - AppCenterReactNativeShared
+  - appcenter-analytics (4.0.2):
+    - AppCenter/Analytics (~> 4.0)
+    - AppCenterReactNativeShared (~> 4.0)
     - React-Core
-  - appcenter-core (4.0.0):
-    - AppCenterReactNativeShared
+  - appcenter-core (4.0.2):
+    - AppCenterReactNativeShared (~> 4.0)
     - React-Core
-  - appcenter-crashes (4.0.0):
-    - AppCenter/Crashes
-    - AppCenterReactNativeShared
+  - appcenter-crashes (4.0.2):
+    - AppCenter/Crashes (~> 4.0)
+    - AppCenterReactNativeShared (~> 4.0)
     - React-Core
   - AppCenter/Analytics (4.0.0):
     - AppCenter/Core
@@ -348,8 +348,8 @@ PODS:
     - React
   - RNSVG (12.1.0):
     - React
-  - RNVectorIcons (7.1.0):
-    - React
+  - RNVectorIcons (8.1.0):
+    - React-Core
   - SSZipArchive (2.2.3)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -534,9 +534,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppCenter: 51351e0121e40ba75e28ecb7de5c2e69d480df5e
-  appcenter-analytics: 3e8bf76870877c5abdfb752e1dc014be2b2030e4
-  appcenter-core: e7aa4513ee9173b82c4a4497d49abb0ec7ceb159
-  appcenter-crashes: 0052b9ae5cc6b5c184238eb6c230ed5942d91f10
+  appcenter-analytics: f1bcf80219acb97acdabeda751a1591869f83dfd
+  appcenter-core: 92618da8986eef80bae39d1bb2b4c9fa0fc873bd
+  appcenter-crashes: 6fe933bbc9a1d2b64e451b348169640a9fea8729
   AppCenterReactNativeShared: 69aedc15c136e5f76a0cc9eb2ad84d3cefc6e64f
   Base64: cecfb41a004124895a7bcee567a89bae5a89d49b
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -590,7 +590,7 @@ SPEC CHECKSUMS:
   RNLocalize: 49634a6a605dcdeb319e9c42a5c2f1aec508694b
   RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
-  RNVectorIcons: bc69e6a278b14842063605de32bec61f0b251a59
+  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
