@@ -56,12 +56,12 @@ export const DeviceModel = types
     }),
 
     alarm: types.optional(types.model({
-      high: types.array(types.number),
-      low: types.array(types.number),
+      high: types.array(types.maybeNull(types.number)),
+      low: types.array(types.maybeNull(types.number)),
       interval: types.number
     }), {
-      high: [],
-      low: [],
+      high: [null, null],
+      low: [null, null],
       interval: 0
     }),
 
