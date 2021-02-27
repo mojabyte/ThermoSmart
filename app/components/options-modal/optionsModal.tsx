@@ -45,8 +45,8 @@ export function OptionsModal(props: OptionsModalProps) {
       onSwipeComplete={onClose}
       onBackButtonPress={onClose}
       // swipeDirection={['down']}
-      hideModalContentWhileAnimating
-      backdropTransitionOutTiming={0}
+      useNativeDriver
+      useNativeDriverForBackdrop
       animationIn="fadeIn"
       animationOut="fadeOut"
       style={modalStyle}

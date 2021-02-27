@@ -122,8 +122,6 @@ export function ConfirmModal(props: ConfirmModalProps): React.ReactElement {
       // swipeDirection={['down']}
       useNativeDriver
       useNativeDriverForBackdrop
-      hideModalContentWhileAnimating
-      backdropTransitionOutTiming={0}
       style={modalStyle}
       {...rest}
     >
