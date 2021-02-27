@@ -81,6 +81,20 @@
     "add": "افزودن",
     "apply": "تأیید"
   },
+  "settingsScreen": {
+    "title": "تنظیمات",
+    "sim": {
+      "title": "سیم کارت",
+      "details": "انتخاب سیم کارت برای ارسال پیامک",
+      "value0": "پیش فرض",
+      "value1": "سیم ۱",
+      "value2": "سیم ۲"
+    },
+    "alarm": {
+      "title": "زنگ هشدار",
+      "details": "پخش زنگ هشدار بعد از دریافت پیامک هشدار دستگاه"
+    }
+  },
   "deviceOptionsScreen": {
     "title": "دستگاه‌ها",
     "rightHeader": "ویرایش",

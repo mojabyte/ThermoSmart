@@ -182,7 +182,8 @@ export const MainScreen = observer(function MainScreen() {
       selectedDeviceID,
       setSelectedDeviceID,
       selectedSimSlot,
-      setSelectedSimSlot
+      setSelectedSimSlot,
+      alarmSettings,
     }
   } = useStores()
 
@@ -253,6 +254,14 @@ export const MainScreen = observer(function MainScreen() {
       JSON.stringify(devices.listView.map(item => ({ ...item, value: `+98${item.value}` })))
     )
   }, [devices.listView])
+
+  // TODO: use deep compare effect to trigger on object changes
+  useEffect(() => {
+    SharedPreferences.setItem(
+      'alarm',
+      JSON.stringify(alarmSettings)
+    )
+  }, [alarmSettings, alarmSettings.isEnabled])
 
   useEffect(() => {
     if (devices.items.length > 0) {
@@ -658,8 +667,8 @@ export const MainScreen = observer(function MainScreen() {
               setSelectedSimSlot(0)
             }
           }}
-          rightIcon="plus"
-          onRightPress={() => navigation.navigate('add')}
+          rightIcon="cog"
+          onRightPress={() => navigation.navigate('settings')}
         />
         {(devices.items.length > 0 && selectedDevice?.simNumber) && (
           <Button

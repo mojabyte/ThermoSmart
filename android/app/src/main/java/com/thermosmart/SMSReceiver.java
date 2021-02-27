@@ -36,8 +36,18 @@ public class SMSReceiver extends BroadcastReceiver {
       String alarmDetails = null;
 
       SharedPreferences settings = context.getSharedPreferences("preferences", Context.MODE_PRIVATE);
-      String alarmsString = settings.getString("alarms", null);
+      String alarmString = settings.getString("alarm", null);
       String devicesString = settings.getString("devices", null);
+
+      try {
+        JSONObject alarm = new JSONObject(alarmString);
+        if (!alarm.getBoolean("isEnabled")) {
+          return;
+        }
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+
 
       for (int i = 0; i < messages.length; i++) {
         messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
@@ -67,7 +77,6 @@ public class SMSReceiver extends BroadcastReceiver {
           } catch (JSONException e) {
               e.printStackTrace();
           }
-
         }
       }
 

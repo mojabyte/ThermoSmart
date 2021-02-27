@@ -80,6 +80,20 @@
     "add": "Add",
     "apply": "Apply"
   },
+  "settingsScreen": {
+    "title": "Settings",
+    "sim": {
+      "title": "Default SIM Card",
+      "details": "Select default SIM card to send SMS",
+      "value0": "default",
+      "value1": "SIM 1",
+      "value2": "SIM 2"
+    },
+    "alarm": {
+      "title": "Alarm",
+      "details": "Play alarm sound after receiving the device alarm SMS"
+    }
+  },
   "deviceOptionsScreen": {
     "title": "Devices",
     "rightHeader": "Edit",

@@ -11,9 +11,10 @@ import {
   MainScreen,
   DeviceListScreen,
   AddDeviceScreen,
+  SettingsScreen,
   DeviceOptionsScreen,
   DevicePhonesScreen,
-  TemperatureChartScreen
+  TemperatureChartScreen,
 } from "../screens"
 
 /**
@@ -32,8 +33,9 @@ export type PrimaryParamList = {
   main: undefined
   list: undefined
   add: { selectedDeviceID?: string }
+  settings: undefined
   options: undefined
-  phones: undefined,
+  phones: undefined
   chart: undefined
 }
 
@@ -51,6 +53,7 @@ export function PrimaryNavigator() {
       <Stack.Screen name="main" component={MainScreen} />
       <Stack.Screen name="list" component={DeviceListScreen} />
       <Stack.Screen name="add" component={AddDeviceScreen} />
+      <Stack.Screen name="settings" component={SettingsScreen} />
 
       <Stack.Screen name="options" component={DeviceOptionsScreen} />
       <Stack.Screen name="phones" component={DevicePhonesScreen} />

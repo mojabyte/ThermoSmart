@@ -1,12 +1,20 @@
-import { getEnv, types } from 'mobx-state-tree'
+import { getEnv, types } from "mobx-state-tree"
 import { Environment } from "./environment"
 
 export const StateModel = types
   .model({
     selectedDeviceID: types.maybeNull(types.string),
-    selectedSimSlot: types.maybeNull(types.number)
+    selectedSimSlot: types.maybeNull(types.number),
+    alarmSettings: types.optional(
+      types.model({
+        isEnabled: types.boolean,
+      }),
+      {
+        isEnabled: true,
+      },
+    ),
   })
-  .actions(self => ({
+  .actions((self) => ({
     setSelectedDeviceID(deviceID: string) {
       self.selectedDeviceID = deviceID
     },
@@ -14,5 +22,8 @@ export const StateModel = types
       const env: Environment = getEnv(self)
       self.selectedSimSlot = simSlot
       env.sms.selectSimSlot(simSlot)
-    }
+    },
+    setAlarmStatus(status: boolean) {
+      self.alarmSettings.isEnabled = status
+    },
   }))
