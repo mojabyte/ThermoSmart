@@ -871,6 +871,10 @@ export const DeviceModel = types
         UPDATE_POWER_STATUS: body => {
           const status = body.match(/^برق (قطع|وصل) شد\n(\S*)$/)[1] === 'وصل'
           this.setPowerStatus(status)
+        },
+        ALARM: body => {
+          const value = parseFloat(body.match(SMS_TYPES_REGEX.ALARM)[1])
+          this.setTemperature({ value, ts: `${+moment()}` })
         }
       } as Record<keyof typeof SMS_TYPES_REGEX, (body?: string, date?: number) => void>)
     },

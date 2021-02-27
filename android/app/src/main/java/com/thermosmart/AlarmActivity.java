@@ -48,11 +48,11 @@ public class AlarmActivity extends Activity {
     String details = getIntent().getStringExtra("DETAILS");
 
     TextView titleTextView = (TextView) findViewById(R.id.title);
-    titleTextView.setTextSize(40);
+    titleTextView.setTextSize(24);
     titleTextView.setText(title);
 
     TextView detailsTextView = (TextView) findViewById(R.id.details);
-    detailsTextView.setTextSize(32);
+    detailsTextView.setTextSize(18);
     detailsTextView.setText(details);
 
     Button stopAlarm = (Button) findViewById(R.id.stopAlarm);

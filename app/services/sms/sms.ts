@@ -46,11 +46,7 @@ export class Sms {
     // })
 
     SmsListener.addListener(({ body, originatingAddress }: any) => {
-      console.log(originatingAddress)
-      console.log(body)
-
       const type = getSmsType(body)
-      console.log(type)
 
       // Check if there exists a pending SMS in the list
       if (
@@ -67,7 +63,7 @@ export class Sms {
       ) {
         const thisSubscriptionList = this.subscriptionsList.get(originatingAddress)
         const { callback } = thisSubscriptionList.get(type)
-        const { callback: setSyncDate } = thisSubscriptionList.get('setSyncDate')
+        const { callback: setSyncDate } = thisSubscriptionList.get("setSyncDate")
         callback(body)
         setSyncDate()
       }
@@ -78,27 +74,26 @@ export class Sms {
    * Send a SMS message to the given phone number
    */
   send({ phoneNumber, type, message, callback, hasResponse }: Types.SendParams): void {
-    console.log(phoneNumber, type, message)
     const phoneNumberWithCode = `+98${phoneNumber}`
-    if (!(this.pendingList.has(phoneNumberWithCode) &&
-      this.pendingList.get(phoneNumberWithCode).has(type))) {
+    if (
+      !(
+        this.pendingList.has(phoneNumberWithCode) &&
+        this.pendingList.get(phoneNumberWithCode).has(type)
+      )
+    ) {
       SmsAndroid.autoSendMultiSim(
         this.simSlot ?? 2,
         phoneNumberWithCode,
         message,
         (error: string) => {
-          console.log(error)
           callback(undefined, error)
         },
         () => {
-          console.log(`message: ${message} sent successfully`)
-
           if (hasResponse) {
             // Clear item from pending list on timeout
             const timeout = BackgroundTimer.setTimeout(() => {
-              console.log('timeout')
               this.pendingList.get(phoneNumberWithCode)?.delete(type)
-              callback(undefined, 'timeout')
+              callback(undefined, "timeout")
             }, 60000)
 
             // Add new item to pending list
@@ -109,7 +104,7 @@ export class Sms {
           } else {
             callback()
           }
-        }
+        },
       )
     }
   }
@@ -122,14 +117,14 @@ export class Sms {
     if (!this.subscriptionsList.has(phoneNumberWithCode)) {
       this.subscriptionsList.set(
         phoneNumberWithCode,
-        new Map<string, Types.SmsSubscriptionListItem>()
+        new Map<string, Types.SmsSubscriptionListItem>(),
       )
     }
     const thisSubscriptionList = this.subscriptionsList.get(phoneNumberWithCode)
     subscriptions.forEach(({ type, callback }) => {
       thisSubscriptionList.set(type, { callback })
     })
-    thisSubscriptionList.set('setSyncDate', { callback: setSyncDate })
+    thisSubscriptionList.set("setSyncDate", { callback: setSyncDate })
   }
 
   /**
@@ -139,9 +134,9 @@ export class Sms {
     const phoneNumberWithCode = `+98${phoneNumber}`
     this.subscriptionsList.delete(phoneNumberWithCode)
     if (this.pendingList.get(phoneNumberWithCode)) {
-      this.pendingList.get(phoneNumberWithCode).forEach(
-        ({ timeout }) => BackgroundTimer.clearTimeout(timeout)
-      )
+      this.pendingList
+        .get(phoneNumberWithCode)
+        .forEach(({ timeout }) => BackgroundTimer.clearTimeout(timeout))
     }
     this.pendingList.delete(phoneNumberWithCode)
   }

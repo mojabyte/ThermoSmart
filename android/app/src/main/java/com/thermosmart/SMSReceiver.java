@@ -19,13 +19,14 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.regex.Pattern;
+
 public class SMSReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
     Bundle myBundle = intent.getExtras();
     SmsMessage [] messages = null;
-    String strMessage = "";
 
     if (myBundle != null) {
       Object [] pdus = (Object[]) myBundle.get("pdus");
@@ -41,40 +42,32 @@ public class SMSReceiver extends BroadcastReceiver {
       for (int i = 0; i < messages.length; i++) {
         messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
         String originatingAddress = messages[i].getOriginatingAddress();
-        // strMessage += "SMS From: " + messages[i].getOriginatingAddress();
-        // strMessage += " : ";
 
         // TODO: check if message body is alarm by regex
 
-        try {
-          // TODO: get alarm preferences
-          // JSONArray alarms = new JSONArray(alarmsString);
-          // JSONObject firstAlarm = alarms.getJSONObject(0);
-          // strMessage += firstAlarm.getString("name");
-          JSONArray devices = new JSONArray(devicesString);
-          for (int j = 0; j < devices.length(); j++) {
-            JSONObject device = devices.getJSONObject(j);
-            String simNumber = device.getString("value");
-            if (simNumber.equals(originatingAddress)) {
-              strMessage += simNumber;
-              strMessage += ":\n";
-              strMessage += messages[i].getMessageBody();
+        String message = messages[i].getMessageBody();
 
-              Toast.makeText(context, strMessage, Toast.LENGTH_SHORT).show();
-
-              alarmTitle = device.getString("label");
-              String details = device.getString("details");
-              if (details != null && !details.trim().isEmpty()) {
-                alarmTitle += " (" + details + ")";
+        if (Pattern.matches("(?m)ميزان  دما  (بيشتر|کمتر) از (ماكزيمم|مينيمم) شد(\\W)*(\\S)*", message)) {
+          try {
+            // TODO: get alarm preferences
+            JSONArray devices = new JSONArray(devicesString);
+            for (int j = 0; j < devices.length(); j++) {
+              JSONObject device = devices.getJSONObject(j);
+              String simNumber = device.getString("value");
+              if (simNumber.equals(originatingAddress)) {
+                alarmTitle = device.getString("label");
+                String details = device.getString("details");
+                if (details != null && !details.trim().isEmpty()) {
+                  alarmTitle += " (" + details + ")";
+                }
+                alarmDetails = message;
+                break;
               }
-
-              alarmDetails = messages[i].getMessageBody();
-
-              break;
             }
+          } catch (JSONException e) {
+              e.printStackTrace();
           }
-        } catch (JSONException e) {
-            e.printStackTrace();
+
         }
       }
 
@@ -84,11 +77,10 @@ public class SMSReceiver extends BroadcastReceiver {
         wakeIntent.putExtra("TITLE", alarmTitle);
         wakeIntent.putExtra("DETAILS", alarmDetails);
 
-
         PendingIntent pendingIntent = PendingIntent.getActivity(context.getApplicationContext(),
             12345, wakeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager am = (AlarmManager)context.getSystemService(Activity.ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, 1, pendingIntent);
+        am.set(AlarmManager.RTC_WAKEUP, 1000, pendingIntent);
       }
     }
     HeadlessJsTaskService.acquireWakeLockNow(context);
