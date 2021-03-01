@@ -52,12 +52,9 @@ public class SMSReceiver extends BroadcastReceiver {
       for (int i = 0; i < messages.length; i++) {
         messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
         String originatingAddress = messages[i].getOriginatingAddress();
-
-        // TODO: check if message body is alarm by regex
-
         String message = messages[i].getMessageBody();
 
-        if (Pattern.matches("(?m)ميزان  دما  (بيشتر|کمتر) از (ماكزيمم|مينيمم) شد(\\W)*(\\S)*", message)) {
+        if (Pattern.matches("(?m)ميزان  دما  (بيشتر|كمتر) از (ماكزيمم|مينيمم) شد(\\W)*(\\S)*", message)) {
           try {
             // TODO: get alarm preferences
             JSONArray devices = new JSONArray(devicesString);

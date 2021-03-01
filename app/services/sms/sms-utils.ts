@@ -32,7 +32,7 @@ export const SMS_TYPES_REGEX = {
   UPDATE_HEATER_STATUS: /^هيتر (روشن|خاموش) شد$/,
   UPDATE_FAN_STATUS: /^هواكش (روشن|خاموش) شد$/,
   UPDATE_POWER_STATUS: /^برق (قطع|وصل) شد\n(\S*)$/,
-  ALARM: /^ميزان {2}دما {2}(?:بيشتر|کمتر) از (?:ماكزيمم|مينيمم) شد\n<*(\d+(?:\.\d+)?)C>$/, // TODO: Needs revision
+  ALARM: /^ميزان {2}دما {2}(?:بيشتر|كمتر) از (?:ماكزيمم|مينيمم) شد\n<*(\d+(?:\.\d+)?)C>$/, // TODO: Needs revision
 
   OTHER: /.*/,
 }
