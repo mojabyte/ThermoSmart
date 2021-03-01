@@ -344,8 +344,8 @@ PODS:
     - React
   - RNLocalize (1.4.1):
     - React
-  - RNScreens (2.11.0):
-    - React
+  - RNScreens (2.18.0):
+    - React-Core
   - RNSVG (12.1.0):
     - React
   - RNVectorIcons (8.1.0):
@@ -588,7 +588,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 7a5833d0f788dbd107fbb913e09aa0c1ff333c39
   RNKeychain: db956c02a018f7dd3a0ea8a6cf3087bc1894bf2b
   RNLocalize: 49634a6a605dcdeb319e9c42a5c2f1aec508694b
-  RNScreens: 0e91da98ab26d5d04c7b59a9b6bd694124caf88c
+  RNScreens: f0d7a2a440a8ba9f4574ca1ddb3368f473891be4
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
