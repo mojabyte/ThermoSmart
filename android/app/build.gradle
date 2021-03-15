@@ -221,6 +221,8 @@ dependencies {
     }
 
     implementation 'org.json:json:20201115'
+
+    implementation 'com.android.volley:volley:1.2.0'
 }
 
 // Run this once to be able to run the application with BUCK
