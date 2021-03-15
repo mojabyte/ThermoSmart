@@ -25,10 +25,13 @@ export async function createEnvironment() {
  * Initial State of RootStore
  */
 const initialState = {
-  devices: { items: [] },
+  analytics: {
+    synced: false,
+  },
+  devices: { items: [], imported: false },
   state: {
-    selectedDeviceID: null
-  }
+    selectedDeviceID: null,
+  },
 }
 
 /**
@@ -43,6 +46,11 @@ export async function setupRootStore() {
   try {
     // load data from storage
     data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || initialState
+
+    if (!data.analytics) {
+      data.analytics = initialState.analytics
+    }
+
     rootStore = RootStoreModel.create(data, env)
   } catch (e) {
     console.log(e)

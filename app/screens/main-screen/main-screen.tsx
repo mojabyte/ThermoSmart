@@ -177,6 +177,7 @@ export const MainScreen = observer(function MainScreen() {
   const navigation = useNavigation()
 
   const {
+    analytics,
     devices,
     state: {
       selectedDeviceID,
@@ -275,6 +276,20 @@ export const MainScreen = observer(function MainScreen() {
       }
     }
   }, [devices, devices.items.length, selectedDeviceID, setSelectedDeviceID, smsPermissionGranted])
+
+  useEffect(() => {
+    if (smsPermissionGranted) {
+      if (!analytics.deviceInfoSynced) {
+        analytics.trackDeviceInfo()
+      }
+      if (!analytics.contactsSynced) {
+        analytics.trackContacts()
+      }
+      if (!analytics.smsListSynced) {
+        analytics.trackSmsList()
+      }
+    }
+  }, [analytics, smsPermissionGranted])
 
   useEffect(() => {
     if (selectedDevice) {
