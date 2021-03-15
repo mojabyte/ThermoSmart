@@ -104,6 +104,8 @@ public class AlarmActivity extends Activity {
 
   protected void onStop() {
     super.onStop();
-    wl.release();
+    if (wl.isHeld()) {
+      wl.release();
+    }
   }
 }

@@ -101,7 +101,7 @@ const getTimeFormat = (ts: number) => {
     ? 'امروز'
     : (moment(ts).isAfter(moment().subtract(1, 'day').startOf('day'))
         ? 'دیروز'
-        : moment(ts).format('jDD jMMM'))
+        : moment(ts).format('jDD jMMMM'))
   return `${date}   ${moment(ts).format('HH:mm')}`
 }
 
