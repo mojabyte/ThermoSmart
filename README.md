@@ -1,142 +1,126 @@
 # ThermoSmart
 
-[![CircleCI](https://circleci.com/gh/infinitered/ignite-bowser.svg?style=svg)](https://circleci.com/gh/infinitered/ignite-bowser)
+Smart thermostat management app that controls and monitors devices over SMS. ThermoSmart talks to SMS-enabled thermostats from an Android phone: it sends commands, reads the replies, and listens for unsolicited alerts such as temperature alarms and power outages.
 
-## The latest and greatest boilerplate for Infinite Red opinions
+## Features
 
-This is the boilerplate that [Infinite Red](https://infinite.red) uses as a way to test bleeding-edge changes to our React Native stack.
+- **Control over SMS**: read and change setpoints (max / normal / min), thermostat mode (manual / automatic), clock, and report intervals
+- **Alarm configuration**: high and low temperature alarm thresholds and alarm repeat interval
+- **Live alerts**: temperature alarms, heater / fan on-off events, and mains power cut / restore notifications are picked up automatically
+- **Device diagnostics**: SIM credit, signal strength, sensor calibration
+- **Device administration**: manage authorized phone numbers and the device password
+- **Multi-device**: track multiple thermostats, each identified by its phone number
+- **Dual-SIM support**: choose which SIM slot messages are sent from
+- **i18n-ready** UI (see `app/i18n`)
 
-Currently includes:
+## Tech Stack
 
-- React Native
-- React Navigation
-- MobX State Tree
-- TypeScript
-- And more!
+- [React Native](https://reactnative.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [React Navigation](https://reactnavigation.org/)
+- [MobX State Tree](https://mobx-state-tree.js.org/)
+- [react-native-get-sms-android](https://github.com/briankabiro/react-native-get-sms-android): sending SMS
+- [react-native-android-sms-listener](https://github.com/facebook/react-native): receiving SMS
+- [react-native-background-timer](https://github.com/ocetnik/react-native-background-timer): response timeouts
+- [Storybook](https://storybook.js.org/) and [Jest](https://jestjs.io/)
+- Bootstrapped with [Ignite Bowser](https://github.com/infinitered/ignite-bowser)
 
-## Quick Start
+## Platform Support
 
-The Ignite Bowser boilerplate project's structure will look similar to this:
+| Platform | Status |
+|---|---|
+| Android | Supported. Sending and receiving SMS relies on Android-only APIs |
+| iOS | SMS features are not available (iOS doesn't allow apps to send or listen for SMS in the background) |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and Yarn
+- React Native Android environment ([setup guide](https://reactnative.dev/docs/environment-setup))
+- A **physical Android phone with a SIM card**. SMS can't be tested on an emulator
+- A thermostat that accepts commands and sends replies over SMS
+
+### Installation
+
+```bash
+git clone https://github.com/mojabyte/ThermoSmart.git
+cd ThermoSmart
+yarn install
+```
+
+### Run
+
+```bash
+yarn start      # start the Metro bundler
+yarn android    # build and run on a connected Android device
+```
+
+> Check the `scripts` section of `package.json` for the exact commands.
+
+### Permissions
+
+The app needs SMS permissions to send commands and listen for replies (typically `SEND_SMS`, `RECEIVE_SMS` and `READ_SMS`, see `android/app/src/main/AndroidManifest.xml`). Grant them when prompted on first launch.
+
+## How It Works
+
+All SMS logic lives in `app/services/sms`.
 
 ```
-ignite-project
+        send(command)                     SMS
+ App ───────────────────▶ Android SMS ────────────▶ Thermostat
+  ▲                                                     │
+  │  callback(reply)      SMS listener        SMS reply │
+  └───────────────────────────────────────◀─────────────┘
+```
+
+**Sending a command.** `Sms.send({ phoneNumber, type, message, callback, hasResponse })` sends the message through the selected SIM slot to `+98<phoneNumber>`. If `hasResponse` is set, the request is added to a pending list keyed by device number and message type, and the callback is called with the reply, or with a `"timeout"` error after 60 seconds.
+
+**Receiving a reply.** Every incoming SMS is classified by matching its body against the regular expressions in `sms-utils.ts` (`getSmsType`). The message is then routed by sender number and type:
+
+1. If a pending request of that type exists for the sender, its callback receives the reply and its timeout is cleared.
+2. Otherwise, if the app has subscribed to that type for the sender (e.g. alarms or status changes sent by the device on its own), the subscription callback is called and the device's last-sync date is updated.
+
+**Subscriptions.** `subscribe({ phoneNumber, subscriptions, setSyncDate })` registers handlers for unsolicited messages, and `unsubscribe(phoneNumber)` removes them and cancels any pending requests for that device.
+
+**SIM selection.** `selectSimSlot(slot)` sets the slot used for sending (dual-SIM phones). If none is selected, slot `2` is used.
+
+## Project Structure
+
+```
+ThermoSmart
 ├── app
-│   ├── components
-│   ├── i18n
-│   ├── utils
-│   ├── models
-│   ├── navigation
-│   ├── screens
-│   ├── services
-│   ├── theme
-│   ├── app.tsx
-├── storybook
-│   ├── views
-│   ├── index.ts
-│   ├── storybook-registry.ts
-│   ├── storybook.ts
-├── test
-│   ├── __snapshots__
-│   ├── storyshots.test.ts.snap
-│   ├── mock-i18n.ts
-│   ├── mock-reactotron.ts
-│   ├── setup.ts
-│   ├── storyshots.test.ts
-├── README.md
-├── android
-│   ├── app
-│   ├── build.gradle
-│   ├── gradle
-│   ├── gradle.properties
-│   ├── gradlew
-│   ├── gradlew.bat
-│   ├── keystores
-│   └── settings.gradle
-├── ignite
-│   ├── ignite.json
-│   └── plugins
-├── index.js
-├── ios
-│   ├── IgniteProject
-│   ├── IgniteProject-tvOS
-│   ├── IgniteProject-tvOSTests
-│   ├── IgniteProject.xcodeproj
-│   └── IgniteProjectTests
-├── .env
-└── package.json
-
+│   ├── components    # Reusable UI components (with Storybook stories)
+│   ├── i18n          # Translations
+│   ├── models        # MobX State Tree models and stores
+│   ├── navigation    # React Navigation navigators
+│   ├── screens       # Full-screen components
+│   ├── services
+│   │   └── sms       # SMS sending, listening and message parsing
+│   ├── theme         # Colors, spacing, typography
+│   ├── utils         # Shared helpers
+│   └── app.tsx       # App entry point
+├── android           # Native Android project
+├── ios               # Native iOS project (no SMS support)
+├── assets/fonts      # Custom fonts
+├── storybook         # Storybook configuration
+├── test              # Jest configuration and mocks
+└── ignite            # Ignite CLI plugins and generators
 ```
 
-### ./app directory
+## Storybook
 
-Included in an Ignite boilerplate project is the `app` directory. This is a directory you would normally have to create when using vanilla React Native.
-
-The inside of the src directory looks similar to the following:
-
-```
-app
-│── components
-│── i18n
-├── models
-├── navigation
-├── screens
-├── services
-├── theme
-├── utils
-└── app.tsx
+```bash
+yarn storybook
 ```
 
-**components**
-This is where your React components will live. Each component will have a directory containing the `.tsx` file, along with a story file, and optionally `.presets`, and `.props` files for larger components. The app will come with some commonly used components like Button.
+Then set `SHOW_STORYBOOK` to `true` in `index.js` and reload the app.
 
-**i18n**
-This is where your translations will live if you are using `react-native-i18n`.
+## Testing
 
-**models**
-This is where your app's models will live. Each model has a directory which will contain the `mobx-state-tree` model file, test file, and any other supporting files like actions, types, etc.
+```bash
+yarn test
+```
 
-**navigation**
-This is where your `react-navigation` navigators will live.
+## Acknowledgements
 
-**screens**
-This is where your screen components will live. A screen is a React component which will take up the entire screen and be part of the navigation hierarchy. Each screen will have a directory containing the `.tsx` file, along with any assets or other helper files.
-
-**services**
-Any services that interface with the outside world will live here (think REST APIs, Push Notifications, etc.).
-
-**theme**
-Here lives the theme for your application, including spacing, colors, and typography.
-
-**utils**
-This is a great place to put miscellaneous helpers and utilities. Things like date helpers, formatters, etc. are often found here. However, it should only be used for things that are truely shared across your application. If a helper or utility is only used by a specific component or model, consider co-locating your helper with that component or model.
-
-**app.tsx** This is the entry point to your app. This is where you will find the main App component which renders the rest of the application. This is also where you will specify whether you want to run the app in storybook mode.
-
-### ./ignite directory
-
-The `ignite` directory stores all things Ignite, including CLI and boilerplate items. Here you will find generators, plugins and examples to help you get started with React Native.
-
-### ./storybook directory
-
-This is where your stories will be registered and where the Storybook configs will live
-
-### ./test directory
-
-This directory will hold your Jest configs and mocks, as well as your [storyshots](https://github.com/storybooks/storybook/tree/master/addons/storyshots) test file. This is a file that contains the snapshots of all your component storybooks.
-
-## Running Storybook
-
-From the command line in your generated app's root directory, enter `yarn run storybook`
-This starts up the storybook server.
-
-In `index.js`, change `SHOW_STORYBOOK` to `true` and reload the app.
-For Visual Studio Code users, there is a handy extension that makes it easy to load Storybook use cases into a running emulator via tapping on items in the editor sidebar. Install the `React Native Storybook` extension by `Orta`, hit `cmd + shift + P` and select "Reconnect Storybook to VSCode". Expand the STORYBOOK section in the sidebar to see all use cases for components that have `.story.tsx` files in their directories.
-
-## Previous Boilerplates
-
-- [2017 aka Andross](https://github.com/infinitered/ignite-andross)
-- [2016 aka Ignite 1.0](https://github.com/infinitered/ignite-ir-boilerplate-2016)
-
-## Premium Support
-
-[Ignite CLI](https://infinite.red/ignite), [Ignite Andross](https://github.com/infinitered/ignite-andross), and [Ignite Bowser](https://github.com/infinitered/ignite-bowser), as open source projects, are free to use and always will be. [Infinite Red](https://infinite.red/) offers premium Ignite support and general mobile app design/development services. Email us at [hello@infinite.red](mailto:hello@infinite.red) to get in touch with us for more details.
+Built on the [Ignite Bowser](https://github.com/infinitered/ignite-bowser) boilerplate by [Infinite Red](https://infinite.red).
